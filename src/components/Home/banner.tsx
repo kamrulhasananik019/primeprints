@@ -119,7 +119,7 @@ function SlideContent({ slide, index, isActive }: SlideContentProps) {
             </span>
 
           
-            <h1 className="mb-4 font-black uppercase leading-[0.88] tracking-tight text-white sm:mb-6">
+            <h1 className="mb-4 font-black font-serif uppercase leading-[0.88] tracking-tight text-white sm:mb-6">
               <span className="anim-h1 block text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl">
                 {slide.headline[0]}
               </span>

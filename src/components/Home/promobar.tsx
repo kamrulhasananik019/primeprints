@@ -53,7 +53,7 @@ export default function PromoBar() {
               </div>
 
               <div>
-                <h3 className="text-[22px] font-semibold text-gray-900 leading-tight">
+                <h3 className="text-[22px] font-semibold font-serif text-gray-900 leading-tight">
                   {item.title}
                 </h3>
                 <p className="mt-1 text-[18px] text-gray-600 leading-snug">
@@ -88,7 +88,7 @@ export default function PromoBar() {
                   </div>
 
                   <div>
-                    <h3 className="text-base sm:text-lg font-semibold text-gray-900 leading-tight">
+                    <h3 className="text-base sm:text-lg font-semibold font-serif text-gray-900 leading-tight">
                       {item.title}
                     </h3>
                     <p className="mt-1 text-sm sm:text-base text-gray-600 leading-snug">
