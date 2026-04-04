@@ -87,9 +87,9 @@ export default function CategorySlider() {
     <section className="relative overflow-hidden bg-stone-100 py-16 lg:py-20">
       <div className="absolute   h-[420px] w-[420px] rounded-full bg-gradient-to-br from-stone-200/70 to-transparent blur-3xl" />
 
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto  px-4 sm:px-6 lg:px-6">
         <div className="mb-10 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-          <div>
+          <div className='mx-auto container'>
             <span className="mb-2 block text-[11px] font-medium uppercase tracking-[0.18em] text-stone-500">
               Our Products
             </span>
