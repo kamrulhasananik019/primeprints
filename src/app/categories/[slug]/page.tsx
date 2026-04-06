@@ -86,7 +86,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
   return (
     <div className="min-h-screen bg-stone-50">
       <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8">
-        <Link href="/" className="mb-8 inline-block text-stone-600 hover:text-stone-900">
+        <Link href="/" className="mb-8 inline-block text-stone-600">
           ← Back to Home
         </Link>
 
