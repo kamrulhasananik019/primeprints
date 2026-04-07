@@ -1,0 +1,169 @@
+'use client';
+
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation } from 'swiper/modules';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import Link from 'next/link';
+
+import 'swiper/css';
+import 'swiper/css/navigation';
+
+type SeasonalItem = {
+  title: string;
+  image: string;
+  tag: string;
+  description: string;
+  accent: string;
+};
+
+const seasonalFavorites: SeasonalItem[] = [
+  {
+    title: 'Holiday Cards',
+    image: 'https://images.unsplash.com/photo-1610857512508-d0eda408e0f9?w=600&q=80',
+    tag: 'Seasonal',
+    description:
+      'Set the festive mood with custom-designed holiday greeting cards.',
+    accent: '#d4331f',
+  },
+  {
+    title: 'Spring Promotional',
+    image: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=600&q=80',
+    tag: 'Promotion',
+    description:
+      'Fresh spring campaigns with vibrant colors and designs.',
+    accent: '#a8d5ba',
+  },
+  {
+    title: 'Summer Event Flyers',
+    image: 'https://images.unsplash.com/photo-1527483377697-8795b1a1d6d2?w=600&q=80',
+    tag: 'Events',
+    description:
+      'Eye-catching flyers for summer festivals and outdoor events.',
+    accent: '#f4a261',
+  },
+  {
+    title: 'Wedding Invitations',
+    image: 'https://images.unsplash.com/photo-1546410559-bb4caa6b58f7?w=600&q=80',
+    tag: 'Formal',
+    description:
+      'Elegant and personalized wedding invitation sets.',
+    accent: '#d4c4b8',
+  },
+  {
+    title: 'Corporate Annual Reports',
+    image: 'https://images.unsplash.com/photo-1542744173-8e90f59c20b1?w=600&q=80',
+    tag: 'Corporate',
+    description:
+      'Premium annual reports that impress stakeholders.',
+    accent: '#2a3f5f',
+  },
+  {
+    title: 'Product Packaging',
+    image: 'https://images.unsplash.com/photo-1563620978-f6db4e8e5f1c?w=600&q=80',
+    tag: 'Packaging',
+    description:
+      'Custom packaging solutions for e-commerce and retail.',
+    accent: '#e8b4b8',
+  },
+  {
+    title: 'Back to School Supplies',
+    image: 'https://images.unsplash.com/photo-1546410531-bb4caa6b58f7?w=600&q=80',
+    tag: 'Education',
+    description:
+      'Branded notebooks, folders, and school materials.',
+    accent: '#6b9bd1',
+  },
+];
+
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^\w ]+/g, '')
+    .replace(/ +/g, '-');
+}
+
+export default function SeasonalFavorites() {
+  return (
+    <section className="relative overflow-hidden bg-gradient-to-br from-emerald-50 to-stone-50 py-16 lg:py-20">
+      <div className="absolute -left-40 -bottom-20 h-[420px] w-[420px] rounded-full bg-gradient-to-br from-emerald-200/40 to-transparent blur-3xl" />
+
+      <div className="mx-auto px-4 sm:px-6 lg:px-6">
+        <div className="mb-10 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+          <div className="mx-auto container">
+            <span className="mb-2 block text-[11px] font-medium uppercase tracking-[0.18em] text-stone-500">
+              Customer Favorites
+            </span>
+
+            <h2 className="font-serif text-3xl font-bold leading-tight text-stone-900 sm:text-4xl lg:text-5xl">
+              Explore our seasonal favorites
+            </h2>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <button
+              aria-label="Previous"
+              className="seasonal-prev flex h-12 w-12 items-center justify-center rounded-full border border-stone-300 text-stone-900 transition hover:bg-stone-900 hover:text-white"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </button>
+
+            <button
+              aria-label="Next"
+              className="seasonal-next flex h-12 w-12 items-center justify-center rounded-full border border-stone-300 text-stone-900 transition hover:bg-stone-900 hover:text-white"
+            >
+              <ChevronRight className="h-5 w-5" />
+            </button>
+          </div>
+        </div>
+
+        <Swiper
+          modules={[Navigation]}
+          navigation={{
+            prevEl: '.seasonal-prev',
+            nextEl: '.seasonal-next',
+          }}
+          spaceBetween={18}
+          breakpoints={{
+            0: { slidesPerView: 1.2 },
+            480: { slidesPerView: 2.1 },
+            768: { slidesPerView: 3.2 },
+            1024: { slidesPerView: 4.2 },
+            1280: { slidesPerView: 5.2 },
+          }}
+          className="!overflow-visible"
+        >
+          {seasonalFavorites.map((item) => (
+            <SwiperSlide key={item.title} className="h-auto">
+              <Link href={`/categories/${slugify(item.title)}`}>
+                <div className="group cursor-pointer">
+                  <div className="relative mb-4 aspect-[4/5] overflow-hidden rounded-3xl bg-stone-200">
+                    <img
+                      src={item.image}
+                      alt={item.title}
+                      className="h-full w-full object-cover transition duration-500 group-hover:scale-110"
+                    />
+
+                    <div className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-[10px] font-medium uppercase tracking-[0.14em] text-stone-700 backdrop-blur">
+                      {item.tag}
+                    </div>
+
+                    <div className="absolute inset-0 flex items-end bg-gradient-to-t from-black/60 via-black/10 to-transparent p-5 opacity-0 transition duration-300 group-hover:opacity-100">
+                      <span className="flex items-center gap-1 text-sm font-medium text-white">
+                        Explore
+                      </span>
+                    </div>
+                  </div>
+
+                  <h3 className="font-serif text-lg font-semibold text-stone-900">
+                    {item.title}
+                  </h3>
+                  <p className="mt-1 text-sm text-stone-500">{item.tag}</p>
+                </div>
+              </Link>
+            </SwiperSlide>
+          ))}
+        </Swiper>
+      </div>
+    </section>
+  );
+}

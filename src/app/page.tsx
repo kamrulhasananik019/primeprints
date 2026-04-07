@@ -4,8 +4,10 @@ import CategorySlider from "@/components/Home/categoryslider";
 import Cta from "@/components/Home/cta";
 import Faq from "@/components/Home/faq";
 import LocationMap from "@/components/Home/locationmap";
+import NewArrivals from "@/components/Home/newarrivals";
 import PromoBar from "@/components/Home/promobar";
 import Reviews from "@/components/Home/reviews";
+import SeasonalFavorites from "@/components/Home/seasonalfavorites";
 
 
 export default function Home() {
@@ -14,8 +16,10 @@ export default function Home() {
     <Banner />
     <PromoBar/>
     <CategorySlider/>
-    <AllProducts/>
+     <AllProducts/>
+    <NewArrivals/>
      <Cta/>
+    <SeasonalFavorites/>
     <Faq/>
     <Reviews/>
     <LocationMap/>    
