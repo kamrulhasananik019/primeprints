@@ -1,9 +1,11 @@
 import AllProducts from "@/components/Home/allproducts";
 import Banner from "@/components/Home/banner";
 import CategorySlider from "@/components/Home/categoryslider";
+import Cta from "@/components/Home/cta";
 import Faq from "@/components/Home/faq";
 import LocationMap from "@/components/Home/locationmap";
 import PromoBar from "@/components/Home/promobar";
+import Reviews from "@/components/Home/reviews";
 
 
 export default function Home() {
@@ -13,8 +15,10 @@ export default function Home() {
     <PromoBar/>
     <CategorySlider/>
     <AllProducts/>
+     <Cta/>
     <Faq/>
-    <LocationMap/>
+    <Reviews/>
+    <LocationMap/>    
    </section>
   );
 }

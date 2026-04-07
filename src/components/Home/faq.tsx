@@ -24,22 +24,22 @@ const faqData: FaqItem[] = [
     question: "Do you offer custom printing?",
     answer: "Yes, we specialize in custom printing solutions tailored to your specific needs, including unique designs, sizes, and materials."
   },
-  {
-    question: "What materials do you use?",
-    answer: "We use high-quality materials such as premium paper stocks, cardstock, vinyl, canvas, and various inks to ensure durability and vibrant colors."
-  },
-  {
-    question: "How can I place an order?",
-    answer: "You can place an order by contacting us through our website, email, or phone. We'll discuss your requirements and provide a quote before proceeding."
-  },
-  {
-    question: "What is your return policy?",
-    answer: "We strive for customer satisfaction. If there's an issue with your order due to our error, we'll reprint or refund. Please review your proof before final printing."
-  },
-  {
-    question: "Do you provide design services?",
-    answer: "Yes, our team of designers can help create or refine your designs to ensure they meet your vision and print perfectly."
-  }
+  // {
+  //   question: "What materials do you use?",
+  //   answer: "We use high-quality materials such as premium paper stocks, cardstock, vinyl, canvas, and various inks to ensure durability and vibrant colors."
+  // },
+  // {
+  //   question: "How can I place an order?",
+  //   answer: "You can place an order by contacting us through our website, email, or phone. We'll discuss your requirements and provide a quote before proceeding."
+  // },
+  // {
+  //   question: "What is your return policy?",
+  //   answer: "We strive for customer satisfaction. If there's an issue with your order due to our error, we'll reprint or refund. Please review your proof before final printing."
+  // },
+  // {
+  //   question: "Do you provide design services?",
+  //   answer: "Yes, our team of designers can help create or refine your designs to ensure they meet your vision and print perfectly."
+  // }
 ];
 
 export default function Faq() {
