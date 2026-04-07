@@ -98,7 +98,7 @@ export default function NewArrivals() {
                     {product.name}
                   </h3>
                   <p className="mt-1 text-sm text-stone-500">{product.category}</p>
-                  <p className="mt-2 text-base font-bold text-cyan-600">${product.price}</p>
+                  {/* <p className="mt-2 text-base font-bold text-cyan-600">${product.price}</p> */}
                 </div>
               </Link>
             </SwiperSlide>
