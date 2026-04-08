@@ -1,83 +1,10 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-
-type Category = {
-  title: string;
-  image: string;
-  tag: string;
-  description: string;
-  accent: string;
-};
-
-const categories: Category[] = [
-  {
-    title: 'Business Cards',
-    image: 'https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=600&q=80',
-    tag: 'Identity',
-    description:
-      'Craft first impressions that last. Premium paper stocks, finishes, and die-cut shapes for a card that commands attention.',
-    accent: '#c9a96e',
-  },
-  {
-    title: 'Print & Office',
-    image: 'https://images.unsplash.com/photo-1568667256549-094345857637?w=600&q=80',
-    tag: 'Marketing',
-    description:
-      'High-fidelity prints for advertising and office environments. Brochures, flyers, letterheads and more.',
-    accent: '#7b9e87',
-  },
-  {
-    title: 'Signs & Banners',
-    image: 'https://images.unsplash.com/photo-1542744094-3a31f272c490?w=600&q=80',
-    tag: 'Outdoor',
-    description:
-      'Bold, weather-resistant signage that stops people in their tracks.',
-    accent: '#e07a5f',
-  },
-  {
-    title: 'Flyers & Posters',
-    image: 'https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=600&q=80',
-    tag: 'Promotional',
-    description:
-      'Eye-catching flyers and posters to promote your events and services.',
-    accent: '#f4a261',
-  },
-  {
-    title: 'Brochures',
-    image: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=600&q=80',
-    tag: 'Informational',
-    description:
-      'Detailed brochures that inform and engage your audience.',
-    accent: '#2a9d8f',
-  },
-  {
-    title: 'Stickers & Labels',
-    image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=600&q=80',
-    tag: 'Branding',
-    description:
-      'Custom stickers and labels for branding and product identification.',
-    accent: '#e76f51',
-  },
-  {
-    title: 'T-Shirts & Apparel',
-    image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&q=80',
-    tag: 'Merchandise',
-    description:
-      'Custom printed t-shirts and apparel for teams and promotions.',
-    accent: '#264653',
-  },
-];
-
-function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[^\w ]+/g, '')
-    .replace(/ +/g, '-');
-}
+import { categories, getPrimaryImage } from '@/utils/data';
 
 export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const category = categories.find(cat => slugify(cat.title) === slug);
+  const category = categories.find(cat => cat.slug === slug);
 
   if (!category) {
     notFound();
@@ -90,7 +17,8 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
           ← Back to Home
         </Link>
 
-        <div className="grid gap-8 md:grid-cols-2">
+        {/* Category Details */}
+        <div className="grid gap-8 md:grid-cols-2 mb-16">
           <div className="aspect-[4/5] overflow-hidden rounded-3xl bg-stone-200">
             <img
               src={category.image}
@@ -127,6 +55,51 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
             </div>
           </div>
         </div>
+
+        {/* Products in this Category */}
+        {category.products.length > 0 && (
+          <div>
+            <h2 className="font-serif text-3xl font-bold text-stone-900 mb-8">
+              Products in {category.title}
+            </h2>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {category.products.map((product) => (
+                <Link key={product.id} href={`/products/${product.slug}`} className="group">
+                  <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow">
+                    <div className="aspect-square overflow-hidden bg-stone-100">
+                      <img
+                        src={getPrimaryImage(product)}
+                        alt={product.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    </div>
+                    <div className="p-6">
+                      <h3 className="font-serif text-xl font-bold text-stone-900 mb-2">
+                        {product.name}
+                      </h3>
+                      <p className="text-stone-600 text-sm mb-4 line-clamp-2">
+                        {product.description}
+                      </p>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-stone-500">
+                          {product.specs.turnaround}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {category.products.length === 0 && (
+          <div className="text-center py-16">
+            <p className="text-stone-600 text-lg">
+              No products available in this category yet. Check back soon!
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

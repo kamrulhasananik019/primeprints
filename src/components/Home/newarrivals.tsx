@@ -5,7 +5,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation } from 'swiper/modules';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
-import { products } from '@/utils/products';
+import { getNewArrivals, getPrimaryImage, categories } from '@/utils/data';
 
 import 'swiper/css';
 import 'swiper/css/navigation';
@@ -18,7 +18,7 @@ function slugify(text: string): string {
 }
 
 export default function NewArrivals() {
-  const newArrivals = products.slice(0, 12);
+  const newArrivals = getNewArrivals();
 
   return (
     <section className="relative overflow-hidden bg-stone-50 py-16 lg:py-20">
@@ -78,7 +78,7 @@ export default function NewArrivals() {
                 <div className="group cursor-pointer">
                   <div className="relative mb-4 aspect-[4/5] overflow-hidden rounded-3xl bg-stone-200">
                     <img
-                      src={product.image}
+                      src={getPrimaryImage(product)}
                       alt={product.name}
                       className="h-full w-full object-cover transition duration-500 group-hover:scale-110"
                     />
@@ -97,7 +97,7 @@ export default function NewArrivals() {
                   <h3 className="font-serif text-lg font-semibold text-stone-900">
                     {product.name}
                   </h3>
-                  <p className="mt-1 text-sm text-stone-500">{product.category}</p>
+                  <p className="mt-1 text-sm text-stone-500">{categories.find(cat => cat.products.some(p => p.id === product.id))?.title}</p>
                   {/* <p className="mt-2 text-base font-bold text-cyan-600">${product.price}</p> */}
                 </div>
               </Link>

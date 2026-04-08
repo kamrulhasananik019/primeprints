@@ -4,17 +4,10 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation } from 'swiper/modules';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
-import { categories } from '@/utils/categories';
+import { categories } from '@/utils/data';
 
 import 'swiper/css';
 import 'swiper/css/navigation';
-
-function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[^\w ]+/g, '')
-    .replace(/ +/g, '-');
-}
 
 export default function CategorySlider() {
   return (
@@ -68,7 +61,7 @@ export default function CategorySlider() {
         >
           {categories.map((category) => (
             <SwiperSlide key={category.title} className="h-auto">
-              <Link href={`/categories/${slugify(category.title)}`}>
+              <Link href={`/categories/${category.slug}`}>
                 <div className="group cursor-pointer">
                   <div className="relative mb-4 aspect-[4/5] overflow-hidden rounded-3xl bg-stone-200">
                     <img

@@ -2,18 +2,21 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { products } from '@/utils/products';
-import { ShoppingCart, ArrowRight, Star } from 'lucide-react';
+import { getLatestProducts, categories, getPrimaryImage } from '@/utils/data';
 
-const CATEGORIES = ['All', ...Array.from(new Set(products.map((p) => p.category)))];
+const allProducts = getLatestProducts();
+const CATEGORIES = ['All', ...Array.from(new Set(categories.map((c) => c.title)))];
 
 export default function AllProducts() {
   const [activeCategory, setActiveCategory] = useState('All');
 
   const filtered =
     activeCategory === 'All'
-      ? products
-      : products.filter((p) => p.category === activeCategory);
+      ? allProducts
+      : allProducts.filter((p) => {
+          const category = categories.find(cat => cat.products.some(prod => prod.id === p.id));
+          return category?.title === activeCategory;
+        });
 
   return (
     <section className="min-h-screen bg-gradient-to-br from-slate-50 to-white font-['DM_Sans',sans-serif] pt-10 container mx-auto">
@@ -40,58 +43,45 @@ export default function AllProducts() {
       {/* Products Grid */}
       <div className=" py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filtered.map((product) => (
-            <Link key={product.id} href={`/products/${product.slug}`} className="group block">
-              <article className="bg-white rounded-xl overflow-hidden border border-slate-200 hover:border-cyan-400/50 shadow-sm hover:shadow-2xl hover:shadow-cyan-500/10 hover:-translate-y-2 transition-all duration-300 h-full flex flex-col">
+          {filtered.map((product) => {
+            const categoryTitle = categories.find((cat) => cat.products.some((prod) => prod.id === product.id))?.title;
 
-                {/* Image Container */}
-                <div className="relative h-56 overflow-hidden bg-gradient-to-br from-slate-100 to-slate-50">
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
-                  {/* Gradient overlay on hover */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 via-transparent to-transparent opacity-0 transition-opacity duration-300" />
+            return (
+              <Link key={product.id} href={`/products/${product.slug}`} className="group block">
+                <article className="overflow-hidden rounded-3xl bg-white shadow-sm border border-slate-200 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                  <div className="relative mb-4 aspect-[4/5] overflow-hidden rounded-3xl bg-stone-200">
+                    <img
+                      src={getPrimaryImage(product)}
+                      alt={product.name}
+                      className="h-full w-full object-cover transition duration-500 group-hover:scale-110"
+                    />
 
-                  {/* Category Badge */}
-                  <span className="absolute top-4 right-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-xs font-600 uppercase tracking-wider px-3 py-1.5 rounded-lg shadow-lg">
-                    {product.category}
-                  </span>
-
-                  {/* Rating */}
-                  <div className="absolute bottom-4 left-4 flex items-center gap-1 bg-white/90 backdrop-blur-sm px-2.5 py-1.5 rounded-lg">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} size={14} className="fill-amber-400 text-amber-400" />
-                    ))}
-                    <span className="text-xs font-600 text-slate-700 ml-1">4.9</span>
-                  </div>
-                </div>
-
-                {/* Content */}
-                <div className="p-6 flex flex-col flex-1">
-                  <h3 className="serif-title text-xl font-bold text-slate-900 mb-2   transition-all">
-                    {product.name}
-                  </h3>
-                  <p className="text-slate-600 text-sm leading-relaxed mb-4 line-clamp-2 flex-1">
-                    {product.description}
-                  </p>
-
-                  {/* Specs Preview */}
-                  <div className="grid grid-cols-2 gap-3 mb-6 pb-6 border-t border-slate-200">
-                    <div className="pt-4">
-                      <p className="text-xs uppercase tracking-widest text-slate-500 font-600 mb-1">Size</p>
-                      <p className="text-sm font-600 text-slate-800">{product.specs.size}</p>
+                    <div className="absolute left-4 top-4 rounded-full bg-emerald-500/95 px-3 py-1 text-[10px] font-medium uppercase tracking-[0.14em] text-white backdrop-blur">
+                      Latest
                     </div>
-                    <div className="pt-4">
-                      <p className="text-xs uppercase tracking-widest text-slate-500 font-600 mb-1">Turnaround</p>
-                      <p className="text-sm font-600 text-slate-800">{product.specs.turnaround}</p>
+
+                    <div className="absolute inset-0 flex items-end bg-gradient-to-t from-black/60 via-black/10 to-transparent p-5 opacity-0 transition duration-300 group-hover:opacity-100">
+                      <span className="flex items-center gap-1 text-sm font-medium text-white">
+                        View Details
+                      </span>
                     </div>
                   </div>
-                </div>
-              </article>
-            </Link>
-          ))}
+
+                  <div className="px-6 pb-6">
+                    <h3 className="font-serif text-lg font-semibold text-stone-900 mb-2">
+                      {product.name}
+                    </h3>
+                    <p className="text-slate-500 text-sm mb-4 line-clamp-2">
+                      {product.description}
+                    </p>
+                    <p className="text-xs uppercase tracking-[0.18em] text-stone-400 font-medium">
+                      {categoryTitle}
+                    </p>
+                  </div>
+                </article>
+              </Link>
+            );
+          })}
         </div>
 
         {filtered.length === 0 && (

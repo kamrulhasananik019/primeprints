@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { products } from '@/utils/products';
+import { categories, getRelatedProducts, getPrimaryImage } from '@/utils/data';
 import { ShoppingCart, Heart, ArrowLeft, Check, Clock, Package, Layers, Ruler, Star } from 'lucide-react';
 
 export default function ProductDetail() {
@@ -13,10 +13,22 @@ export default function ProductDetail() {
   const [isFavorite, setIsFavorite] = useState(false);
   const [isAdded, setIsAdded] = useState(false);
 
-  const product = products.find((p) => p.slug === slug);
-  const related = products.filter((p) => p.id !== product?.id).slice(0, 3);
+  // Find the product across all categories
+  let product = null;
+  let category = null;
+  for (const cat of categories) {
+    const found = cat.products.find(p => p.slug === slug);
+    if (found) {
+      product = found;
+      category = cat;
+      break;
+    }
+  }
 
-  if (!product) {
+  // Get related products from the same category
+  const related = product ? getRelatedProducts(product.id) : [];
+
+  if (!product || !category) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-slate-50 to-white px-4">
         <style>{`@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;600;700&display=swap');`}</style>
@@ -60,7 +72,7 @@ export default function ProductDetail() {
             <ArrowLeft size={18} />
             All Products
           </Link>
-          <span className="bg-gradient-to-r from-cyan-500 to-blue-600 px-3 py-1.5 rounded-lg text-xs font-600 uppercase tracking-wider">{product.category}</span>
+          <span className="bg-gradient-to-r from-cyan-500 to-blue-600 px-3 py-1.5 rounded-lg text-xs font-600 uppercase tracking-wider">{category.title}</span>
         </div>
       </div>
 
@@ -72,7 +84,7 @@ export default function ProductDetail() {
           <div className="relative">
             <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-slate-100 to-slate-50 aspect-square shadow-2xl border border-slate-200">
               <img
-                src={product.image}
+                src={getPrimaryImage(product)}
                 alt={product.name}
                 className="w-full h-full object-cover"
               />
@@ -112,7 +124,7 @@ export default function ProductDetail() {
             {/* Product Info */}
             <div>
               <p className="sans text-cyan-600 uppercase tracking-[0.2em] text-xs font-700 mb-4">
-                {product.category}
+                {category.title}
               </p>
               <h1 className="serif text-5xl md:text-6xl font-black text-slate-900 leading-tight mb-6">
                 {product.name}
@@ -156,12 +168,12 @@ export default function ProductDetail() {
                 <div className="bg-white rounded-xl overflow-hidden border border-slate-200 hover:border-cyan-400/50 hover:shadow-2xl hover:shadow-cyan-500/10 hover:-translate-y-2 transition-all duration-300">
                   <div className="relative h-48 overflow-hidden bg-gradient-to-br from-slate-100 to-slate-50">
                     <img
-                      src={rel.image}
+                      src={getPrimaryImage(rel)}
                       alt={rel.name}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                     />
                     <span className="sans absolute top-3 right-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-xs font-600 uppercase tracking-wider px-2.5 py-1 rounded-lg shadow-lg">
-                      {rel.category}
+                      {category.title}
                     </span>
                   </div>
                   <div className="p-5">
@@ -170,7 +182,6 @@ export default function ProductDetail() {
                     </h3>
                     <div className="flex items-center justify-between">
                       <span className="sans text-xs text-slate-500 font-500">{rel.specs.turnaround}</span>
-                      <p className="serif text-xl font-black bg-gradient-to-r from-cyan-500 to-blue-600 bg-clip-text text-transparent">${rel.price}</p>
                     </div>
                   </div>
                 </div>
