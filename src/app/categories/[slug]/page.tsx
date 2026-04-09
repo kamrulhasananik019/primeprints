@@ -14,7 +14,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
     <div className="min-h-screen bg-gradient-to-br from-stone-50 to-white">
       <div className="relative overflow-hidden border-b border-stone-200/70">
         <div className="absolute -right-28 -top-24 h-72 w-72 rounded-full blur-3xl" style={{ backgroundColor: `${category.accent}30` }} />
-        <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+        <div className="container mx-auto px-4 py-16 sm:px-6 lg:px-8">
           <Link href="/" className="mb-8 inline-flex items-center gap-2 text-sm font-medium text-stone-600 transition hover:text-stone-900">
             <span>←</span> Back to Home
           </Link>
@@ -47,7 +47,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
+      <div className="container mx-auto px-4 py-14 sm:px-6 lg:px-8">
         {category.products.length > 0 && (
           <div>
             <h2 className="mb-8 font-serif text-3xl font-bold text-stone-900 sm:text-4xl">

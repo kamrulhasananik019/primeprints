@@ -4,13 +4,13 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { categories, getRelatedProducts, getPrimaryImage } from '@/utils/data';
-import { ShoppingCart, Heart, ArrowLeft, Check, Clock, Package, Layers, Ruler, Star } from 'lucide-react';
+import { Heart, ArrowLeft, Clock, Package, Layers, Ruler, Star } from 'lucide-react';
 
 export default function ProductDetail() {
   const params = useParams();
   const slug = params.slug as string;
   const [isFavorite, setIsFavorite] = useState(false);
-  const [isAdded, setIsAdded] = useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   // Find the product across all categories
   let product = null;
@@ -26,6 +26,17 @@ export default function ProductDetail() {
 
   // Get related products from the same category
   const related = product ? getRelatedProducts(product.id) : [];
+  const otherCategoryProducts = product
+    ? categories
+        .filter((cat) => cat.id !== category?.id)
+        .flatMap((cat) =>
+          cat.products.slice(0, 2).map((item) => ({
+            ...item,
+            categoryTitle: cat.title,
+          }))
+        )
+        .slice(0, 6)
+    : [];
 
   if (!product || !category) {
     return (
@@ -33,7 +44,7 @@ export default function ProductDetail() {
         <style>{`@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;600;700&display=swap');`}</style>
         <p className="text-6xl mb-6">🖨️</p>
         <h1 className="font-['Playfair_Display',serif] text-4xl font-black text-slate-900 mb-3">Product Not Found</h1>
-        <p className="text-slate-500 mb-8">The product you're looking for doesn't exist.</p>
+        <p className="text-slate-500 mb-8">The product you&apos;re looking for doesn&apos;t exist.</p>
         <Link href="/" className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white px-8 py-3 rounded-lg hover:shadow-lg hover:shadow-cyan-500/30 transition-all font-600">
           Back to Products
         </Link>
@@ -41,17 +52,23 @@ export default function ProductDetail() {
     );
   }
 
-  const handleAddToCart = () => {
-    setIsAdded(true);
-    setTimeout(() => setIsAdded(false), 2200);
-  };
-
   const specIcons: Record<string, React.ReactNode> = {
     material: <Layers size={16} />,
     size: <Ruler size={16} />,
     finish: <Package size={16} />,
     turnaround: <Clock size={16} />,
   };
+
+  const primaryImage = getPrimaryImage(product) || category.image;
+  const relatedImages = related
+    .map((item) => getPrimaryImage(item))
+    .filter(Boolean);
+  const galleryImages = Array.from(
+    new Set([primaryImage, ...product.images.map((img) => img.url), ...relatedImages])
+  )
+    .filter(Boolean)
+    .slice(0, 6);
+  const activeImage = galleryImages[selectedImageIndex] || primaryImage;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white">
@@ -63,7 +80,7 @@ export default function ProductDetail() {
 
       {/* Top Nav Bar */}
       <div className="bg-gradient-to-r from-slate-900 to-slate-800 text-white sticky top-0 z-20 shadow-md">
-        <div className="max-w-7xl mx-auto px-4 md:px-8 lg:px-16 py-4 flex items-center justify-between">
+        <div className="container mx-auto px-4 md:px-8 lg:px-16 py-4 flex items-center justify-between">
           <Link
             href={`/categories/${category.slug}`}
             className="sans flex items-center gap-2 text-slate-300 hover:text-cyan-400 transition-colors text-sm font-500"
@@ -76,14 +93,14 @@ export default function ProductDetail() {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 md:px-8 lg:px-16 py-16">
+      <div className="container mx-auto px-4 md:px-8 lg:px-16 py-16">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
 
           {/* ── Image Panel ── */}
           <div className="relative">
             <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-slate-100 to-slate-50 aspect-square shadow-2xl border border-slate-200">
               <img
-                src={getPrimaryImage(product)}
+                src={activeImage}
                 alt={product.name}
                 className="w-full h-full object-cover"
               />
@@ -112,6 +129,30 @@ export default function ProductDetail() {
                 <span className="text-sm font-600 text-slate-800">4.9</span>
               </div>
             </div>
+
+            {galleryImages.length > 1 && (
+              <div className="mt-5 grid grid-cols-4 sm:grid-cols-6 gap-3">
+                {galleryImages.map((img, index) => (
+                  <button
+                    key={`${img}-${index}`}
+                    type="button"
+                    onClick={() => setSelectedImageIndex(index)}
+                    className={`aspect-square overflow-hidden rounded-xl border transition ${
+                      selectedImageIndex === index
+                        ? 'border-cyan-500 ring-2 ring-cyan-300/60'
+                        : 'border-slate-200 hover:border-cyan-400/60'
+                    }`}
+                    aria-label={`View product image ${index + 1}`}
+                  >
+                    <img
+                      src={img}
+                      alt={`${product.name} preview ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
 
             {/* Decorative accent */}
             <div className="absolute -bottom-6 -right-6 w-40 h-40 bg-gradient-to-br from-cyan-500/10 to-blue-500/10 rounded-full blur-3xl -z-10" />
@@ -153,40 +194,92 @@ export default function ProductDetail() {
         </div>
 
         {/* ── Related Products ── */}
-        <div className="mt-24 pt-16 border-t border-slate-200">
-          <div className="flex items-center gap-4 mb-10">
-            <h2 className="serif text-3xl font-black text-slate-900">You Might Also Like</h2>
-            <div className="flex-1 h-px bg-gradient-to-r from-slate-200 to-transparent" />
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {related.map((rel) => (
-              <Link key={rel.id} href={`/products/${rel.slug}`} className="group block">
-                <div className="bg-white rounded-xl overflow-hidden border border-slate-200 hover:border-cyan-400/50 hover:shadow-2xl hover:shadow-cyan-500/10 hover:-translate-y-2 transition-all duration-300">
-                  <div className="relative h-48 overflow-hidden bg-gradient-to-br from-slate-100 to-slate-50">
-                    <img
-                      src={getPrimaryImage(rel)}
-                      alt={rel.name}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                    />
-                    <span className="sans absolute top-3 right-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-xs font-600 uppercase tracking-wider px-2.5 py-1 rounded-lg shadow-lg">
-                      {category.title}
-                    </span>
-                  </div>
-                  <div className="p-5">
-                    <h3 className="serif font-bold text-slate-900 group-hover:text-transparent bg-gradient-to-r from-slate-900 to-cyan-600 group-hover:bg-clip-text transition-all text-lg leading-tight mb-2">
-                      {rel.name}
-                    </h3>
-                    <div className="flex items-center justify-between">
+        {related.length > 0 && (
+          <div className="mt-24 pt-16 border-t border-slate-200">
+            <div className="flex items-center gap-4 mb-10">
+              <h2 className="serif text-3xl font-black text-slate-900">You Might Also Like</h2>
+              <div className="flex-1 h-px bg-gradient-to-r from-slate-200 to-transparent" />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {related.map((rel) => (
+                <Link key={rel.id} href={`/products/${rel.slug}`} className="group block">
+                  <div className="bg-white rounded-2xl overflow-hidden border border-slate-200 hover:border-cyan-400/50 hover:shadow-2xl hover:shadow-cyan-500/10 hover:-translate-y-2 transition-all duration-300">
+                    <div className="relative h-48 overflow-hidden bg-gradient-to-br from-slate-100 to-slate-50">
+                      <img
+                        src={getPrimaryImage(rel) || category.image}
+                        alt={rel.name}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      />
+                      <span className="sans absolute top-3 right-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-xs font-600 uppercase tracking-wider px-2.5 py-1 rounded-lg shadow-lg">
+                        {category.title}
+                      </span>
+                    </div>
+                    <div className="p-5">
+                      <h3 className="serif font-bold text-slate-900 transition-colors text-lg leading-tight mb-2">
+                        {rel.name}
+                      </h3>
+                      <p className="sans text-sm text-slate-600 line-clamp-2 mb-3">
+                        {rel.description}
+                      </p>
                       <span className="sans text-xs text-slate-500 font-500">
                         {Object.values(rel.specs)[0] || 'Custom options available'}
                       </span>
                     </div>
                   </div>
-                </div>
-              </Link>
-            ))}
+                </Link>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
+
+        {/* ── Other Category Products ── */}
+        {otherCategoryProducts.length > 0 && (
+          <div className="mt-20 pt-16 border-t border-slate-200">
+            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3 mb-10">
+              <div>
+                <p className="sans text-cyan-600 uppercase tracking-[0.2em] text-xs font-700 mb-2">
+                  Discover More
+                </p>
+                <h2 className="serif text-3xl font-black text-slate-900">
+                  Explore Products From Other Categories
+                </h2>
+              </div>
+              <Link
+                href="/"
+                className="sans text-sm font-700 text-slate-700 hover:text-cyan-600 transition-colors"
+              >
+                View all categories
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {otherCategoryProducts.map((item) => (
+                <Link key={item.id} href={`/products/${item.slug}`} className="group block">
+                  <div className="relative bg-white rounded-2xl overflow-hidden border border-slate-200 hover:border-blue-400/40 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300">
+                    <div className="relative h-44 overflow-hidden bg-gradient-to-br from-slate-100 to-slate-50">
+                      <img
+                        src={getPrimaryImage(item) || category.image}
+                        alt={item.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    </div>
+                    <div className="p-5">
+                      <span className="sans inline-flex items-center rounded-full px-2.5 py-1 text-[11px] uppercase tracking-wider font-700 bg-blue-50 text-blue-700 mb-3">
+                        {item.categoryTitle}
+                      </span>
+                      <h3 className="serif text-xl font-bold text-slate-900 group-hover:text-blue-700 transition-colors leading-tight mb-2">
+                        {item.name}
+                      </h3>
+                      <p className="sans text-sm text-slate-600 line-clamp-2">
+                        {item.description}
+                      </p>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
       
     </div>
