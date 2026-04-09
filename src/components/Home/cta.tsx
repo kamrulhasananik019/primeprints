@@ -1,6 +1,7 @@
 'use client';
 
-import React from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
 
 export default function Cta() {
   return (
@@ -28,38 +29,49 @@ export default function Cta() {
                 Large paper & stock selection & unique print
               </li>
             </ul>
-            <button className="inline-flex items-center justify-center rounded-full bg-black px-8 py-3 text-sm font-semibold text-white shadow-xl transition hover:bg-white/90 hover:text-slate-900">
-              Custom Order
-            </button>
+            <Link
+              href="/contact"
+              className="inline-flex items-center justify-center rounded-full bg-black px-8 py-3 text-sm font-semibold text-white shadow-xl transition hover:bg-white/90 hover:text-slate-900"
+            >
+              Talk To A Print Specialist
+            </Link>
             <div className="absolute -left-10 top-10 hidden h-24 w-24 rounded-full border border-white/20 bg-white/10 blur-xl sm:block" />
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="overflow-hidden rounded-[1.5rem] border border-white/10 shadow-xl bg-slate-900/30">
-              <img
+              <Image
                 src="https://images.unsplash.com/photo-1498079022511-d15614cb1c02?auto=format&fit=crop&w=800&q=80"
                 alt="Printing mockup on desk"
+                width={800}
+                height={500}
                 className="h-44 w-full object-cover"
               />
             </div>
             <div className="overflow-hidden rounded-[1.5rem] border border-white/10 shadow-xl bg-slate-900/30">
-              <img
+              <Image
                 src="https://images.unsplash.com/photo-1515876301701-4d3004bfdc77?auto=format&fit=crop&w=800&q=80"
                 alt="Packaging design preview"
+                width={800}
+                height={500}
                 className="h-44 w-full object-cover"
               />
             </div>
             <div className="overflow-hidden rounded-[1.5rem] border border-white/10 shadow-xl bg-slate-900/30">
-              <img
+              <Image
                 src="https://images.unsplash.com/photo-1503602642458-232111445657?auto=format&fit=crop&w=800&q=80"
                 alt="Creative print design"
+                width={800}
+                height={500}
                 className="h-44 w-full object-cover"
               />
             </div>
             <div className="overflow-hidden rounded-[1.5rem] border border-white/10 shadow-xl bg-slate-900/30">
-              <img
+              <Image
                 src="https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=800&q=80"
                 alt="Colorful printed packaging"
+                width={800}
+                height={500}
                 className="h-44 w-full object-cover"
               />
             </div>

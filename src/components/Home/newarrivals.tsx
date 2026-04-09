@@ -5,7 +5,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation } from 'swiper/modules';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
-import { getNewArrivals, getPrimaryImage, categories } from '@/utils/data';
+import { getSameDayPrinting, getPrimaryImage, categories } from '@/utils/data';
 
 import 'swiper/css';
 import 'swiper/css/navigation';
@@ -17,8 +17,8 @@ function slugify(text: string): string {
     .replace(/ +/g, '-');
 }
 
-export default function NewArrivals() {
-  const newArrivals = getNewArrivals();
+export default function SameDayPrinting() {
+  const sameDayPrinting = getSameDayPrinting();
 
   return (
     <section className="relative overflow-hidden bg-stone-50 py-16 lg:py-20">
@@ -28,14 +28,14 @@ export default function NewArrivals() {
         <div className="mb-10 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <div className="mx-auto container">
             <span className="mb-2 block text-[11px] font-medium uppercase tracking-[0.18em] text-stone-500">
-              Latest Offerings
+              Fast Turnaround
             </span>
 
             <h2 className="font-serif text-3xl font-bold leading-tight text-stone-900 sm:text-4xl lg:text-5xl">
-              Shop New Arrivals
+              Same Day Printing
             </h2>
             <p className="mt-2 text-base text-stone-600">
-              From clothing to packaging – discover our freshest collections
+              Place your order today and get print-ready products fast
             </p>
           </div>
 
@@ -72,7 +72,7 @@ export default function NewArrivals() {
           }}
           className="!overflow-visible"
         >
-          {newArrivals.map((product) => (
+          {sameDayPrinting.map((product) => (
             <SwiperSlide key={product.id} className="h-auto">
               <Link href={`/products/${product.slug}`}>
                 <div className="group cursor-pointer">
@@ -84,7 +84,7 @@ export default function NewArrivals() {
                     />
 
                     <div className="absolute left-4 top-4 rounded-full bg-emerald-500/95 px-3 py-1 text-[10px] font-medium uppercase tracking-[0.14em] text-white backdrop-blur">
-                      New
+                      Same Day
                     </div>
 
                     <div className="absolute inset-0 flex items-end bg-gradient-to-t from-black/60 via-black/10 to-transparent p-5 opacity-0 transition duration-300 group-hover:opacity-100">

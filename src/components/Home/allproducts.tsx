@@ -30,11 +30,11 @@ export default function AllProducts() {
    <div className="mb-10 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <div className='mx-auto container'>
             <span className="mb-2 block text-[11px] font-medium uppercase tracking-[0.18em] text-stone-500">
-              OProfessional Print
+              Professional Print
             </span>
 
             <h2 className="font-serif text-3xl font-bold leading-tight text-stone-900 sm:text-4xl lg:text-5xl">
-              Explore all Our Products
+              Latest Products
 
             </h2>
           </div>
@@ -47,8 +47,8 @@ export default function AllProducts() {
             const categoryTitle = categories.find((cat) => cat.products.some((prod) => prod.id === product.id))?.title;
 
             return (
-              <Link key={product.id} href={`/products/${product.slug}`} className="group block">
-                <article className="overflow-hidden rounded-3xl bg-white shadow-sm border border-slate-200 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+              <Link key={product.id} href={`/products/${product.slug}`}>
+                <div className="group cursor-pointer">
                   <div className="relative mb-4 aspect-[4/5] overflow-hidden rounded-3xl bg-stone-200">
                     <img
                       src={getPrimaryImage(product)}
@@ -67,18 +67,11 @@ export default function AllProducts() {
                     </div>
                   </div>
 
-                  <div className="px-6 pb-6">
-                    <h3 className="font-serif text-lg font-semibold text-stone-900 mb-2">
-                      {product.name}
-                    </h3>
-                    <p className="text-slate-500 text-sm mb-4 line-clamp-2">
-                      {product.description}
-                    </p>
-                    <p className="text-xs uppercase tracking-[0.18em] text-stone-400 font-medium">
-                      {categoryTitle}
-                    </p>
-                  </div>
-                </article>
+                  <h3 className="font-serif text-lg font-semibold text-stone-900">
+                    {product.name}
+                  </h3>
+                  <p className="mt-1 text-sm text-stone-500">{categoryTitle}</p>
+                </div>
               </Link>
             );
           })}

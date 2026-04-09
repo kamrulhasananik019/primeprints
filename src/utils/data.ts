@@ -10,17 +10,13 @@ export interface Product {
   name: string;
   images: ProductImage[];
   description: string;
-  details: string;
-  specs: {
-    material: string;
-    size: string;
-    finish: string;
-    turnaround: string;
-  };
+  details?: string;
+  specs: Record<string, string>;
   status?: string;
 }
 
 export interface Category {
+  id: string;
   title: string;
   image: string;
   tag: string;
@@ -30,493 +26,186 @@ export interface Category {
   products: Product[];
 }
 
-export const categories: Category[] = [
+export const categories: Category[] =
+[
   {
-    title: 'Business Cards',
-    image: 'https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=600&q=80',
-    tag: 'Identity',
-    description:
-      'Craft first impressions that last. Premium paper stocks, finishes, and die-cut shapes for a card that commands attention.',
-    accent: '#c9a96e',
-    slug: 'business-cards',
-    products: [
-      {
-        id: '1',
-        slug: 'business-cards',
-        name: 'Business Cards',
-        images: [
-          { url: 'https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=600&h=600&fit=crop&q=80', alt: 'Business Cards - Primary', isPrimary: true },
-          { url: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=600&h=600&fit=crop&q=80', alt: 'Business Cards - Alternative 1' },
-          { url: 'https://images.unsplash.com/photo-1542744094-3a31f272c490?w=600&h=600&fit=crop&q=80', alt: 'Business Cards - Alternative 2' }
-        ],
-        description: 'Professional business cards with premium finishes',
-        details: 'High-quality business cards perfect for networking and brand representation. Our professional printing ensures crisp, vibrant colors and sharp details.',
-        specs: {
-          material: '350gsm Premium Card Stock',
-          size: '3.5" × 2"',
-          finish: 'Matte or Gloss',
-          turnaround: '3-5 business days'
-        },
-        status: 'NewArrival'
-      },
-      {
-        id: '4',
-        slug: 'postcards',
-        name: 'Postcards',
-        images: [
-          { url: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=600&h=600&fit=crop&q=80', alt: 'Postcards - Primary', isPrimary: true },
-          { url: 'https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=600&h=600&fit=crop&q=80', alt: 'Postcards - Alternative 1' },
-          { url: 'https://images.unsplash.com/photo-1527483377697-8795b1a1d6d2?w=600&h=600&fit=crop&q=80', alt: 'Postcards - Alternative 2' }
-        ],
-        description: 'Custom postcards for direct mail campaigns',
-        details: 'Full-color postcards perfect for direct mail marketing, event invitations, or thank you cards. Premium quality printing on sturdy cardstock.',
-        specs: {
-          material: '350gsm Card Stock',
-          size: '4.25" × 6"',
-          finish: 'Gloss or Matte',
-          turnaround: '3-4 business days'
-        },
-        status: 'SeasonalFavorite'
-      },
-      {
-        id: '7',
-        slug: 'letterheads',
-        name: 'Letterheads',
-        images: [
-          { url: 'https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=600&h=600&fit=crop&q=80', alt: 'Letterheads - Primary', isPrimary: true },
-          { url: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=600&h=600&fit=crop&q=80', alt: 'Letterheads - Alternative 1' },
-          { url: 'https://images.unsplash.com/photo-1542744094-3a31f272c490?w=600&h=600&fit=crop&q=80', alt: 'Letterheads - Alternative 2' }
-        ],
-        description: 'Professional letterheads for corporate correspondence',
-        details: 'Elegant letterheads that make your business communications stand out. Available in various paper weights and finishes.',
-        specs: {
-          material: '100gsm Bond Paper',
-          size: '8.5" × 11"',
-          finish: 'Smooth',
-          turnaround: '2-3 business days'
-        },
-        status: 'latest'
-      },
-      {
-        id: '8',
-        slug: 'envelopes',
-        name: 'Envelopes',
-        images: [
-          { url: 'https://images.unsplash.com/photo-1542744094-3a31f272c490?w=600&h=600&fit=crop&q=80', alt: 'Envelopes - Primary', isPrimary: true },
-          { url: 'https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=600&h=600&fit=crop&q=80', alt: 'Envelopes - Alternative 1' },
-          { url: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=600&h=600&fit=crop&q=80', alt: 'Envelopes - Alternative 2' }
-        ],
-        description: 'Custom printed envelopes for professional mailing',
-        details: 'Matching envelopes for your letterheads and business cards. Available in various sizes and security tint options.',
-        specs: {
-          material: '80gsm Envelope Paper',
-          size: '#10 (4.125" × 9.5")',
-          finish: 'Security Tint',
-          turnaround: '2-3 business days'
-        },
-        status: 'NewArrival,SeasonalFavorite'
-      }
+    "id": "cat-paper-products",
+    "title": "Paper Products",
+    "image": "https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=600&q=80",
+    "tag": "Print",
+    "description": "Essential business and marketing materials printed on high-quality paper stocks.",
+    "accent": "#c9a96e",
+    "slug": "paper-products",
+    "products": [
+      { "id": "pp-01", "slug": "banner-pvc-vinyl", "name": "Banner (PVC & Vinyl)", "images": [{ "url": "https://images.unsplash.com/photo-1582133611302-68fd2ff05145?w=600", "alt": "Banner", "isPrimary": true }], "description": "Durable PVC and Vinyl banners.", "specs": { "material": "500gsm PVC", "finish": "Eyelets & Hemmed" }, "status": "latest" },
+      { "id": "pp-02", "slug": "business-cards", "name": "Business Cards", "images": [{ "url": "https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=600", "alt": "Business Cards", "isPrimary": true }], "description": "Premium quality cards.", "specs": { "material": "450gsm Silk", "size": "85x55mm" }, "status": "latest" },
+      { "id": "pp-03", "slug": "booklets", "name": "Booklets", "images": [{ "url": "https://images.unsplash.com/photo-1544816155-12df9643f363?w=600", "alt": "Booklets", "isPrimary": true }], "description": "Multi-page booklets.", "specs": { "binding": "Saddle Stitch", "pages": "8-64" }, "status": "Standard" },
+      { "id": "pp-04", "slug": "brochures", "name": "Brochures", "images": [{ "url": "https://images.unsplash.com/photo-1586717791821-3f44a563eb4c?w=600", "alt": "Brochures", "isPrimary": true }], "description": "Professional brochures.", "specs": { "material": "170gsm Silk", "fold": "Half/Tri-fold" }, "status": "Standard" },
+      { "id": "pp-05", "slug": "flyer-printing", "name": "Flyer Printing", "images": [{ "url": "https://images.unsplash.com/photo-1563986768609-322da13575f3?w=600", "alt": "Flyers", "isPrimary": true }], "description": "High-speed flyer printing.", "specs": { "material": "130gsm Gloss", "size": "A5/A6" }, "status": "samedayprinting" },
+      { "id": "pp-06", "slug": "leaflet-printing", "name": "Leaflet Printing", "images": [{ "url": "https://images.unsplash.com/photo-1563986768609-322da13575f3?w=600", "alt": "Leaflets", "isPrimary": true }], "description": "Bulk leaflet distribution prints.", "specs": { "material": "150gsm Silk", "size": "A4/A5" }, "status": "Standard" },
+      { "id": "pp-07", "slug": "colour-printing", "name": "Colour Printing", "images": [{ "url": "https://images.unsplash.com/photo-1562654501-a0ccc0fc3fb1?w=600", "alt": "Colour Printing", "isPrimary": true }], "description": "High-fidelity digital color prints.", "specs": { "quality": "Digital CMYK", "paper": "80-300gsm" }, "status": "Essential" },
+      { "id": "pp-08", "slug": "black-white-printing", "name": "Black & White Printing", "images": [{ "url": "https://images.unsplash.com/photo-1562654501-a0ccc0fc3fb1?w=600", "alt": "B&W Printing", "isPrimary": true }], "description": "Economical mono printing.", "specs": { "quality": "Grayscale", "usage": "Documents" }, "status": "Essential" },
+      { "id": "pp-09", "slug": "folded-leaflets", "name": "Folded Leaflets", "images": [{ "url": "https://images.unsplash.com/photo-1586717791821-3f44a563eb4c?w=600", "alt": "Folded Leaflets", "isPrimary": true }], "description": "Custom folding options.", "specs": { "fold": "Z-Fold/Gate Fold", "size": "A4 to DL" }, "status": "Standard" },
+      { "id": "pp-10", "slug": "menu-printing", "name": "Menu Printing", "images": [{ "url": "https://images.unsplash.com/photo-1590650516494-0c8e4a4dd67e?w=600", "alt": "Menus", "isPrimary": true }], "description": "Restaurant and takeaway menus.", "specs": { "finish": "Laminated", "material": "350gsm" }, "status": "Popular" },
+      { "id": "pp-11", "slug": "posters", "name": "Posters", "images": [{ "url": "https://images.unsplash.com/photo-1583931382172-358051e70402?w=600", "alt": "Posters", "isPrimary": true }], "description": "Indoor poster printing.", "specs": { "size": "A3 to A0", "finish": "Satin" }, "status": "Standard" },
+      { "id": "pp-12", "slug": "postcards", "name": "Postcards", "images": [{ "url": "https://images.unsplash.com/photo-1527483377697-8795b1a1d6d2?w=600", "alt": "Postcards", "isPrimary": true }], "description": "Custom marketing postcards.", "specs": { "material": "350gsm Card", "size": "A6" }, "status": "Seasonal" },
+      { "id": "pp-13", "slug": "sticker-printing", "name": "Sticker Printing", "images": [{ "url": "https://images.unsplash.com/photo-1589987607627-616cbd5bb225?w=600", "alt": "Stickers", "isPrimary": true }], "description": "All-purpose stickers.", "specs": { "material": "Paper/Vinyl", "cut": "Kiss-cut" }, "status": "latest" },
+      { "id": "pp-14", "slug": "vinyl-stickers", "name": "Vinyl Stickers", "images": [{ "url": "https://images.unsplash.com/photo-1589987607627-616cbd5bb225?w=600", "alt": "Vinyl Stickers", "isPrimary": true }], "description": "Waterproof vinyl stickers.", "specs": { "durability": "Outdoor/Waterproof", "finish": "Gloss" }, "status": "Durable" },
+      { "id": "pp-15", "slug": "self-adhesive-stickers", "name": "Self-Adhesive Stickers", "images": [{ "url": "https://images.unsplash.com/photo-1589987607627-616cbd5bb225?w=600", "alt": "Adhesive Stickers", "isPrimary": true }], "description": "Easy-peel adhesive labels.", "specs": { "type": "Permanent", "form": "Sheets" }, "status": "Standard" }
     ]
   },
   {
-    title: 'Print & Office',
-    image: 'https://images.unsplash.com/photo-1568667256549-094345857637?w=600&q=80',
-    tag: 'Marketing',
-    description:
-      'High-fidelity prints for advertising and office environments. Brochures, flyers, letterheads and more.',
-    accent: '#7b9e87',
-    slug: 'print-office',
-    products: [
-      {
-        id: '2',
-        slug: 'flyers',
-        name: 'Flyers',
-        images: [
-          { url: 'https://images.unsplash.com/photo-1555835022-71efeb936319?w=600&h=600&fit=crop&q=80', alt: 'Flyers - Primary', isPrimary: true },
-          { url: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=600&h=600&fit=crop&q=80', alt: 'Flyers - Alternative 1' },
-          { url: 'https://images.unsplash.com/photo-1546410559-bb4caa6b58f7?w=600&h=600&fit=crop&q=80', alt: 'Flyers - Alternative 2' }
-        ],
-        description: 'Eye-catching flyers for promotional campaigns',
-        details: 'Get your message out with beautifully printed flyers. Perfect for events, promotions, and announcements with custom designs and vibrant colors.',
-        specs: {
-          material: '300gsm Card Stock',
-          size: '8.5" × 11"',
-          finish: 'Gloss',
-          turnaround: '2-3 business days'
-        },
-        status: 'NewArrival'
-      },
-      {
-        id: '3',
-        slug: 'brochures',
-        name: 'Brochures',
-        images: [
-          { url: 'https://images.unsplash.com/photo-1554225155-6726b3ff858f?w=600&h=600&fit=crop&q=80', alt: 'Brochures - Primary', isPrimary: true },
-          { url: 'https://images.unsplash.com/photo-1542744173-8e90f59c20b1?w=600&h=600&fit=crop&q=80', alt: 'Brochures - Alternative 1' },
-          { url: 'https://images.unsplash.com/photo-1563620978-f6db4e8e5f1c?w=600&h=600&fit=crop&q=80', alt: 'Brochures - Alternative 2' }
-        ],
-        description: 'Tri-fold brochures for comprehensive product information',
-        details: 'Professional tri-fold brochures ideal for showcasing products and services. Premium paper stock with exceptional print quality.',
-        specs: {
-          material: '250gsm Art Paper',
-          size: 'Tri-fold (8.5" × 11")',
-          finish: 'Matte',
-          turnaround: '4-5 business days'
-        },
-        status: 'SeasonalFavorite'
-      },
-      {
-        id: '9',
-        slug: 'booklets',
-        name: 'Booklets',
-        images: [
-          { url: 'https://images.unsplash.com/photo-1542744173-8e90f59c20b1?w=600&h=600&fit=crop&q=80', alt: 'Booklets - Primary', isPrimary: true },
-          { url: 'https://images.unsplash.com/photo-1554225155-6726b3ff858f?w=600&h=600&fit=crop&q=80', alt: 'Booklets - Alternative 1' },
-          { url: 'https://images.unsplash.com/photo-1563620978-f6db4e8e5f1c?w=600&h=600&fit=crop&q=80', alt: 'Booklets - Alternative 2' }
-        ],
-        description: 'Multi-page booklets for detailed information',
-        details: 'Perfect for product catalogs, company profiles, and detailed service information. Saddle-stitched binding with premium paper.',
-        specs: {
-          material: '150gsm Gloss Paper',
-          size: '8.5" × 11"',
-          finish: 'Saddle Stitch',
-          turnaround: '5-7 business days'
-        },
-        status: 'latest'
-      },
-      {
-        id: '10',
-        slug: 'menus',
-        name: 'Restaurant Menus',
-        images: [
-          { url: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=600&h=600&fit=crop&q=80', alt: 'Menus - Primary', isPrimary: true },
-          { url: 'https://images.unsplash.com/photo-1555835022-71efeb936319?w=600&h=600&fit=crop&q=80', alt: 'Menus - Alternative 1' },
-          { url: 'https://images.unsplash.com/photo-1546410559-bb4caa6b58f7?w=600&h=600&fit=crop&q=80', alt: 'Menus - Alternative 2' }
-        ],
-        description: 'Elegant menus for restaurants and cafes',
-        details: 'Beautifully designed menus that showcase your culinary offerings. Laminated for durability and easy cleaning.',
-        specs: {
-          material: '200gsm Card Stock',
-          size: '8.5" × 14"',
-          finish: 'Laminated',
-          turnaround: '3-4 business days'
-        },
-        status: 'SeasonalFavorite,latest'
-      }
+    "id": "cat-binding",
+    "title": "Binding & Accessories",
+    "image": "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=600&q=80",
+    "tag": "Finishing",
+    "description": "Professional document finishing for reports and presentations.",
+    "accent": "#2c3e50",
+    "slug": "binding-accessories",
+    "products": [
+      { "id": "ba-01", "slug": "binding-service", "name": "Binding Service", "images": [], "description": "General binding services.", "specs": { "type": "Multi-option" }, "status": "latest" },
+      { "id": "ba-02", "slug": "spiral-binding", "name": "Spiral Binding", "images": [], "description": "Plastic coil binding.", "specs": { "rotation": "360 degrees" }, "status": "Popular" },
+      { "id": "ba-03", "slug": "wire-binding", "name": "Wire Binding", "images": [], "description": "Professional wire-o binding.", "specs": { "material": "Metal Wire" }, "status": "Corporate" },
+      { "id": "ba-04", "slug": "plastic-comb-binding", "name": "Plastic Comb Binding", "images": [], "description": "Classic comb binding.", "specs": { "reusable": "Yes" }, "status": "Standard" },
+      { "id": "ba-05", "slug": "saddle-stitch-binding", "name": "Saddle Stitch Binding", "images": [], "description": "Stapled spine binding.", "specs": { "usage": "Booklets" }, "status": "Standard" },
+      { "id": "ba-06", "slug": "perfect-binding", "name": "Perfect Binding", "images": [], "description": "Softcover book finish.", "specs": { "spine": "Glued" }, "status": "Premium" },
+      { "id": "ba-07", "slug": "glue-binding", "name": "Glue Binding", "images": [], "description": "Padding and glue binding.", "specs": { "type": "Fan-apart" }, "status": "Standard" },
+      { "id": "ba-08", "slug": "tape-binding", "name": "Tape Binding", "images": [], "description": "Wrapped spine tape binding.", "specs": { "look": "Clean/Flat" }, "status": "Standard" },
+      { "id": "ba-09", "slug": "screw-binding", "name": "Screw Binding", "images": [], "description": "Chicago screw binding.", "specs": { "material": "Brass/Steel" }, "status": "Premium" },
+      { "id": "ba-10", "slug": "book-binding", "name": "Book Binding", "images": [], "description": "Hardback and bespoke binding.", "specs": { "type": "Hard/Soft Cover" }, "status": "HighEnd" },
+      { "id": "ba-11", "slug": "thesis-binding", "name": "Thesis Binding", "images": [], "description": "University standard binding.", "specs": { "standard": "Academic" }, "status": "StudentDeal" },
+      { "id": "ba-12", "slug": "dissertation-binding", "name": "Dissertation Binding", "images": [], "description": "Fast dissertation binding.", "specs": { "turnaround": "Same Day" }, "status": "samedayprinting" },
+      { "id": "ba-13", "slug": "business-presentation-binding", "name": "Business Presentation Binding", "images": [], "description": "Elegant presentation sets.", "specs": { "cover": "Acetate/Leatherette" }, "status": "Corporate" }
     ]
   },
   {
-    title: 'Signs & Banners',
-    image: 'https://images.unsplash.com/photo-1542744094-3a31f272c490?w=600&q=80',
-    tag: 'Outdoor',
-    description:
-      'Bold, weather-resistant signage that stops people in their tracks.',
-    accent: '#e07a5f',
-    slug: 'signs-banners',
-    products: [
-      {
-        id: '5',
-        slug: 'banners',
-        name: 'Banners & Signage',
-        images: [
-          { url: 'https://images.unsplash.com/photo-1542744094-3a31f272c490?w=600&h=600&fit=crop&q=80', alt: 'Banners & Signage - Primary', isPrimary: true },
-          { url: 'https://images.unsplash.com/photo-1610857512508-d0eda408e0f9?w=600&h=600&fit=crop&q=80', alt: 'Banners & Signage - Alternative 1' },
-          { url: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&h=600&fit=crop&q=80', alt: 'Banners & Signage - Alternative 2' }
-        ],
-        description: 'Large format banners for events and promotions',
-        details: 'High-impact vinyl banners with UV-resistant inks. Perfect for outdoor events, store displays, and promotional campaigns.',
-        specs: {
-          material: '13oz Vinyl Banner',
-          size: 'Custom sizes available',
-          finish: 'UV-resistant',
-          turnaround: '5-7 business days'
-        },
-        status: 'NewArrival'
-      },
-      {
-        id: '11',
-        slug: 'posters',
-        name: 'Posters',
-        images: [
-          { url: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&h=600&fit=crop&q=80', alt: 'Posters - Primary', isPrimary: true },
-          { url: 'https://images.unsplash.com/photo-1542744094-3a31f272c490?w=600&h=600&fit=crop&q=80', alt: 'Posters - Alternative 1' },
-          { url: 'https://images.unsplash.com/photo-1610857512508-d0eda408e0f9?w=600&h=600&fit=crop&q=80', alt: 'Posters - Alternative 2' }
-        ],
-        description: 'Eye-catching posters for wall displays',
-        details: 'Vibrant posters perfect for events, promotions, and decorative displays. Available in various sizes and paper types.',
-        specs: {
-          material: '200gsm Poster Paper',
-          size: '24" × 36"',
-          finish: 'Matte',
-          turnaround: '3-4 business days'
-        },
-        status: 'latest'
-      },
-      {
-        id: '12',
-        slug: 'yard-signs',
-        name: 'Yard Signs',
-        images: [
-          { url: 'https://images.unsplash.com/photo-1610857512508-d0eda408e0f9?w=600&h=600&fit=crop&q=80', alt: 'Yard Signs - Primary', isPrimary: true },
-          { url: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&h=600&fit=crop&q=80', alt: 'Yard Signs - Alternative 1' },
-          { url: 'https://images.unsplash.com/photo-1542744094-3a31f272c490?w=600&h=600&fit=crop&q=80', alt: 'Yard Signs - Alternative 2' }
-        ],
-        description: 'Durable yard signs for outdoor advertising',
-        details: 'Weather-resistant corrugated plastic signs perfect for real estate, political campaigns, and business advertising.',
-        specs: {
-          material: '4mm Corrugated Plastic',
-          size: '18" × 24"',
-          finish: 'Weather-resistant',
-          turnaround: '4-5 business days'
-        },
-        status: 'NewArrival,SeasonalFavorite'
-      }
+    "id": "cat-large-format",
+    "title": "Large Format Printing",
+    "image": "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=600&q=80",
+    "tag": "Signage",
+    "description": "High-impact wide format prints.",
+    "accent": "#e74c3c",
+    "slug": "large-format-printing",
+    "products": [
+      { "id": "lf-01", "slug": "poster-printing", "name": "Poster Printing", "images": [], "description": "High res posters.", "specs": { "ink": "UV Stable" }, "status": "Standard" },
+      { "id": "lf-02", "slug": "a0-printing", "name": "A0 Printing", "images": [], "description": "Giant format A0.", "specs": { "size": "841 x 1189 mm" }, "status": "Large" },
+      { "id": "lf-03", "slug": "a1-printing", "name": "A1 Printing", "images": [], "description": "Standard large A1.", "specs": { "size": "594 x 841 mm" }, "status": "Standard" },
+      { "id": "lf-04", "slug": "a2-printing", "name": "A2 Printing", "images": [], "description": "Medium large A2.", "specs": { "size": "420 x 594 mm" }, "status": "Standard" },
+      { "id": "lf-05", "slug": "a3-printing", "name": "A3 Printing", "images": [], "description": "Small format A3.", "specs": { "size": "297 x 420 mm" }, "status": "Standard" },
+      { "id": "lf-06", "slug": "academic-poster-printing", "name": "Academic Poster Printing", "images": [], "description": "Conference posters.", "specs": { "material": "Fabric/Paper" }, "status": "Academic" },
+      { "id": "lf-07", "slug": "medical-poster-printing", "name": "Medical Poster Printing", "images": [], "description": "Scientific posters.", "specs": { "detail": "Ultra Fine" }, "status": "Professional" },
+      { "id": "lf-08", "slug": "banner-printing", "name": "Banner Printing", "images": [], "description": "Vinyl banner prints.", "specs": { "outdoor": "Yes" }, "status": "latest" },
+      { "id": "lf-09", "slug": "outdoor-banner-printing", "name": "Outdoor Banner Printing", "images": [], "description": "Weatherproof banners.", "specs": { "material": "Mesh/Vinyl" }, "status": "HeavyDuty" },
+      { "id": "lf-10", "slug": "indoor-banner-printing", "name": "Indoor Banner Printing", "images": [], "description": "Event banners.", "specs": { "material": "Satin Fabric" }, "status": "Event" },
+      { "id": "lf-11", "slug": "roller-banner", "name": "Roller Banner / Pull-Up Banner", "images": [], "description": "Portable displays.", "specs": { "case": "Included" }, "status": "TopSeller" },
+      { "id": "lf-12", "slug": "foam-board-printing", "name": "Foam Board Printing", "images": [], "description": "Lightweight boards.", "specs": { "thickness": "5mm/10mm" }, "status": "Rigid" },
+      { "id": "lf-13", "slug": "foamex-printing", "name": "Foamex Printing", "images": [], "description": "Durable plastic boards.", "specs": { "material": "PVC Foam" }, "status": "Rigid" },
+      { "id": "lf-14", "slug": "sticker-printing-large", "name": "Sticker Printing", "images": [], "description": "Large format stickers.", "specs": { "type": "Vinyl" }, "status": "Standard" },
+      { "id": "lf-15", "slug": "car-stickers", "name": "Car Stickers", "images": [], "description": "Vehicle decals.", "specs": { "finish": "Weatherproof" }, "status": "Outdoor" },
+      { "id": "lf-16", "slug": "information-boards-printing", "name": "Information Boards Printing", "images": [], "description": "Wayfinding signs.", "specs": { "material": "Dibond/Foamex" }, "status": "Signage" },
+      { "id": "lf-17", "slug": "plan-printing", "name": "Plan Printing", "images": [], "description": "Architectural plans.", "specs": { "type": "Line Drawing" }, "status": "Professional" },
+      { "id": "lf-18", "slug": "pattern-printing", "name": "Pattern Printing", "images": [], "description": "Sewing and design patterns.", "specs": { "paper": "60-80gsm" }, "status": "Custom" },
+      { "id": "lf-19", "slug": "wallpaper-printing", "name": "Wallpaper Printing", "images": [], "description": "Custom wall graphics.", "specs": { "paste": "Included/Custom" }, "status": "Decor" },
+      { "id": "lf-20", "slug": "sign-printing", "name": "Sign Printing", "images": [], "description": "Business signage.", "specs": { "mount": "Wall/Post" }, "status": "Corporate" },
+      { "id": "lf-21", "slug": "point-of-sale-printing", "name": "Point of Sale Printing", "images": [], "description": "Retail POS displays.", "specs": { "type": "Counter/Floor" }, "status": "Retail" }
     ]
   },
   {
-    title: 'Flyers & Posters',
-    image: 'https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=600&q=80',
-    tag: 'Promotional',
-    description:
-      'Eye-catching flyers and posters to promote your events and services.',
-    accent: '#f4a261',
-    slug: 'flyers-posters',
-    products: [
-      {
-        id: '13',
-        slug: 'event-posters',
-        name: 'Event Posters',
-        images: [
-          { url: 'https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=600&h=600&fit=crop&q=80', alt: 'Event Posters - Primary', isPrimary: true },
-          { url: 'https://images.unsplash.com/photo-1527483377697-8795b1a1d6d2?w=600&h=600&fit=crop&q=80', alt: 'Event Posters - Alternative 1' },
-          { url: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=600&h=600&fit=crop&q=80', alt: 'Event Posters - Alternative 2' }
-        ],
-        description: 'Vibrant posters for concerts, festivals, and events',
-        details: 'High-quality posters that capture attention and build excitement for your events. Perfect for music venues, theaters, and community gatherings.',
-        specs: {
-          material: '250gsm Gloss Paper',
-          size: '18" × 24"',
-          finish: 'High Gloss',
-          turnaround: '3-4 business days'
-        },
-        status: 'SeasonalFavorite'
-      },
-      {
-        id: '14',
-        slug: 'promotional-flyers',
-        name: 'Promotional Flyers',
-        images: [
-          { url: 'https://images.unsplash.com/photo-1555835022-71efeb936319?w=600&h=600&fit=crop&q=80', alt: 'Promotional Flyers - Primary', isPrimary: true },
-          { url: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=600&h=600&fit=crop&q=80', alt: 'Promotional Flyers - Alternative 1' },
-          { url: 'https://images.unsplash.com/photo-1546410559-bb4caa6b58f7?w=600&h=600&fit=crop&q=80', alt: 'Promotional Flyers - Alternative 2' }
-        ],
-        description: 'Cost-effective promotional flyers for mass distribution',
-        details: 'Budget-friendly flyers perfect for wide distribution. Available in various sizes and paper weights to suit your marketing needs.',
-        specs: {
-          material: '100gsm Paper',
-          size: '8.5" × 11"',
-          finish: 'Uncoated',
-          turnaround: '1-2 business days'
-        },
-        status: 'latest'
-      }
+    "id": "cat-custom",
+    "title": "Custom Product Printing",
+    "image": "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=600&q=80",
+    "tag": "Personalised",
+    "description": "Bespoke printing for every occasion.",
+    "accent": "#9b59b6",
+    "slug": "custom-product-printing",
+    "products": [
+      { "id": "cp-01", "slug": "conference-name-badges", "name": "Conference Name Badges Printing", "images": [], "description": "Professional badges.", "specs": { "type": "Clip/Pin" }, "status": "Event" },
+      { "id": "cp-02", "slug": "certificate-printing", "name": "Certificate Printing", "images": [], "description": "Award certificates.", "specs": { "paper": "Parchment/Textured" }, "status": "latest" },
+      { "id": "cp-03", "slug": "number-plate-printing", "name": "Number Plate Printing", "images": [], "description": "Standard plates.", "specs": { "material": "Acrylic" }, "status": "Auto" },
+      { "id": "cp-04", "slug": "invitation-printing", "name": "Invitation Printing", "images": [], "description": "Wedding & Event invites.", "specs": { "envelopes": "Optional" }, "status": "Personal" },
+      { "id": "cp-05", "slug": "wedding-table-name-cards", "name": "Wedding Table Name Cards", "images": [], "description": "Elegant place cards.", "specs": { "finish": "Gold Foil/Matte" }, "status": "Wedding" },
+      { "id": "cp-06", "slug": "table-plan-printing", "name": "Table Plan Printing", "images": [], "description": "Seating charts.", "specs": { "base": "Foamex" }, "status": "Wedding" },
+      { "id": "cp-07", "slug": "photo-printing", "name": "Photo Printing", "images": [], "description": "High gloss photos.", "specs": { "paper": "Photo Gloss" }, "status": "Personal" },
+      { "id": "cp-08", "slug": "portfolio-printing", "name": "Portfolio Printing", "images": [], "description": "Design portfolios.", "specs": { "quality": "HD Print" }, "status": "Creative" },
+      { "id": "cp-09", "slug": "lanyard-printing", "name": "Lanyard Printing", "images": [], "description": "Custom neck straps.", "specs": { "width": "15mm/20mm" }, "status": "Event" },
+      { "id": "cp-10", "slug": "photocopy", "name": "Photocopy", "images": [], "description": "Quick copy services.", "specs": { "color": "B&W/Full" }, "status": "Essential" },
+      { "id": "cp-11", "slug": "napkin-printing", "name": "Napkin Printing", "images": [], "description": "Event napkins.", "specs": { "ply": "2-ply/3-ply" }, "status": "Event" },
+      { "id": "cp-12", "slug": "pen-printing", "name": "Pen Printing", "images": [], "description": "Promotional pens.", "specs": { "ink": "Black/Blue" }, "status": "Promo" },
+      { "id": "cp-13", "slug": "mug-printing", "name": "Mug Printing", "images": [], "description": "Custom ceramic mugs.", "specs": { "dishwasher": "Safe" }, "status": "Gift" },
+      { "id": "cp-14", "slug": "canvas-printing", "name": "Canvas Printing", "images": [], "description": "Wall art canvas.", "specs": { "frame": "Wood Stretcher" }, "status": "Decor" },
+      { "id": "cp-15", "slug": "bookmark-printing", "name": "Bookmark Printing", "images": [], "description": "Paper/Card bookmarks.", "specs": { "finish": "Laminated" }, "status": "Gift" },
+      { "id": "cp-16", "slug": "hanging-labels-printing", "name": "Hanging Labels Printing", "images": [], "description": "Swing tags.", "specs": { "hole": "Punched" }, "status": "Retail" },
+      { "id": "cp-17", "slug": "custom-packaging", "name": "Custom Packaging", "images": [], "description": "Branded boxes.", "specs": { "material": "Cardboard" }, "status": "Retail" },
+      { "id": "cp-18", "slug": "cd-cover-printing", "name": "CD Cover Printing", "images": [], "description": "Sleeves and inlays.", "specs": { "size": "Standard CD" }, "status": "Standard" },
+      { "id": "cp-19", "slug": "greeting-cards-printing", "name": "Greeting Cards Printing", "images": [], "description": "Bespoke cards.", "specs": { "inside": "Printed/Blank" }, "status": "Seasonal" },
+      { "id": "cp-20", "slug": "newsletter-printing", "name": "Newsletter Printing", "images": [], "description": "Corporate newsletters.", "specs": { "pages": "Multi" }, "status": "Standard" },
+      { "id": "cp-21", "slug": "personalised-notebook-printing", "name": "Personalised Notebook Printing", "images": [], "description": "Branded journals.", "specs": { "cover": "Hard/Soft" }, "status": "Gift" },
+      { "id": "cp-22", "slug": "placemat-printing", "name": "Placemat Printing", "images": [], "description": "Dining placemats.", "specs": { "finish": "Wipeable" }, "status": "Hospitality" }
     ]
   },
   {
-    title: 'Brochures',
-    image: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=600&q=80',
-    tag: 'Informational',
-    description:
-      'Detailed brochures that inform and engage your audience.',
-    accent: '#2a9d8f',
-    slug: 'brochures',
-    products: [
-      {
-        id: '15',
-        slug: 'bi-fold-brochures',
-        name: 'Bi-Fold Brochures',
-        images: [
-          { url: 'https://images.unsplash.com/photo-1554225155-6726b3ff858f?w=600&h=600&fit=crop&q=80', alt: 'Bi-Fold Brochures - Primary', isPrimary: true },
-          { url: 'https://images.unsplash.com/photo-1542744173-8e90f59c20b1?w=600&h=600&fit=crop&q=80', alt: 'Bi-Fold Brochures - Alternative 1' },
-          { url: 'https://images.unsplash.com/photo-1563620978-f6db4e8e5f1c?w=600&h=600&fit=crop&q=80', alt: 'Bi-Fold Brochures - Alternative 2' }
-        ],
-        description: 'Simple bi-fold brochures for concise information',
-        details: 'Clean and professional bi-fold brochures perfect for presenting key information in an organized format.',
-        specs: {
-          material: '200gsm Gloss Paper',
-          size: 'Bi-fold (8.5" × 11")',
-          finish: 'Gloss',
-          turnaround: '3-4 business days'
-        },
-        status: 'NewArrival'
-      },
-      {
-        id: '16',
-        slug: 'product-catalogs',
-        name: 'Product Catalogs',
-        images: [
-          { url: 'https://images.unsplash.com/photo-1542744173-8e90f59c20b1?w=600&h=600&fit=crop&q=80', alt: 'Product Catalogs - Primary', isPrimary: true },
-          { url: 'https://images.unsplash.com/photo-1554225155-6726b3ff858f?w=600&h=600&fit=crop&q=80', alt: 'Product Catalogs - Alternative 1' },
-          { url: 'https://images.unsplash.com/photo-1563620978-f6db4e8e5f1c?w=600&h=600&fit=crop&q=80', alt: 'Product Catalogs - Alternative 2' }
-        ],
-        description: 'Comprehensive product catalogs showcasing your offerings',
-        details: 'Detailed catalogs that showcase your complete product line with high-quality images and specifications.',
-        specs: {
-          material: '150gsm Art Paper',
-          size: '8.5" × 11"',
-          finish: 'Perfect Bound',
-          turnaround: '7-10 business days'
-        },
-        status: 'SeasonalFavorite,latest'
-      }
+    "id": "cat-tshirt",
+    "title": "T-Shirt / Garment Printing",
+    "image": "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=600&q=80",
+    "tag": "Apparel",
+    "description": "Custom apparel and clothing.",
+    "accent": "#27ae60",
+    "slug": "garment-printing",
+    "products": [
+      { "id": "tg-01", "slug": "t-shirt-printing", "name": "T-Shirt Printing", "images": [], "description": "Custom tees.", "specs": { "print": "DTG/Vinyl" }, "status": "latest" },
+      { "id": "tg-02", "slug": "hoodie-printing", "name": "Hoodie Printing", "images": [], "description": "Warm custom hoodies.", "specs": { "weight": "Heavyweight" }, "status": "WinterEssential" },
+      { "id": "tg-03", "slug": "tote-bag-printing", "name": "Tote Bag Printing", "images": [], "description": "Canvas tote bags.", "specs": { "material": "Eco-Cotton" }, "status": "EcoFriendly" },
+      { "id": "tg-04", "slug": "apron-printing", "name": "Apron Printing", "images": [], "description": "Kitchen & Work aprons.", "specs": { "type": "Full length" }, "status": "Hospitality" },
+      { "id": "tg-05", "slug": "sweatshirt-printing", "name": "Sweatshirt Printing", "images": [], "description": "Branded sweatshirts.", "specs": { "fit": "Unisex" }, "status": "Standard" },
+      { "id": "tg-06", "slug": "cap-printing", "name": "Cap Printing", "images": [], "description": "Embroidered/Printed caps.", "specs": { "style": "Trucker/Baseball" }, "status": "Accessories" },
+      { "id": "tg-07", "slug": "hi-vis-printing", "name": "Hi-Vis Printing", "images": [], "description": "Safety wear.", "specs": { "class": "EN ISO 20471" }, "status": "Workwear" },
+      { "id": "tg-08", "slug": "running-vest-printing", "name": "Running Vest Printing", "images": [], "description": "Athletic vests.", "specs": { "fabric": "Breathable" }, "status": "Sports" },
+      { "id": "tg-09", "slug": "sports-wear-printing", "name": "Sports wear Printing", "images": [], "description": "Team kits.", "specs": { "dryfit": "Yes" }, "status": "Sports" }
     ]
   },
   {
-    title: 'Stickers & Labels',
-    image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=600&q=80',
-    tag: 'Branding',
-    description:
-      'Custom stickers and labels for branding and product identification.',
-    accent: '#e76f51',
-    slug: 'stickers-labels',
-    products: [
-      {
-        id: '6',
-        slug: 'labels-stickers',
-        name: 'Labels & Stickers',
-        images: [
-          { url: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=600&h=600&fit=crop&q=80', alt: 'Labels & Stickers - Primary', isPrimary: true },
-          { url: 'https://images.unsplash.com/photo-1546410531-bb4caa6b58f7?w=600&h=600&fit=crop&q=80', alt: 'Labels & Stickers - Alternative 1' },
-          { url: 'https://images.unsplash.com/photo-1527483377697-8795b1a1d6d2?w=600&h=600&fit=crop&q=80', alt: 'Labels & Stickers - Alternative 2' }
-        ],
-        description: 'Custom labels and stickers for packaging and branding',
-        details: 'Waterproof and durable labels perfect for product packaging, branding, and promotional use. Available in various shapes and sizes.',
-        specs: {
-          material: 'Premium Vinyl or Paper',
-          size: 'Custom sizes',
-          finish: 'Waterproof & Durable',
-          turnaround: '2-3 business days'
-        },
-        status: 'SeasonalFavorite'
-      },
-      {
-        id: '17',
-        slug: 'die-cut-stickers',
-        name: 'Die-Cut Stickers',
-        images: [
-          { url: 'https://images.unsplash.com/photo-1546410531-bb4caa6b58f7?w=600&h=600&fit=crop&q=80', alt: 'Die-Cut Stickers - Primary', isPrimary: true },
-          { url: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=600&h=600&fit=crop&q=80', alt: 'Die-Cut Stickers - Alternative 1' },
-          { url: 'https://images.unsplash.com/photo-1527483377697-8795b1a1d6d2?w=600&h=600&fit=crop&q=80', alt: 'Die-Cut Stickers - Alternative 2' }
-        ],
-        description: 'Custom shaped stickers with die-cut precision',
-        details: 'Unique shaped stickers that stand out with custom die-cutting. Perfect for logos, characters, and special branding.',
-        specs: {
-          material: 'Gloss Vinyl',
-          size: 'Custom shapes',
-          finish: 'Die-cut',
-          turnaround: '4-5 business days'
-        },
-        status: 'latest'
-      },
-      {
-        id: '18',
-        slug: 'window-decals',
-        name: 'Window Decals',
-        images: [
-          { url: 'https://images.unsplash.com/photo-1527483377697-8795b1a1d6d2?w=600&h=600&fit=crop&q=80', alt: 'Window Decals - Primary', isPrimary: true },
-          { url: 'https://images.unsplash.com/photo-1546410531-bb4caa6b58f7?w=600&h=600&fit=crop&q=80', alt: 'Window Decals - Alternative 1' },
-          { url: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=600&h=600&fit=crop&q=80', alt: 'Window Decals - Alternative 2' }
-        ],
-        description: 'Transparent window decals for storefronts and vehicles',
-        details: 'High-quality vinyl decals that adhere to windows and glass surfaces. Perfect for business branding and promotional messages.',
-        specs: {
-          material: 'Transparent Vinyl',
-          size: 'Custom sizes',
-          finish: 'Removable adhesive',
-          turnaround: '3-4 business days'
-        },
-        status: 'NewArrival,latest'
-      }
+    "id": "cat-exhibition",
+    "title": "Show & Exhibition Printing",
+    "image": "https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&q=80",
+    "tag": "Expo",
+    "description": "Complete setup for events and trade shows.",
+    "accent": "#3498db",
+    "slug": "exhibition-printing",
+    "products": [
+      { "id": "ex-01", "slug": "table-cloth-printing", "name": "Table Cloth Printing", "images": [], "description": "Branded table covers.", "specs": { "material": "Polyester" }, "status": "Event" },
+      { "id": "ex-02", "slug": "strut-card-printing", "name": "Strut Card Printing", "images": [], "description": "Counter-top displays.", "specs": { "back": "Rudder" }, "status": "Retail" },
+      { "id": "ex-03", "slug": "table-talkers", "name": "Table Talkers", "images": [], "description": "3-sided displays.", "specs": { "fold": "Tri-fold" }, "status": "latest" },
+      { "id": "ex-04", "slug": "tent-card-printing", "name": "Tent Card Printing", "images": [], "description": "Folded name cards.", "specs": { "size": "DL/A6" }, "status": "Event" },
+      { "id": "ex-05", "slug": "cue-card-printing", "name": "Cue Card Printing", "images": [], "description": "Speaker cards.", "specs": { "finish": "Matte" }, "status": "Speech" },
+      { "id": "ex-06", "slug": "flag-printing", "name": "Flag Printing", "images": [], "description": "Feather & Teardrop flags.", "specs": { "height": "2m-5m" }, "status": "Outdoor" },
+      { "id": "ex-07", "slug": "wristbands", "name": "Wristbands", "images": [], "description": "Tyvek/Silicone bands.", "specs": { "security": "Yes" }, "status": "Event" }
     ]
   },
   {
-    title: 'T-Shirts & Apparel',
-    image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&q=80',
-    tag: 'Merchandise',
-    description:
-      'Custom printed t-shirts and apparel for teams and promotions.',
-    accent: '#264653',
-    slug: 't-shirts-apparel',
-    products: [
-      {
-        id: '19',
-        slug: 'custom-t-shirts',
-        name: 'Custom T-Shirts',
-        images: [
-          { url: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&h=600&fit=crop&q=80', alt: 'Custom T-Shirts - Primary', isPrimary: true },
-          { url: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&h=600&fit=crop&q=80', alt: 'Custom T-Shirts - Alternative 1' },
-          { url: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&h=600&fit=crop&q=80', alt: 'Custom T-Shirts - Alternative 2' }
-        ],
-        description: 'Custom screen-printed t-shirts for teams and events',
-        details: 'High-quality cotton t-shirts with vibrant screen printing. Perfect for team uniforms, events, and promotional merchandise.',
-        specs: {
-          material: '100% Cotton',
-          size: 'S-3XL',
-          finish: 'Screen Print',
-          turnaround: '7-10 business days'
-        },
-        status: 'NewArrival'
-      },
-      {
-        id: '20',
-        slug: 'hoodies',
-        name: 'Custom Hoodies',
-        images: [
-          { url: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&h=600&fit=crop&q=80', alt: 'Custom Hoodies - Primary', isPrimary: true },
-          { url: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&h=600&fit=crop&q=80', alt: 'Custom Hoodies - Alternative 1' },
-          { url: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&h=600&fit=crop&q=80', alt: 'Custom Hoodies - Alternative 2' }
-        ],
-        description: 'Comfortable custom hoodies for branding and merchandise',
-        details: 'Soft and durable hoodies perfect for corporate branding, team apparel, and promotional giveaways.',
-        specs: {
-          material: '50/50 Cotton/Polyester',
-          size: 'S-3XL',
-          finish: 'Screen Print or DTG',
-          turnaround: '10-14 business days'
-        },
-        status: 'SeasonalFavorite'
-      },
-      {
-        id: '21',
-        slug: 'caps-hats',
-        name: 'Custom Caps & Hats',
-        images: [
-          { url: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&h=600&fit=crop&q=80', alt: 'Custom Caps & Hats - Primary', isPrimary: true },
-          { url: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&h=600&fit=crop&q=80', alt: 'Custom Caps & Hats - Alternative 1' },
-          { url: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&h=600&fit=crop&q=80', alt: 'Custom Caps & Hats - Alternative 2' }
-        ],
-        description: 'Custom embroidered caps and hats for teams and promotions',
-        details: 'Professional embroidered caps perfect for sports teams, corporate events, and brand recognition.',
-        specs: {
-          material: '100% Cotton Twill',
-          size: 'One Size Fits Most',
-          finish: 'Embroidered',
-          turnaround: '8-12 business days'
-        },
-        status: 'latest'
-      }
+    "id": "cat-gifts",
+    "title": "Personalised Gifts",
+    "image": "https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=600&q=80",
+    "tag": "Gifts",
+    "description": "Photo gifts and personalized keepsakes.",
+    "accent": "#f1c40f",
+    "slug": "personalised-gifts",
+    "products": [
+      { "id": "pg-01", "slug": "coasters", "name": "Coasters", "images": [], "description": "Personalized coasters.", "specs": { "base": "Cork/MDF" }, "status": "Gift" },
+      { "id": "pg-02", "slug": "aluminium-prints", "name": "Aluminium Prints", "images": [], "description": "Metal photo prints.", "specs": { "material": "Chromaluxe" }, "status": "Premium" },
+      { "id": "pg-03", "slug": "magnets", "name": "Magnets", "images": [], "description": "Fridge magnets.", "specs": { "type": "Flexible/Rigid" }, "status": "Souvenir" },
+      { "id": "pg-04", "slug": "money-box", "name": "Money Box", "images": [], "description": "Custom piggy banks.", "specs": { "material": "Ceramic" }, "status": "Kids" }
     ]
-  },
-];
+  }
+]
 
 // Get all products from categories
 export const getAllProducts = (): Product[] => {
   return categories.flatMap(category => category.products);
 };
 
-// Get new arrival products
-export const getNewArrivals = (): Product[] => {
-  return getAllProducts().filter(product => product.status?.includes('NewArrival'));
+// Get same-day printing products
+export const getSameDayPrinting = (): Product[] => {
+  return getAllProducts().filter(product => product.status?.includes('samedayprinting'));
 };
 
 // Get seasonal favorite products
@@ -532,7 +221,7 @@ export const getLatestProducts = (): Product[] => {
 // Get products with both tags
 export const getNewAndSeasonalProducts = (): Product[] => {
   return getAllProducts().filter(product => 
-    product.status?.includes('NewArrival') && product.status?.includes('SeasonalFavorite')
+    product.status?.includes('samedayprinting') && product.status?.includes('SeasonalFavorite')
   );
 };
 

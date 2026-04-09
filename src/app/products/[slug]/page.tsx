@@ -9,7 +9,6 @@ import { ShoppingCart, Heart, ArrowLeft, Check, Clock, Package, Layers, Ruler, S
 export default function ProductDetail() {
   const params = useParams();
   const slug = params.slug as string;
-  const [quantity, setQuantity] = useState(1);
   const [isFavorite, setIsFavorite] = useState(false);
   const [isAdded, setIsAdded] = useState(false);
 
@@ -66,11 +65,11 @@ export default function ProductDetail() {
       <div className="bg-gradient-to-r from-slate-900 to-slate-800 text-white sticky top-0 z-20 shadow-md">
         <div className="max-w-7xl mx-auto px-4 md:px-8 lg:px-16 py-4 flex items-center justify-between">
           <Link
-            href="/"
+            href={`/categories/${category.slug}`}
             className="sans flex items-center gap-2 text-slate-300 hover:text-cyan-400 transition-colors text-sm font-500"
           >
             <ArrowLeft size={18} />
-            All Products
+            Back to {category.title}
           </Link>
           <span className="bg-gradient-to-r from-cyan-500 to-blue-600 px-3 py-1.5 rounded-lg text-xs font-600 uppercase tracking-wider">{category.title}</span>
         </div>
@@ -130,7 +129,7 @@ export default function ProductDetail() {
                 {product.name}
               </h1>
               <p className="sans text-slate-600 text-lg leading-relaxed mb-8">
-                {product.details}
+                {product.details || product.description}
               </p>
 
               {/* Specs Grid */}
@@ -151,8 +150,27 @@ export default function ProductDetail() {
             </div>
 
             {/* Purchase Section */}
-     
-            
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+              <div className="flex flex-wrap items-center gap-3">
+                <button
+                  onClick={handleAddToCart}
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 px-6 py-3 text-sm font-semibold text-white transition hover:shadow-lg hover:shadow-cyan-500/25"
+                >
+                  {isAdded ? <Check size={18} /> : <ShoppingCart size={18} />}
+                  {isAdded ? 'Added to cart' : 'Add to cart'}
+                </button>
+                <button
+                  onClick={() => setIsFavorite(!isFavorite)}
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-cyan-300 hover:text-cyan-700"
+                >
+                  <Heart size={16} className={isFavorite ? 'fill-cyan-500 text-cyan-500' : ''} />
+                  {isFavorite ? 'Saved' : 'Save'}
+                </button>
+              </div>
+              <p className="mt-4 text-sm text-slate-500">
+                Need a custom quantity or finish? Contact us for same-day options and bespoke pricing.
+              </p>
+            </div>
           </div>
         </div>
 
@@ -181,7 +199,9 @@ export default function ProductDetail() {
                       {rel.name}
                     </h3>
                     <div className="flex items-center justify-between">
-                      <span className="sans text-xs text-slate-500 font-500">{rel.specs.turnaround}</span>
+                      <span className="sans text-xs text-slate-500 font-500">
+                        {Object.values(rel.specs)[0] || 'Custom options available'}
+                      </span>
                     </div>
                   </div>
                 </div>
