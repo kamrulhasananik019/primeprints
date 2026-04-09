@@ -149,28 +149,6 @@ export default function ProductDetail() {
               </div>
             </div>
 
-            {/* Purchase Section */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-              <div className="flex flex-wrap items-center gap-3">
-                <button
-                  onClick={handleAddToCart}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 px-6 py-3 text-sm font-semibold text-white transition hover:shadow-lg hover:shadow-cyan-500/25"
-                >
-                  {isAdded ? <Check size={18} /> : <ShoppingCart size={18} />}
-                  {isAdded ? 'Added to cart' : 'Add to cart'}
-                </button>
-                <button
-                  onClick={() => setIsFavorite(!isFavorite)}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-cyan-300 hover:text-cyan-700"
-                >
-                  <Heart size={16} className={isFavorite ? 'fill-cyan-500 text-cyan-500' : ''} />
-                  {isFavorite ? 'Saved' : 'Save'}
-                </button>
-              </div>
-              <p className="mt-4 text-sm text-slate-500">
-                Need a custom quantity or finish? Contact us for same-day options and bespoke pricing.
-              </p>
-            </div>
           </div>
         </div>
 
