@@ -7,8 +7,8 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import { getSameDayPrinting, getPrimaryImage, categories } from '@/utils/data';
 
-import 'swiper/css';
-import 'swiper/css/navigation';
+// import 'swiper/css';
+// import 'swiper/css/navigation';
 
 function slugify(text: string): string {
   return text
@@ -76,7 +76,7 @@ export default function SameDayPrinting() {
             <SwiperSlide key={product.id} className="h-auto">
               <Link href={`/products/${product.slug}`}>
                 <div className="group cursor-pointer">
-                  <div className="relative mb-4 aspect-[4/5] overflow-hidden rounded-3xl bg-stone-200">
+                  <div className="relative mb-4 aspect-[3/3] overflow-hidden rounded-3xl bg-stone-200">
                     <img
                       src={getPrimaryImage(product)}
                       alt={product.name}

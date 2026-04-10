@@ -90,11 +90,11 @@ export default function ProductDetail() {
             <ArrowLeft size={18} />
             Back to {category.title}
           </Link>
-          <span className="bg-gradient-to-r from-cyan-500 to-blue-600 px-3 py-1.5 rounded-lg text-xs font-600 uppercase tracking-wider">{category.title}</span>
+          <span className=" px-3 py-1.5 rounded-lg text-xs font-600 uppercase tracking-wider">{category.title}</span>
         </div>
       </div>
 
-      <InfiniteMarquee bottomItems={categoryTitles} />
+  
 
       {/* Main Content */}
       <div className="container mx-auto px-4 md:px-8 lg:px-16 py-16">
@@ -112,7 +112,7 @@ export default function ProductDetail() {
               <div className="absolute inset-0 bg-gradient-to-t from-slate-900/20 via-transparent to-transparent" />
 
               {/* Favorite Button */}
-              <button
+              {/* <button
                 onClick={() => setIsFavorite(!isFavorite)}
                 className="absolute top-6 right-6 bg-white/95 backdrop-blur-sm rounded-full p-3 shadow-lg hover:scale-110 transition-transform hover:bg-white"
                 aria-label="Toggle favorite"
@@ -121,7 +121,7 @@ export default function ProductDetail() {
                   size={22}
                   className={isFavorite ? 'fill-cyan-500 text-cyan-500' : 'text-slate-400'}
                 />
-              </button>
+              </button> */}
 
               {/* Rating Badge */}
               <div className="absolute bottom-6 left-6 bg-white/95 backdrop-blur-sm rounded-lg px-4 py-3 shadow-lg flex items-center gap-2">
@@ -196,7 +196,7 @@ export default function ProductDetail() {
 
           </div>
         </div>
-
+    <InfiniteMarquee bottomItems={categoryTitles} />
         {/* ── Related Products ── */}
         {related.length > 0 && (
           <div className="mt-24 pt-16 border-t border-slate-200">
@@ -214,7 +214,7 @@ export default function ProductDetail() {
                         alt={rel.name}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                       />
-                      <span className="sans absolute top-3 right-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-xs font-600 uppercase tracking-wider px-2.5 py-1 rounded-lg shadow-lg">
+                      <span className="sans absolute top-3 right-3  text-white text-xs font-600 uppercase tracking-wider px-2.5 py-1 rounded-lg shadow-lg">
                         {category.title}
                       </span>
                     </div>
