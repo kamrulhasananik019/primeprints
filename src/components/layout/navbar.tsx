@@ -120,18 +120,18 @@ export default function Navbar() {
   };
 
   return (
-    <div className="sticky top-0 z-50 bg-white">
-      <div className="hidden border-b border-stone-200 bg-stone-50 py-2 lg:block">
+    <div className="sticky top-0 z-50 bg-[#F4EFEB]">
+      <div className="hidden border-b border-[#D2C1B6] bg-[#E7DBD3] py-2 lg:block">
         <div className="mx-auto flex max-w-[1440px] flex-wrap items-center justify-between gap-3 px-6 text-[11px] font-medium uppercase tracking-wider text-stone-500">
           <div className="flex flex-wrap gap-6">
-            <a href="mailto:order@primeprint.com" className="inline-flex items-center gap-1.5 transition hover:text-blue-600">
+            <a href="mailto:order@primeprint.com" className="inline-flex items-center gap-1.5 transition hover:text-[#234C6A]">
               <Mail className="h-3.5 w-3.5" /> order@primeprint.com
             </a>
-            <a href="tel:+44205550147" className="inline-flex items-center gap-1.5 transition hover:text-blue-600">
+            <a href="tel:+44205550147" className="inline-flex items-center gap-1.5 transition hover:text-[#234C6A]">
               <Phone className="h-3.5 w-3.5" /> +44 (20) 555-0147
             </a>
           </div>
-          <div className="font-bold text-green-600">● Same Day Printing Available</div>
+          <div className="font-bold text-[#456882]">● Same Day Printing Available</div>
         </div>
       </div>
 
@@ -142,7 +142,7 @@ export default function Navbar() {
               <Menu className="h-6 w-6" />
             </button>
             <Link href="/" className="flex items-center gap-2">
-              <div className="flex h-10 w-10 -rotate-12 items-center justify-center rounded-lg bg-blue-600 text-white shadow-lg shadow-blue-200">
+              <div className="flex h-10 w-10 -rotate-12 items-center justify-center rounded-lg bg-[#234C6A] text-white shadow-lg shadow-[#456882]/40">
                 <span className="text-xl font-black italic">P</span>
               </div>
               <span className="text-2xl font-black tracking-tighter text-stone-900">primeprint</span>
@@ -159,7 +159,7 @@ export default function Navbar() {
                   placeholder="Search 1,000+ products..."
                   onFocus={() => setSearchFocused(true)}
                   onBlur={() => setTimeout(() => setSearchFocused(false), 200)}
-                  className="w-full rounded-xl border border-stone-200 bg-stone-50 py-3 pl-12 pr-6 text-sm transition-all focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10"
+                  className="w-full rounded-xl border border-stone-200 bg-stone-50 py-3 pl-12 pr-6 text-sm transition-all focus:border-[#234C6A] focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#234C6A]/15"
                 />
                 <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-stone-400" />
               </div>
@@ -179,10 +179,10 @@ export default function Navbar() {
                           setQuery('');
                           setSearchFocused(false);
                         }}
-                        className="group flex w-full items-center justify-between rounded-lg px-4 py-3 text-left text-sm transition-colors hover:bg-blue-50"
+                        className="group flex w-full items-center justify-between rounded-lg px-4 py-3 text-left text-sm transition-colors hover:bg-[#D2C1B6]/35"
                       >
-                        <span className="font-semibold text-stone-700 group-hover:text-blue-700">{result.label}</span>
-                        <span className="rounded bg-stone-100 px-2 py-0.5 text-[9px] font-black uppercase tracking-widest text-stone-400 group-hover:bg-blue-100 group-hover:text-blue-600">
+                        <span className="font-semibold text-stone-700 group-hover:text-[#1B3C53]">{result.label}</span>
+                        <span className="rounded bg-stone-100 px-2 py-0.5 text-[9px] font-black uppercase tracking-widest text-stone-400 group-hover:bg-[#D2C1B6]/50 group-hover:text-[#234C6A]">
                           {result.type}
                         </span>
                       </button>
@@ -190,7 +190,7 @@ export default function Navbar() {
                   </div>
                 ) : (
                   <div className="px-4 py-8 text-center">
-                    <p className="text-sm italic text-stone-500">No matches for "{query}"</p>
+                    <p className="text-sm italic text-stone-500">No matches for &quot;{query}&quot;</p>
                   </div>
                 )}
               </div>
@@ -201,12 +201,12 @@ export default function Navbar() {
             <Link
               href="/"
               className={`hidden rounded-lg px-3 py-2 text-sm font-bold transition sm:block hover:bg-stone-100 ${
-                pathname === '/' ? 'text-blue-700' : 'text-stone-800'
+                pathname === '/' ? 'text-[#1B3C53]' : 'text-stone-800'
               }`}
             >
               Home
             </Link>
-            <Link href="/contact" className="rounded-full bg-stone-900 px-5 py-2.5 text-sm font-bold text-white transition hover:bg-blue-600">
+            <Link href="/contact" className="rounded-full bg-[#1B3C53] px-5 py-2.5 text-sm font-bold text-white transition hover:bg-[#234C6A]">
               Contact Us
             </Link>
           </div>
@@ -218,7 +218,7 @@ export default function Navbar() {
               <div className="pointer-events-none absolute bottom-0 left-6 top-0 z-10 flex items-center pr-10 bg-gradient-to-r from-white via-white to-transparent">
                 <button
                   onClick={() => scrollCategories('left')}
-                  className="pointer-events-auto rounded-full border border-stone-200 bg-white p-1 shadow-sm hover:bg-blue-50 hover:text-blue-600"
+                  className="pointer-events-auto rounded-full border border-stone-200 bg-white p-1 shadow-sm hover:bg-[#D2C1B6]/40 hover:text-[#234C6A]"
                   aria-label="Scroll categories left"
                 >
                   <ChevronLeft className="h-4 w-4" />
@@ -229,7 +229,7 @@ export default function Navbar() {
               <div className="pointer-events-none absolute bottom-0 right-6 top-0 z-10 flex items-center pl-10 bg-gradient-to-l from-white via-white to-transparent">
                 <button
                   onClick={() => scrollCategories('right')}
-                  className="pointer-events-auto rounded-full border border-stone-200 bg-white p-1 shadow-sm hover:bg-blue-50 hover:text-blue-600"
+                  className="pointer-events-auto rounded-full border border-stone-200 bg-white p-1 shadow-sm hover:bg-[#D2C1B6]/40 hover:text-[#234C6A]"
                   aria-label="Scroll categories right"
                 >
                   <ChevronRight className="h-4 w-4" />
@@ -249,7 +249,7 @@ export default function Navbar() {
                     href={`/categories/${cat.slug}`}
                     className={`inline-block whitespace-nowrap rounded-md px-4 py-3 text-[13px] font-bold transition-all ${
                       activeSlug === cat.slug || pathname === `/categories/${cat.slug}`
-                        ? 'bg-blue-50 text-blue-700'
+                        ? 'bg-[#D2C1B6]/40 text-[#1B3C53]'
                         : 'text-stone-600 hover:bg-stone-50 hover:text-stone-900'
                     }`}
                   >
@@ -273,7 +273,7 @@ export default function Navbar() {
                 {chunkProducts(activeCategory?.products ?? [], 7).map((section, idx) => (
                   <div key={`${activeCategory?.slug ?? 'category'}-${idx}`} className="space-y-5">
                     <h3 className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-stone-400">
-                      <span className="h-1 w-1 rounded-full bg-blue-500"></span>
+                      <span className="h-1 w-1 rounded-full bg-[#456882]"></span>
                       {idx === 0 ? 'Top Choices' : 'Extended Range'}
                     </h3>
                     <ul className="space-y-3">
@@ -281,7 +281,7 @@ export default function Navbar() {
                         <li key={product.id}>
                           <Link
                             href={`/products/${product.slug}`}
-                            className="group/item flex items-center justify-between py-0.5 text-[14px] font-medium text-stone-600 transition hover:text-blue-600"
+                            className="group/item flex items-center justify-between py-0.5 text-[14px] font-medium text-stone-600 transition hover:text-[#234C6A]"
                           >
                             <span>{product.name}</span>
                             <ArrowRight className="h-3 w-3 -translate-x-2 opacity-0 transition-all group-hover/item:translate-x-0 group-hover/item:opacity-100" />
@@ -313,7 +313,7 @@ export default function Navbar() {
                   <div className="mt-6">
                     <h4 className="text-lg font-black text-stone-900">{activeCategory?.title}</h4>
                     <p className="mt-2 text-sm leading-relaxed text-stone-500">{activeCategory?.description}</p>
-                    <div className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-stone-50 py-3 text-sm font-bold text-stone-900 transition group-hover:bg-blue-600 group-hover:text-white">
+                    <div className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-stone-50 py-3 text-sm font-bold text-stone-900 transition group-hover:bg-[#234C6A] group-hover:text-white">
                       Explore All <ArrowRight className="h-4 w-4" />
                     </div>
                   </div>
@@ -337,7 +337,7 @@ export default function Navbar() {
           onClick={(e) => e.stopPropagation()}
         >
           <div className="flex items-center justify-between border-b p-5">
-            <span className="text-xl font-black italic tracking-tighter text-blue-600">primeprint</span>
+            <span className="text-xl font-black italic tracking-tighter text-[#234C6A]">primeprint</span>
             <button onClick={() => setIsMobileMenuOpen(false)} className="rounded-full p-2 hover:bg-stone-100" aria-label="Close menu">
               <X className="h-6 w-6 text-stone-400" />
             </button>
@@ -351,7 +351,7 @@ export default function Navbar() {
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Search products..."
-                  className="w-full rounded-xl bg-stone-100 py-3 pl-11 pr-4 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  className="w-full rounded-xl bg-stone-100 py-3 pl-11 pr-4 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#234C6A]/20"
                 />
               </form>
               <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
@@ -364,7 +364,7 @@ export default function Navbar() {
                 <li key={cat.id} className="overflow-hidden rounded-xl">
                   <button
                     className={`flex w-full items-center justify-between px-4 py-4 font-bold text-stone-700 transition ${
-                      mobileActiveSlug === cat.slug ? 'bg-blue-50 text-blue-600' : 'hover:bg-stone-50'
+                      mobileActiveSlug === cat.slug ? 'bg-[#D2C1B6]/40 text-[#234C6A]' : 'hover:bg-stone-50'
                     }`}
                     onClick={() => setMobileActiveSlug((prev) => (prev === cat.slug ? null : cat.slug))}
                   >
@@ -383,7 +383,7 @@ export default function Navbar() {
                             key={product.id}
                             href={`/products/${product.slug}`}
                             onClick={() => setIsMobileMenuOpen(false)}
-                            className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-stone-600 transition hover:bg-white hover:text-blue-600"
+                            className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-stone-600 transition hover:bg-white hover:text-[#234C6A]"
                           >
                             <span className="h-1.5 w-1.5 rounded-full bg-stone-300"></span>
                             {product.name}
@@ -401,7 +401,7 @@ export default function Navbar() {
                 <Link
                   href="/contact"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="flex items-center justify-center gap-2 rounded-xl bg-stone-900 p-4 text-center font-bold text-white shadow-lg"
+                  className="flex items-center justify-center gap-2 rounded-xl bg-[#1B3C53] p-4 text-center font-bold text-white shadow-lg"
                 >
                   Contact Us <ArrowRight className="h-4 w-4" />
                 </Link>

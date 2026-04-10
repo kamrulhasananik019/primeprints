@@ -22,11 +22,11 @@ export default function InfiniteMarquee({
   const bottomTickerItems = [...bottomBaseItems, ...bottomBaseItems];
 
   return (
-    <section className={`${styles.surface} py-12 md:py-20 ${className}`}>
+    <section className={`${styles.surface} ${className}`}>
       <div className="flex flex-col gap-6 md:gap-10">
         {/* Top Strip: Electric Purple Gradient */}
-        <div className={`${styles.strip} bg-gradient-to-r from-fuchsia-600 via-purple-600 to-fuchsia-600 shadow-[0_0_40px_rgba(192,38,211,0.3)]`}>
-          <div className={`${styles.marqueeTrack} ${styles.marqueeLeft} py-4 md:py-6 text-2xl sm:text-4xl md:text-6xl font-black italic tracking-tighter uppercase text-white`}>
+        <div className={`${styles.strip} bg-gradient-to-r from-[#1B3C53] via-[#234C6A] to-[#1B3C53] shadow-[0_0_40px_rgba(35,76,106,0.35)]`}>
+          <div className={`${styles.marqueeTrack} ${styles.marqueeLeft} py-4 md:py-4 text-2xl sm:text-3xl md:text-4xl font-black italic tracking-tighter uppercase text-[#F4EFEB]`}>
             {topTickerItems.map((item, idx) => (
               <span
                 key={`top-${idx}`}
@@ -34,15 +34,15 @@ export default function InfiniteMarquee({
                 aria-hidden={idx >= topBaseItems.length}
               >
                 {item}
-                <span className="text-white/30 text-base md:text-2xl">•</span>
+                <span className="text-[#D2C1B6]/45 text-base md:text-2xl">•</span>
               </span>
             ))}
           </div>
         </div>
 
-        {/* Bottom Strip: Neon Lime / Tech Look */}
-        <div className={`${styles.strip} bg-lime-400 shadow-[0_0_40px_rgba(163,230,53,0.3)] -rotate-1`}>
-          <div className={`${styles.marqueeTrack} ${styles.marqueeRight} py-3 md:py-5 text-xl sm:text-3xl md:text-5xl font-black uppercase tracking-tight text-slate-950`}>
+        {/* Bottom Strip: Warm neutral accent */}
+        {/* <div className={`${styles.strip} bg-[#D2C1B6] shadow-[0_0_40px_rgba(210,193,182,0.3)] -rotate-1`}>
+          <div className={`${styles.marqueeTrack} ${styles.marqueeRight} py-4 md:py-4 text-2xl sm:text-3xl md:text-4xl font-black uppercase tracking-tight text-[#1B3C53]`}>
             {bottomTickerItems.map((item, idx) => (
               <span
                 key={`bottom-${idx}`}
@@ -50,11 +50,11 @@ export default function InfiniteMarquee({
                 aria-hidden={idx >= bottomBaseItems.length}
               >
                 <span className={idx % 2 === 0 ? '' : 'opacity-40'}>{item}</span>
-                <span className="w-2 h-2 md:w-3 md:h-3 bg-slate-950 rounded-full" />
+                <span className="w-2 h-2 md:w-3 md:h-3 bg-[#234C6A] rounded-full" />
               </span>
             ))}
           </div>
-        </div>
+        </div> */}
       </div>
     </section>
   );

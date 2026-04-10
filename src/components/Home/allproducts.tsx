@@ -19,7 +19,7 @@ export default function AllProducts() {
         });
 
   return (
-    <section className="min-h-screen bg-gradient-to-br from-slate-50 to-white font-['DM_Sans',sans-serif] pt-10 container mx-auto">
+    <section className="min-h-screen bg-gradient-to-br from-slate-50 to-white font-['DM_Sans',sans-serif] pt-10 container mx-auto px-4">
       {/* Google Fonts */}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;700&display=swap');
@@ -40,39 +40,44 @@ export default function AllProducts() {
           </div>
         </div>
 
-      {/* Products Grid */}
       <div className=" py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filtered.map((product) => {
             const categoryTitle = categories.find((cat) => cat.products.some((prod) => prod.id === product.id))?.title;
 
             return (
-              <Link key={product.id} href={`/products/${product.slug}`}>
-                <div className="group cursor-pointer">
-                  <div className="relative mb-4 aspect-[4/5] overflow-hidden rounded-3xl bg-stone-200">
-                    <img
-                      src={getPrimaryImage(product)}
-                      alt={product.name}
-                      className="h-full w-full object-cover transition duration-500 group-hover:scale-110"
-                    />
+             <Link key={product.id} href={`/products/${product.slug}`}>
+  <div className="group cursor-pointer">
+    {/* Image Container - Matches aspect ratio and rounding */}
+    <div className="relative mb-4 aspect-[3/3] overflow-hidden rounded-3xl bg-stone-200">
+      <img
+        src={getPrimaryImage(product)}
+        alt={product.name}
+        className="h-full w-full object-cover transition duration-500 group-hover:scale-110"
+      />
 
-                    <div className="absolute left-4 top-4 rounded-full bg-emerald-500/95 px-3 py-1 text-[10px] font-medium uppercase tracking-[0.14em] text-white backdrop-blur">
-                      Latest
-                    </div>
+      {/* Top Left Badge - Now matches the Stone/White Category style */}
+      <div className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-[10px] font-medium uppercase tracking-[0.14em] text-stone-700 backdrop-blur">
+        Latest
+      </div>
 
-                    <div className="absolute inset-0 flex items-end bg-gradient-to-t from-black/60 via-black/10 to-transparent p-5 opacity-0 transition duration-300 group-hover:opacity-100">
-                      <span className="flex items-center gap-1 text-sm font-medium text-white">
-                        View Details
-                      </span>
-                    </div>
-                  </div>
+      {/* Hover Overlay - Softened to match the clean aesthetic */}
+      <div className="absolute inset-0 flex items-end bg-gradient-to-t from-stone-900/40 to-transparent p-6 opacity-0 transition duration-300 group-hover:opacity-100">
+        <span className="text-xs font-medium uppercase tracking-widest text-white">
+          View Details
+        </span>
+      </div>
+    </div>
 
-                  <h3 className="font-serif text-lg font-semibold text-stone-900">
-                    {product.name}
-                  </h3>
-                  <p className="mt-1 text-sm text-stone-500">{categoryTitle}</p>
-                </div>
-              </Link>
+    {/* Typography - Matches Serif headings and Stone secondary text */}
+    <h3 className="font-serif text-lg font-semibold text-stone-900">
+      {product.name}
+    </h3>
+    <p className="mt-1 text-sm text-stone-500">
+      {categoryTitle}
+    </p>
+  </div>
+</Link>
             );
           })}
         </div>

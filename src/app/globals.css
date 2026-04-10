@@ -1,5 +1,19 @@
 @import "tailwindcss";
 
+:root {
+  --pp-900: #1b3c53;
+  --pp-800: #234c6a;
+  --pp-700: #456882;
+  --pp-100: #d2c1b6;
+  --pp-bg: #f4efeb;
+  --pp-text: #1b3c53;
+}
+
+body {
+  background: var(--pp-bg);
+  color: var(--pp-text);
+}
+
 /* Swiper JS */
 .swiper {
   width: 100%;
@@ -28,12 +42,12 @@
   text-align: center;
   line-height: 20px;
   font-size: 12px;
-  color: #000;
+  color: var(--pp-900);
   opacity: 1;
-  background: rgba(0, 0, 0, 0.2);
+  background: color-mix(in oklab, var(--pp-700) 35%, transparent);
 }
 
 .swiper-pagination-bullet-active {
   color: #fff;
-  background: #007aff;
+  background: var(--pp-800);
 }

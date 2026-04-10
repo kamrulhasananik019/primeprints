@@ -46,7 +46,7 @@ export default function ProductDetail() {
         <p className="text-6xl mb-6">🖨️</p>
         <h1 className="font-['Playfair_Display',serif] text-4xl font-black text-slate-900 mb-3">Product Not Found</h1>
         <p className="text-slate-500 mb-8">The product you&apos;re looking for doesn&apos;t exist.</p>
-        <Link href="/" className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white px-8 py-3 rounded-lg hover:shadow-lg hover:shadow-cyan-500/30 transition-all font-600">
+        <Link href="/" className="px-8 py-3 rounded-lg  font-600">
           Back to Products
         </Link>
       </div>
@@ -248,12 +248,12 @@ export default function ProductDetail() {
                   Explore Products From Other Categories
                 </h2>
               </div>
-              <Link
+              {/* <Link
                 href="/"
                 className="sans text-sm font-700 text-slate-700 hover:text-cyan-600 transition-colors"
               >
                 View all categories
-              </Link>
+              </Link> */}
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

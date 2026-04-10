@@ -1,5 +1,5 @@
 .surface {
-  /* background: #020617; */
+  /* background: #1b3c53; */
   position: relative;
   overflow: hidden;
 }
@@ -9,8 +9,8 @@
   content: "";
   position: absolute;
   inset: 0;
-  background-image: radial-gradient(circle at 2px 2px, rgba(255,255,255,0.05) 1px, transparent 0);
-  background-size: 24px 24px;
+  background-image: radial-gradient(circle at 2px 2px, rgba(210, 193, 182, 0.18) 1px, transparent 0);
+  /* background-size: 24px 24px; */
 }
 
 .marqueeTrack {
@@ -22,11 +22,11 @@
 }
 
 .marqueeLeft {
-  animation: marqueeLeft 30s linear infinite;
+  animation: marqueeLeft 35s linear infinite;
 }
 
 .marqueeRight {
-  animation: marqueeRight 34s linear infinite;
+  animation: marqueeRight 40s linear infinite;
 }
 
 @keyframes marqueeLeft {
@@ -41,7 +41,7 @@
 
 .strip {
   position: relative;
-  border-y: 1px solid rgba(255, 255, 255, 0.1);
+  border-y: 1px solid rgba(210, 193, 182, 0.25);
   backdrop-filter: blur(8px);
 }
 

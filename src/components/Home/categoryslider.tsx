@@ -6,8 +6,8 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import { categories } from '@/utils/data';
 
-import 'swiper/css';
-import 'swiper/css/navigation';
+// import 'swiper/css';
+// import 'swiper/css/navigation';
 
 export default function CategorySlider() {
   return (
@@ -63,7 +63,7 @@ export default function CategorySlider() {
             <SwiperSlide key={category.title} className="h-auto">
               <Link href={`/categories/${category.slug}`}>
                 <div className="group cursor-pointer">
-                  <div className="relative mb-4 aspect-[4/5] overflow-hidden rounded-3xl bg-stone-200">
+                  <div className="relative mb-4 aspect-[3/3] overflow-hidden rounded-3xl bg-stone-200">
                     <img
                       src={category.image}
                       alt={category.title}
@@ -72,12 +72,6 @@ export default function CategorySlider() {
 
                     <div className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-[10px] font-medium uppercase tracking-[0.14em] text-stone-700 backdrop-blur">
                       {category.tag}
-                    </div>
-
-                    <div className="absolute inset-0 flex items-end bg-gradient-to-t from-black/60 via-black/10 to-transparent p-5 opacity-0 transition duration-300 group-hover:opacity-100">
-                      <span className="flex items-center gap-1 text-sm font-medium text-white">
-                        Explore
-                      </span>
                     </div>
                   </div>
 
