@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { categories, getRelatedProducts, getPrimaryImage } from '@/utils/data';
 import { Heart, ArrowLeft, Clock, Package, Layers, Ruler, Star } from 'lucide-react';
+import InfiniteMarquee from '@/components/shared/infinite-marquee';
 
 export default function ProductDetail() {
   const params = useParams();
@@ -69,6 +70,7 @@ export default function ProductDetail() {
     .filter(Boolean)
     .slice(0, 6);
   const activeImage = galleryImages[selectedImageIndex] || primaryImage;
+  const categoryTitles = categories.map((cat) => cat.title);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white">
@@ -91,6 +93,8 @@ export default function ProductDetail() {
           <span className="bg-gradient-to-r from-cyan-500 to-blue-600 px-3 py-1.5 rounded-lg text-xs font-600 uppercase tracking-wider">{category.title}</span>
         </div>
       </div>
+
+      <InfiniteMarquee bottomItems={categoryTitles} />
 
       {/* Main Content */}
       <div className="container mx-auto px-4 md:px-8 lg:px-16 py-16">

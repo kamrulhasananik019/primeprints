@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { categories, getPrimaryImage } from '@/utils/data';
+import InfiniteMarquee from '@/components/shared/infinite-marquee';
 
 export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -46,6 +47,8 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
           </div>
         </div>
       </div>
+
+      <InfiniteMarquee bottomItems={categories.map((cat) => cat.title)} />
 
       <div className="container mx-auto px-4 py-14 sm:px-6 lg:px-8">
         {category.products.length > 0 && (

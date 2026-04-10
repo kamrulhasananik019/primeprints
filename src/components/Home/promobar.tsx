@@ -9,7 +9,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 
-import 'swiper/css';
+
 
 type PromoItem = {
   icon: LucideIcon;
