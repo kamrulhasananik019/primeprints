@@ -1,4 +1,3 @@
-"use client";
 import AllProducts from "@/components/Home/allproducts";
 import Banner from "@/components/Home/banner";
 import CategorySlider from "@/components/Home/categoryslider";
@@ -16,7 +15,7 @@ export default function Home() {
   const categoryTitles = categories.map((cat) => cat.title);
 
   return (
-   <section className="overflow-hidden bg-gradient-to-br from-slate-50 to-white font-['DM_Sans',sans-serif] ">
+  <section className="overflow-hidden bg-linear-to-br from-slate-50 to-white font-['DM_Sans',sans-serif] ">
     <Banner />
     <InfiniteMarquee bottomItems={categoryTitles} />
     <PromoBar/>

@@ -290,9 +290,14 @@ export default function ContactPageContent() {
                       required
                       value={selectedCategorySlug}
                       onChange={(event) => {
-                        setSelectedCategorySlug(event.target.value);
-                        setSelectedProductSlug("");
-                        if (event.target.value !== CUSTOM_CATEGORY_VALUE) {
+                        const nextCategoryValue = event.target.value;
+                        setSelectedCategorySlug(nextCategoryValue);
+                        setSelectedProductSlug(
+                          nextCategoryValue === CUSTOM_CATEGORY_VALUE
+                            ? CUSTOM_PRODUCT_VALUE
+                            : ""
+                        );
+                        if (nextCategoryValue !== CUSTOM_CATEGORY_VALUE) {
                           setCustomCategory("");
                         }
                         setCustomProduct("");
@@ -338,7 +343,19 @@ export default function ContactPageContent() {
                       name="product"
                       required
                       value={selectedProductSlug}
-                      onChange={(event) => setSelectedProductSlug(event.target.value)}
+                      onChange={(event) => {
+                        const nextProductValue = event.target.value;
+                        setSelectedProductSlug(nextProductValue);
+
+                        if (
+                          nextProductValue === CUSTOM_PRODUCT_VALUE &&
+                          selectedCategorySlug &&
+                          selectedCategorySlug !== CUSTOM_CATEGORY_VALUE
+                        ) {
+                          setCustomCategory((previous) => previous || selectedCategory?.title || "");
+                          setSelectedCategorySlug(CUSTOM_CATEGORY_VALUE);
+                        }
+                      }}
                       disabled={!canSelectProduct}
                       className="block w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-stone-900 focus:outline-none focus:ring-2 focus:ring-stone-900/10 disabled:cursor-not-allowed disabled:bg-stone-100 disabled:text-stone-400"
                     >

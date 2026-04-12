@@ -1,7 +1,40 @@
+import type { Metadata } from 'next';
+import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { categories, getPrimaryImage } from '@/utils/data';
 import InfiniteMarquee from '@/components/shared/infinite-marquee';
+
+export function generateStaticParams() {
+  return categories.map((category) => ({ slug: category.slug }));
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const category = categories.find((cat) => cat.slug === slug);
+
+  if (!category) {
+    return {
+      title: 'Category Not Found',
+      robots: { index: false, follow: false },
+    };
+  }
+
+  return {
+    title: category.title,
+    description: category.description,
+    alternates: {
+      canonical: `/categories/${category.slug}`,
+    },
+    openGraph: {
+      title: `${category.title} | Prime Prints`,
+      description: category.description,
+      url: `/categories/${category.slug}`,
+      images: [{ url: category.image, alt: category.title }],
+      type: 'website',
+    },
+  };
+}
 
 export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -12,7 +45,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-stone-50 to-white">
+    <div className="min-h-screen bg-linear-to-br from-stone-50 to-white">
       <div className="relative overflow-hidden border-b border-stone-200/70">
         <div className="absolute -right-28 -top-24 h-72 w-72 rounded-full blur-3xl" style={{ backgroundColor: `${category.accent}30` }} />
         <div className="container mx-auto px-4 py-16 sm:px-6 lg:px-8">
@@ -45,10 +78,13 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
                 </Link>
               </div>
             </div>
-            <div className="aspect-[16/11] overflow-hidden rounded-3xl bg-stone-200 shadow-2xl shadow-stone-300/40">
-              <img
+            <div className="aspect-16/11 overflow-hidden rounded-3xl bg-stone-200 shadow-2xl shadow-stone-300/40">
+              <Image
                 src={category.image}
                 alt={category.title}
+                width={1200}
+                height={825}
+                priority
                 className="h-full w-full object-cover"
               />
             </div>
@@ -68,16 +104,19 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
               {category.products.map((product) => (
                 <Link key={product.id} href={`/products/${product.slug}`}>
                   <div className="group cursor-pointer">
-                    <div className="relative mb-4 aspect-[4/5] overflow-hidden rounded-3xl bg-stone-200">
-                      <img
-                        src={getPrimaryImage(product)}
+                    <div className="relative mb-4 aspect-4/5 overflow-hidden rounded-3xl bg-stone-200">
+                      <Image
+                        src={getPrimaryImage(product) || category.image}
                         alt={product.name}
+                        width={800}
+                        height={1000}
+                        sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 25vw"
                         className="h-full w-full object-cover transition duration-500 group-hover:scale-110"
                       />
                       <div className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-[10px] font-medium uppercase tracking-[0.14em] text-stone-800 backdrop-blur">
                         {category.tag}
                       </div>
-                      <div className="absolute inset-0 flex items-end bg-gradient-to-t from-black/60 via-black/10 to-transparent p-5 opacity-0 transition duration-300 group-hover:opacity-100">
+                      <div className="absolute inset-0 flex items-end bg-linear-to-t from-black/60 via-black/10 to-transparent p-5 opacity-0 transition duration-300 group-hover:opacity-100">
                         <span className="text-sm font-medium text-white">View Details</span>
                       </div>
                     </div>
