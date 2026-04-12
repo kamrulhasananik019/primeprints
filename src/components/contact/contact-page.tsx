@@ -1,18 +1,30 @@
 "use client";
 
 import type { FormEvent } from "react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import {
   ArrowRight,
-  CalendarClock,
+  CheckCircle2,
   Clock3,
+  FolderKanban,
   Mail,
   MapPin,
+  PackageSearch,
   Phone,
-  Printer,
   Send,
 } from "lucide-react";
+import { categories } from "@/utils/data";
+
+const CUSTOM_CATEGORY_VALUE = "__custom_category__";
+const CUSTOM_PRODUCT_VALUE = "__custom_product__";
+
+const humanizeValue = (value: string) =>
+  value
+    .replace(/[-_]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 
 const contactMethods = [
   {
@@ -45,35 +57,140 @@ const officeHours = [
 ];
 
 export default function ContactPageContent() {
+  const searchParams = useSearchParams();
+
+  const sortedCategories = useMemo(
+    () => [...categories].sort((a, b) => a.title.localeCompare(b.title)),
+    []
+  );
+
+  const initialSelection = useMemo(() => {
+    const categoryParam = searchParams.get("category")?.trim() || "";
+    const productParam = searchParams.get("product")?.trim() || "";
+
+    if (!categoryParam && !productParam) {
+      return {
+        categorySlug: "",
+        productSlug: "",
+        customCategoryText: "",
+        customProductText: "",
+      };
+    }
+
+    const matchedCategory = sortedCategories.find(
+      (category) => category.slug === categoryParam
+    );
+
+    if (matchedCategory) {
+      const matchedProduct = matchedCategory.products.find(
+        (product) => product.slug === productParam
+      );
+
+      return {
+        categorySlug: matchedCategory.slug,
+        productSlug: matchedProduct
+          ? matchedProduct.slug
+          : productParam
+            ? CUSTOM_PRODUCT_VALUE
+            : "",
+        customCategoryText: "",
+        customProductText: matchedProduct ? "" : humanizeValue(productParam),
+      };
+    }
+
+    return {
+      categorySlug: categoryParam ? CUSTOM_CATEGORY_VALUE : "",
+      productSlug: productParam ? CUSTOM_PRODUCT_VALUE : "",
+      customCategoryText: humanizeValue(categoryParam),
+      customProductText: humanizeValue(productParam),
+    };
+  }, [searchParams, sortedCategories]);
+
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [selectedCategorySlug, setSelectedCategorySlug] = useState(
+    initialSelection.categorySlug
+  );
+  const [selectedProductSlug, setSelectedProductSlug] = useState(
+    initialSelection.productSlug
+  );
+  const [customCategory, setCustomCategory] = useState(
+    initialSelection.customCategoryText
+  );
+  const [customProduct, setCustomProduct] = useState(
+    initialSelection.customProductText
+  );
+
+  const selectedCategory = sortedCategories.find(
+    (category) => category.slug === selectedCategorySlug
+  );
+
+  const productsForCategory = selectedCategory
+    ? [...selectedCategory.products].sort((a, b) => a.name.localeCompare(b.name))
+    : [];
+
+  const isCustomCategory = selectedCategorySlug === CUSTOM_CATEGORY_VALUE;
+  const isCustomProduct = selectedProductSlug === CUSTOM_PRODUCT_VALUE;
+  const canSelectProduct = Boolean(selectedCategorySlug);
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     event.currentTarget.reset();
+    setSelectedCategorySlug("");
+    setSelectedProductSlug("");
+    setCustomCategory("");
+    setCustomProduct("");
     setIsSubmitted(true);
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900 font-sans">
+    <div className="min-h-screen bg-stone-50 text-stone-900 font-sans">
       {/* Header Section */}
-      <header className="bg-white border-b border-gray-200">
-        <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+      <header className="relative overflow-hidden border-b border-stone-200 bg-white">
+        <div className="absolute -left-24 top-0 h-72 w-72 rounded-full bg-amber-100/60 blur-3xl" />
+        <div className="absolute -right-24 bottom-0 h-72 w-72 rounded-full bg-sky-100/70 blur-3xl" />
+        <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-blue-600 transition mb-8"
+            className="mb-8 inline-flex items-center gap-2 text-sm text-stone-500 transition hover:text-stone-900"
           >
             <ArrowRight className="size-4 rotate-180" />
             Back to home
           </Link>
-          <div className="max-w-3xl">
-            <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
-              Contact Prime Prints
-            </h1>
-            <p className="mt-4 text-lg leading-8 text-gray-600">
-              Speak to a print team that understands deadlines, details, and delivery. 
-              Whether you need a custom quote, file checks, or production planning, 
-              we're here to help.
-            </p>
+
+          <div className="grid gap-10 lg:grid-cols-[1.4fr_0.8fr] lg:items-end">
+            <div className="max-w-3xl">
+              <p className="mb-3 text-xs font-semibold uppercase tracking-[0.22em] text-stone-500">
+                Client Support Desk
+              </p>
+              <h1 className="text-4xl font-bold tracking-tight text-stone-900 sm:text-5xl">
+                Contact Prime Prints
+              </h1>
+              <p className="mt-4 text-lg leading-8 text-stone-600">
+                Speak to a print team that understands deadlines, details, and delivery.
+                Share your category, product, quantities, and timeline and we&apos;ll send
+                a clear production plan with lead times.
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-stone-200 bg-stone-100/70 p-6">
+              <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-stone-600">
+                Why clients choose us
+              </h2>
+              <ul className="mt-4 space-y-3 text-sm text-stone-700">
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="mt-0.5 h-4 w-4 text-emerald-600" />
+                  Fast quote turnarounds with practical print recommendations
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="mt-0.5 h-4 w-4 text-emerald-600" />
+                  Artwork checks and finish guidance before production
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="mt-0.5 h-4 w-4 text-emerald-600" />
+                  Reliable delivery windows for business and event timelines
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
       </header>
@@ -84,98 +201,181 @@ export default function ContactPageContent() {
           
           {/* Left Column: Form */}
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sm:p-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Send us a request</h2>
+            <div className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm sm:p-8">
+              <h2 className="mb-2 text-2xl font-bold text-stone-900">Send us a request</h2>
+              <p className="mb-6 text-sm text-stone-600">
+                Fill in your details and select a category and product so our team can prepare the right quote.
+              </p>
               
               {isSubmitted && (
-                <div className="mb-6 rounded-md bg-green-50 p-4 border border-green-200">
+                <div className="mb-6 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
                   <div className="flex">
-                    <div className="flex-shrink-0">
-                      <Send className="h-5 w-5 text-green-400" aria-hidden="true" />
+                    <div className="shrink-0">
+                      <Send className="h-5 w-5 text-emerald-500" aria-hidden="true" />
                     </div>
                     <div className="ml-3">
-                      <p className="text-sm font-medium text-green-800">
-                        Thank you! Your request has been sent successfully. We'll be in touch soon.
+                      <p className="text-sm font-medium text-emerald-800">
+                        Thank you! Your request has been sent successfully. We&apos;ll be in touch soon.
                       </p>
                     </div>
                   </div>
                 </div>
               )}
 
-              <form className="grid grid-cols-1 gap-y-6 sm:grid-cols-2 sm:gap-x-8" onSubmit={handleSubmit} onChange={() => setIsSubmitted(false)}>
+              <form
+                className="grid grid-cols-1 gap-y-6 sm:grid-cols-2 sm:gap-x-8"
+                onSubmit={handleSubmit}
+                onChange={() => setIsSubmitted(false)}
+              >
                 <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-700">Full name</label>
+                  <label htmlFor="name" className="block text-sm font-medium text-stone-700">Full name</label>
                   <div className="mt-1">
                     <input
                       type="text"
                       name="name"
                       id="name"
                       required
-                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-3 px-4 border"
+                      className="block w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-stone-900 focus:outline-none focus:ring-2 focus:ring-stone-900/10"
                       placeholder="Alex Morgan"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label htmlFor="company" className="block text-sm font-medium text-gray-700">Company</label>
+                  <label htmlFor="company" className="block text-sm font-medium text-stone-700">Company</label>
                   <div className="mt-1">
                     <input
                       type="text"
                       name="company"
                       id="company"
-                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-3 px-4 border"
+                      className="block w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-stone-900 focus:outline-none focus:ring-2 focus:ring-stone-900/10"
                       placeholder="North Studio"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email address</label>
+                  <label htmlFor="email" className="block text-sm font-medium text-stone-700">Email address</label>
                   <div className="mt-1">
                     <input
                       type="email"
                       name="email"
                       id="email"
                       required
-                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-3 px-4 border"
+                      className="block w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-stone-900 focus:outline-none focus:ring-2 focus:ring-stone-900/10"
                       placeholder="alex@example.com"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label htmlFor="phone" className="block text-sm font-medium text-gray-700">Phone number</label>
+                  <label htmlFor="phone" className="block text-sm font-medium text-stone-700">Phone number</label>
                   <div className="mt-1">
                     <input
                       type="tel"
                       name="phone"
                       id="phone"
-                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-3 px-4 border"
+                      className="block w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-stone-900 focus:outline-none focus:ring-2 focus:ring-stone-900/10"
                       placeholder="+44 20 5550 0147"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label htmlFor="service" className="block text-sm font-medium text-gray-700">Service needed</label>
+                  <label htmlFor="category" className="block text-sm font-medium text-stone-700">Category</label>
                   <div className="mt-1">
                     <select
-                      id="service"
-                      name="service"
+                      id="category"
+                      name="category"
                       required
-                      defaultValue=""
-                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-3 px-4 border bg-white"
+                      value={selectedCategorySlug}
+                      onChange={(event) => {
+                        setSelectedCategorySlug(event.target.value);
+                        setSelectedProductSlug("");
+                        if (event.target.value !== CUSTOM_CATEGORY_VALUE) {
+                          setCustomCategory("");
+                        }
+                        setCustomProduct("");
+                      }}
+                      className="block w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-stone-900 focus:outline-none focus:ring-2 focus:ring-stone-900/10"
                     >
-                      <option value="" disabled>Select a service</option>
-                      <option value="business-cards">Business cards</option>
-                      <option value="brochures">Brochures</option>
-                      <option value="banners">Banners and signage</option>
-                      <option value="booklets">Booklets</option>
-                      <option value="custom-quote">Custom quote</option>
+                      <option value="" disabled>Select a category</option>
+                      {sortedCategories.map((category) => (
+                        <option key={category.id} value={category.slug}>
+                          {category.title}
+                        </option>
+                      ))}
+                      <option value={CUSTOM_CATEGORY_VALUE}>Other (write custom)</option>
                     </select>
                   </div>
                 </div>
+
+                {isCustomCategory && (
+                  <div>
+                    <label htmlFor="customCategory" className="block text-sm font-medium text-stone-700">
+                      Custom category
+                    </label>
+                    <div className="mt-1">
+                      <input
+                        type="text"
+                        id="customCategory"
+                        name="customCategory"
+                        value={customCategory}
+                        onChange={(event) => setCustomCategory(event.target.value)}
+                        required={isCustomCategory}
+                        placeholder="Write your category"
+                        className="block w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-stone-900 focus:outline-none focus:ring-2 focus:ring-stone-900/10"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                <div>
+                  <label htmlFor="product" className="block text-sm font-medium text-stone-700">Category product</label>
+                  <div className="mt-1">
+                    <select
+                      id="product"
+                      name="product"
+                      required
+                      value={selectedProductSlug}
+                      onChange={(event) => setSelectedProductSlug(event.target.value)}
+                      disabled={!canSelectProduct}
+                      className="block w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-stone-900 focus:outline-none focus:ring-2 focus:ring-stone-900/10 disabled:cursor-not-allowed disabled:bg-stone-100 disabled:text-stone-400"
+                    >
+                      <option value="" disabled>
+                        {selectedCategorySlug ? "Select a product" : "Select category first"}
+                      </option>
+                      {isCustomCategory
+                        ? null
+                        : productsForCategory.map((product) => (
+                            <option key={product.id} value={product.slug}>
+                              {product.name}
+                            </option>
+                          ))}
+                      <option value={CUSTOM_PRODUCT_VALUE}>Other (write custom)</option>
+                    </select>
+                  </div>
+                </div>
+
+                {isCustomProduct && (
+                  <div>
+                    <label htmlFor="customProduct" className="block text-sm font-medium text-stone-700">
+                      Custom product
+                    </label>
+                    <div className="mt-1">
+                      <input
+                        type="text"
+                        id="customProduct"
+                        name="customProduct"
+                        value={customProduct}
+                        onChange={(event) => setCustomProduct(event.target.value)}
+                        required={isCustomProduct}
+                        placeholder="Write your product"
+                        className="block w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-stone-900 focus:outline-none focus:ring-2 focus:ring-stone-900/10"
+                      />
+                    </div>
+                  </div>
+                )}
 
                 <div>
                   <label htmlFor="deadline" className="block text-sm font-medium text-gray-700">Needed by</label>
@@ -184,30 +384,34 @@ export default function ContactPageContent() {
                       type="date"
                       name="deadline"
                       id="deadline"
-                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-3 px-4 border"
+                      className="block w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-stone-900 focus:outline-none focus:ring-2 focus:ring-stone-900/10"
                     />
                   </div>
                 </div>
 
                 <div className="sm:col-span-2">
-                  <label htmlFor="details" className="block text-sm font-medium text-gray-700">Project details</label>
+                  <label htmlFor="details" className="block text-sm font-medium text-stone-700">Project details</label>
                   <div className="mt-1">
                     <textarea
                       id="details"
                       name="details"
                       rows={4}
                       required
-                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-3 px-4 border"
+                      className="block w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-stone-900 focus:outline-none focus:ring-2 focus:ring-stone-900/10"
                       placeholder="Tell us quantities, sizes, finishes, delivery preferences, and any artwork support needed."
                     />
                   </div>
                 </div>
 
-                <div className="sm:col-span-2 flex justify-end pt-4">
+                <div className="sm:col-span-2 flex flex-col gap-4 border-t border-stone-200 pt-5 sm:flex-row sm:items-center sm:justify-between">
+                  <p className="text-xs text-stone-500">
+                    By sending this form, you agree to be contacted regarding your quote.
+                  </p>
                   <button
                     type="submit"
-                    className="inline-flex items-center justify-center rounded-md border border-transparent bg-blue-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition"
+                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-stone-900 bg-stone-900 px-6 py-3 text-base font-medium text-white shadow-sm transition hover:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-stone-900/20 focus:ring-offset-2"
                   >
+                    <Send className="h-4 w-4" />
                     Send Request
                   </button>
                 </div>
@@ -216,11 +420,32 @@ export default function ContactPageContent() {
           </div>
 
           {/* Right Column: Contact Info & Map */}
-          <div className="mt-12 lg:mt-0 lg:col-span-1 space-y-8">
+          <div className="mt-12 space-y-8 lg:col-span-1 lg:mt-0">
+
+            <div className="rounded-2xl border border-stone-200 bg-stone-900 p-6 text-white sm:p-8">
+              <h3 className="text-lg font-semibold">Need a fast quote?</h3>
+              <p className="mt-2 text-sm text-stone-300">
+                Select your category and product in the form for quicker pricing and production estimates.
+              </p>
+              <div className="mt-5 space-y-3 text-sm">
+                <div className="flex items-center gap-2">
+                  <FolderKanban className="h-4 w-4 text-amber-300" />
+                  Choose a category
+                </div>
+                <div className="flex items-center gap-2">
+                  <PackageSearch className="h-4 w-4 text-amber-300" />
+                  Pick the exact product
+                </div>
+                <div className="flex items-center gap-2">
+                  <Clock3 className="h-4 w-4 text-amber-300" />
+                  Share your deadline
+                </div>
+              </div>
+            </div>
             
             {/* Contact Methods Card */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sm:p-8">
-              <h3 className="text-lg font-semibold text-gray-900 mb-6">Contact Information</h3>
+            <div className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm sm:p-8">
+              <h3 className="mb-6 text-lg font-semibold text-stone-900">Contact Information</h3>
               <dl className="space-y-6">
                 {contactMethods.map((method) => {
                   const Icon = method.icon;
@@ -228,15 +453,15 @@ export default function ContactPageContent() {
                     <div key={method.label} className="flex gap-x-4">
                       <dt className="flex-none">
                         <span className="sr-only">{method.label}</span>
-                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50">
-                          <Icon className="h-5 w-5 text-blue-600" aria-hidden="true" />
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-stone-100">
+                          <Icon className="h-5 w-5 text-stone-700" aria-hidden="true" />
                         </div>
                       </dt>
                       <dd className="flex-auto">
-                        <p className="text-sm font-semibold text-gray-900">
-                          <a href={method.href} className="hover:text-blue-600 transition">{method.value}</a>
+                        <p className="text-sm font-semibold text-stone-900">
+                          <a href={method.href} className="transition hover:text-stone-600">{method.value}</a>
                         </p>
-                        <p className="mt-1 text-sm text-gray-500">{method.helper}</p>
+                        <p className="mt-1 text-sm text-stone-500">{method.helper}</p>
                       </dd>
                     </div>
                   );
@@ -245,24 +470,24 @@ export default function ContactPageContent() {
             </div>
 
             {/* Hours Card */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sm:p-8">
+            <div className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm sm:p-8">
               <div className="flex items-center gap-2 mb-6">
-                <Clock3 className="h-5 w-5 text-gray-400" />
-                <h3 className="text-lg font-semibold text-gray-900">Studio Hours</h3>
+                <Clock3 className="h-5 w-5 text-stone-500" />
+                <h3 className="text-lg font-semibold text-stone-900">Studio Hours</h3>
               </div>
               <ul className="space-y-3">
                 {officeHours.map((entry) => (
                   <li key={entry.day} className="flex justify-between text-sm">
-                    <span className="text-gray-500">{entry.day}</span>
-                    <span className="font-medium text-gray-900">{entry.hours}</span>
+                    <span className="text-stone-500">{entry.day}</span>
+                    <span className="font-medium text-stone-900">{entry.hours}</span>
                   </li>
                 ))}
               </ul>
             </div>
 
             {/* Map Card */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-              <div className="h-48 w-full bg-gray-200 relative">
+            <div className="overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm">
+              <div className="relative h-48 w-full bg-stone-200">
                  <iframe
                   title="Prime Prints location map"
                   src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d158857.839887706!2d-0.266403!3d51.528308!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47d8a00baf21de75%3A0x52963a5addd52a99!2sLondon%2C%20UK!5e0!3m2!1sen!2sus!4v1710000000000!5m2!1sen!2sus"
@@ -275,8 +500,8 @@ export default function ContactPageContent() {
                   className="absolute inset-0"
                 />
               </div>
-              <div className="p-4 bg-gray-50 border-t border-gray-200">
-                <p className="text-sm text-gray-600 text-center">
+              <div className="border-t border-stone-200 bg-stone-50 p-4">
+                <p className="text-center text-sm text-stone-600">
                   Drop in for samples, pickups, and paper advice.
                 </p>
               </div>

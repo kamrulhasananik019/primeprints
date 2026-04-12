@@ -1,3 +1,4 @@
+"use client";
 import AllProducts from "@/components/Home/allproducts";
 import Banner from "@/components/Home/banner";
 import CategorySlider from "@/components/Home/categoryslider";

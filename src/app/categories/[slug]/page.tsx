@@ -36,6 +36,14 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
               <p className="mt-6 text-sm font-medium uppercase tracking-[0.16em] text-stone-500">
                 {category.products.length} products available
               </p>
+              <div className="mt-6">
+                <Link
+                  href={`/contact?category=${category.slug}`}
+                  className="inline-flex items-center gap-2 rounded-xl bg-stone-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-stone-800"
+                >
+                  Get Quote
+                </Link>
+              </div>
             </div>
             <div className="aspect-[16/11] overflow-hidden rounded-3xl bg-stone-200 shadow-2xl shadow-stone-300/40">
               <img

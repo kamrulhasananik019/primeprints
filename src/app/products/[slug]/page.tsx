@@ -192,6 +192,15 @@ export default function ProductDetail() {
                   </div>
                 ))}
               </div>
+
+              <div>
+                <Link
+                  href={`/contact?category=${category.slug}&product=${product.slug}`}
+                  className="sans inline-flex items-center gap-2 rounded-xl bg-slate-900 px-6 py-3 text-sm font-700 text-white transition hover:bg-slate-800"
+                >
+                  Get Quote
+                </Link>
+              </div>
             </div>
 
           </div>
@@ -207,28 +216,26 @@ export default function ProductDetail() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {related.map((rel) => (
                 <Link key={rel.id} href={`/products/${rel.slug}`} className="group block">
-                  <div className="bg-white rounded-2xl overflow-hidden border border-slate-200 hover:border-cyan-400/50 hover:shadow-2xl hover:shadow-cyan-500/10 hover:-translate-y-2 transition-all duration-300">
-                    <div className="relative h-48 overflow-hidden bg-gradient-to-br from-slate-100 to-slate-50">
+                  <div className="group cursor-pointer">
+                    <div className="relative mb-4 aspect-square overflow-hidden rounded-3xl bg-stone-200">
                       <img
                         src={getPrimaryImage(rel) || category.image}
                         alt={rel.name}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        className="h-full w-full object-cover transition duration-500 group-hover:scale-110"
                       />
-                      <span className="sans absolute top-3 right-3  text-white text-xs font-600 uppercase tracking-wider px-2.5 py-1 rounded-lg shadow-lg">
+                      <span className="sans absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-[10px] font-medium uppercase tracking-[0.14em] text-stone-700 backdrop-blur">
                         {category.title}
                       </span>
                     </div>
-                    <div className="p-5">
-                      <h3 className="serif font-bold text-slate-900 transition-colors text-lg leading-tight mb-2">
-                        {rel.name}
-                      </h3>
-                      <p className="sans text-sm text-slate-600 line-clamp-2 mb-3">
-                        {rel.description}
-                      </p>
-                      <span className="sans text-xs text-slate-500 font-500">
-                        {Object.values(rel.specs)[0] || 'Custom options available'}
-                      </span>
-                    </div>
+                    <h3 className="serif text-xl font-bold text-stone-900 leading-tight transition-colors group-hover:text-stone-700">
+                      {rel.name}
+                    </h3>
+                    <p className="sans mt-1 text-sm text-stone-600 line-clamp-2">
+                      {rel.description}
+                    </p>
+                    <span className="sans mt-2 block text-xs text-stone-500 font-500">
+                      {Object.values(rel.specs)[0] || 'Custom options available'}
+                    </span>
                   </div>
                 </Link>
               ))}
@@ -259,25 +266,23 @@ export default function ProductDetail() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {otherCategoryProducts.map((item) => (
                 <Link key={item.id} href={`/products/${item.slug}`} className="group block">
-                  <div className="relative bg-white rounded-2xl overflow-hidden border border-slate-200 hover:border-blue-400/40 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300">
-                    <div className="relative h-44 overflow-hidden bg-gradient-to-br from-slate-100 to-slate-50">
+                  <div className="group cursor-pointer">
+                    <div className="relative mb-4 aspect-square overflow-hidden rounded-3xl bg-stone-200">
                       <img
                         src={getPrimaryImage(item) || category.image}
                         alt={item.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        className="h-full w-full object-cover transition duration-500 group-hover:scale-110"
                       />
-                    </div>
-                    <div className="p-5">
-                      <span className="sans inline-flex items-center rounded-full px-2.5 py-1 text-[11px] uppercase tracking-wider font-700 bg-blue-50 text-blue-700 mb-3">
+                      <span className="sans absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-[10px] font-medium uppercase tracking-[0.14em] text-stone-700 backdrop-blur">
                         {item.categoryTitle}
                       </span>
-                      <h3 className="serif text-xl font-bold text-slate-900 group-hover:text-blue-700 transition-colors leading-tight mb-2">
-                        {item.name}
-                      </h3>
-                      <p className="sans text-sm text-slate-600 line-clamp-2">
-                        {item.description}
-                      </p>
                     </div>
+                    <h3 className="serif text-xl font-bold text-stone-900 leading-tight transition-colors group-hover:text-stone-700">
+                      {item.name}
+                    </h3>
+                    <p className="sans mt-1 text-sm text-stone-600 line-clamp-2">
+                      {item.description}
+                    </p>
                   </div>
                 </Link>
               ))}
