@@ -37,6 +37,12 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       images: [{ url: category.image, alt: category.title }],
       type: 'website',
     },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${category.title} | Prime Prints`,
+      description: category.description,
+      images: [category.image],
+    },
   };
 }
 

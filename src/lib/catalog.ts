@@ -5,6 +5,12 @@ export type CategoryWithProducts = Category & {
   products: Product[];
 };
 
+export type NavProduct = Pick<Product, 'id' | 'slug' | 'name'>;
+
+export type NavCategory = Category & {
+  products: NavProduct[];
+};
+
 export function getPrimaryImage(product: Product): string {
   const primary = product.images.find((img) => img.isPrimary);
   return primary?.url ?? product.images[0]?.url ?? '';
@@ -15,6 +21,22 @@ export function getCategoriesWithProducts(): CategoryWithProducts[] {
     ...category,
     products: allProducts.filter((product) => product.category === category.slug),
   }));
+}
+
+export function getNavCategories(): NavCategory[] {
+  return categories.map((category) => ({
+    ...category,
+    products: allProducts
+      .filter((product) => product.category === category.slug)
+      .map((product) => ({ id: product.id, slug: product.slug, name: product.name })),
+  }));
+}
+
+export function getProductCategoryTitleMap(products: Product[]): Record<string, string> {
+  const categoryTitleBySlug = new Map(categories.map((category) => [category.slug, category.title]));
+  return Object.fromEntries(
+    products.map((product) => [product.id, categoryTitleBySlug.get(product.category) ?? ''])
+  );
 }
 
 export function getLatestProducts(): Product[] {

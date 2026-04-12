@@ -1,9 +1,10 @@
 import type { MetadataRoute } from 'next';
 import { allProducts } from '@/data/products';
 import { categories } from '@/data/categories';
+import { siteUrl } from '@/lib/site';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://primeprints.co.uk';
+  const baseUrl = siteUrl;
 
   const staticRoutes: MetadataRoute.Sitemap = [
     {

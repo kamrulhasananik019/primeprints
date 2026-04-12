@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
@@ -14,10 +15,10 @@ import {
   Search,
   X,
 } from 'lucide-react';
-import type { CategoryWithProducts } from '@/lib/catalog';
+import type { NavCategory } from '@/lib/catalog';
 
 type NavbarProps = {
-  categories: CategoryWithProducts[];
+  categories: NavCategory[];
 };
 
 function chunkProducts<T>(items: T[], size: number): T[][] {
@@ -92,7 +93,7 @@ export default function Navbar({ categories }: NavbarProps) {
 
   const activeCategory = useMemo(
     () => categories.find((cat) => cat.slug === activeSlug) ?? null,
-    [activeSlug]
+    [activeSlug, categories]
   );
 
   const searchResults = useMemo(() => {
@@ -111,7 +112,7 @@ export default function Navbar({ categories }: NavbarProps) {
       }
     }
     return results.slice(0, 8);
-  }, [query]);
+  }, [query, categories]);
 
   const handleSearchSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -301,9 +302,11 @@ export default function Navbar({ categories }: NavbarProps) {
                 <Link href={activeCategory ? `/categories/${activeCategory.slug}` : '/'} className="group block">
                   <div className="relative aspect-[16/10] overflow-hidden rounded-2xl bg-stone-100 shadow-inner">
                     {activeCategory && (
-                      <img
+                      <Image
                         src={activeCategory.image}
                         alt={activeCategory.title}
+                        fill
+                        sizes="20vw"
                         className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                       />
                     )}

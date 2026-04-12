@@ -7,15 +7,14 @@ import { Navigation } from 'swiper/modules';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import type { Product } from '@/data/products';
-import type { CategoryWithProducts } from '@/lib/catalog';
 import { getPrimaryImage } from '@/lib/catalog';
 
 type SameDayPrintingProps = {
   products: Product[];
-  categories: CategoryWithProducts[];
+  productCategoryTitles: Record<string, string>;
 };
 
-export default function SameDayPrinting({ products, categories }: SameDayPrintingProps) {
+export default function SameDayPrinting({ products, productCategoryTitles }: SameDayPrintingProps) {
   return (
     <section className="relative overflow-hidden bg-stone-50 py-16 lg:py-20">
       <div className="absolute -right-40 -top-20 h-[420px] w-[420px] rounded-full bg-gradient-to-br from-cyan-200/30 to-transparent blur-3xl" />
@@ -95,7 +94,7 @@ export default function SameDayPrinting({ products, categories }: SameDayPrintin
                   <h3 className="font-serif text-lg font-semibold text-stone-900">
                     {product.name}
                   </h3>
-                  <p className="mt-1 text-sm text-stone-500">{categories.find(cat => cat.products.some(p => p.id === product.id))?.title}</p>
+                  <p className="mt-1 text-sm text-stone-500">{productCategoryTitles[product.id]}</p>
                 </div>
               </Link>
             </SwiperSlide>

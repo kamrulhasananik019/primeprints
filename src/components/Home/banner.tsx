@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination, Autoplay, EffectFade } from 'swiper/modules';
 
@@ -90,13 +91,15 @@ interface SlideContentProps {
 function SlideContent({ slide, index, isActive }: SlideContentProps) {
   return (
     <div className="relative w-full h-full overflow-hidden">
-     
-      <div
-        className="absolute inset-0 bg-cover bg-center transition-transform duration-[6000ms] ease-out"
-        style={{
-          backgroundImage: `url(${slide.image})`,
-          transform: isActive ? 'scale(1)' : 'scale(1.07)',
-        }}
+      <Image
+        src={slide.image}
+        alt={slide.headline.join(' ')}
+        fill
+        priority={index === 0}
+        sizes="100vw"
+        className={`absolute inset-0 object-cover object-center transition-transform duration-[6000ms] ease-out ${
+          isActive ? 'scale-100' : 'scale-[1.07]'
+        }`}
       />
 
 
@@ -140,7 +143,7 @@ function SlideContent({ slide, index, isActive }: SlideContentProps) {
 
             
             <a
-              href="#"
+              href="/contact"
               className="anim-cta group inline-flex w-fit items-center gap-2 rounded-sm border border-white/10 bg-white/10 px-5 py-3 text-xs font-semibold tracking-wide text-white backdrop-blur-sm transition-all duration-300 hover:scale-[1.03] hover:border-white/20 hover:bg-white/20 sm:gap-3 sm:px-6 sm:py-3.5 sm:text-sm md:px-8 md:py-4 md:text-base lg:text-lg"
               style={{ background: slide.accent }}
             >

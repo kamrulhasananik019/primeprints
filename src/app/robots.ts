@@ -1,7 +1,8 @@
 import type { MetadataRoute } from 'next';
+import { siteUrl } from '@/lib/site';
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = 'https://primeprints.co.uk';
+  const baseUrl = siteUrl;
 
   return {
     rules: {

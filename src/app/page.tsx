@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import AllProducts from "@/components/Home/allproducts";
 import Banner from "@/components/Home/banner";
 import CategorySlider from "@/components/Home/categoryslider";
@@ -8,29 +9,55 @@ import PromoBar from "@/components/Home/promobar";
 import Reviews from "@/components/Home/reviews";
 import SeasonalFavorites from "@/components/Home/seasonalfavorites";
 import InfiniteMarquee from "@/components/shared/infinite-marquee";
+import { categories } from "@/data/categories";
 import {
-  getCategoriesWithProducts,
   getLatestProducts,
+  getProductCategoryTitleMap,
   getSameDayPrinting,
   getSeasonalFavorites,
 } from "@/lib/catalog";
 
+export const dynamic = "force-static";
+
+export const metadata: Metadata = {
+  title: "Same Day Printing in London",
+  description:
+    "Prime Prints offers same-day printing for business cards, flyers, posters, banners, and custom print products across London.",
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    title: "Prime Prints | Same Day Printing in London",
+    description:
+      "Fast, premium printing for business and personal projects. Same-day options available.",
+    url: "/",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Prime Prints | Same Day Printing in London",
+    description:
+      "Fast, premium printing for business and personal projects. Same-day options available.",
+  },
+};
+
 
 export default function Home() {
-  const categories = getCategoriesWithProducts();
   const latestProducts = getLatestProducts();
   const sameDayPrinting = getSameDayPrinting();
   const seasonalFavorites = getSeasonalFavorites();
+  const latestCategoryTitles = getProductCategoryTitleMap(latestProducts);
+  const sameDayCategoryTitles = getProductCategoryTitleMap(sameDayPrinting);
   const categoryTitles = categories.map((cat) => cat.title);
 
   return (
-  <section className="overflow-hidden bg-linear-to-br from-slate-50 to-white font-['DM_Sans',sans-serif] ">
+  <section className="overflow-hidden bg-linear-to-br from-slate-50 to-white font-sans">
     <Banner />
     <InfiniteMarquee bottomItems={categoryTitles} />
     <PromoBar/>
     <CategorySlider categories={categories} />
-      <SameDayPrinting products={sameDayPrinting} categories={categories} />
-     <AllProducts products={latestProducts} categories={categories} />
+      <SameDayPrinting products={sameDayPrinting} productCategoryTitles={sameDayCategoryTitles} />
+     <AllProducts products={latestProducts} productCategoryTitles={latestCategoryTitles} />
     <SeasonalFavorites products={seasonalFavorites} />
     <Faq/>
     <Reviews/>

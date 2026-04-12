@@ -5,10 +5,10 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation } from 'swiper/modules';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
-import type { CategoryWithProducts } from '@/lib/catalog';
+import type { Category } from '@/data/categories';
 
 type CategorySliderProps = {
-  categories: CategoryWithProducts[];
+  categories: Category[];
 };
 
 export default function CategorySlider({ categories }: CategorySliderProps) {

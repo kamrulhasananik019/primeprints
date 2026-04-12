@@ -6,6 +6,7 @@ import { Clock, Layers, Package, Ruler, Star } from 'lucide-react';
 import InfiniteMarquee from '@/components/shared/infinite-marquee';
 import { allProducts } from '@/data/products';
 import { getCategoriesWithProducts, getPrimaryImage, getRelatedProducts } from '@/lib/catalog';
+import { siteUrl } from '@/lib/site';
 
 export const dynamic = 'force-static';
 
@@ -50,6 +51,12 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       url: `/products/${slug}`,
       images: [{ url: productImage, alt: productName }],
       type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${productName} | Prime Prints`,
+      description: productDescription,
+      images: [productImage],
     },
   };
 }
@@ -100,9 +107,33 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
     .filter(Boolean)
     .slice(0, 6);
   const categoryTitles = categories.map((cat) => cat.title);
+  const productJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: product.name,
+    description: product.details || product.description,
+    category: category.title,
+    image: galleryImages.length > 0 ? galleryImages : [primaryImage],
+    sku: product.id,
+    brand: {
+      '@type': 'Brand',
+      name: 'Prime Prints',
+    },
+    url: `${siteUrl}/products/${product.slug}`,
+    offers: {
+      '@type': 'Offer',
+      priceCurrency: 'GBP',
+      availability: 'https://schema.org/InStock',
+      url: `${siteUrl}/contact?category=${category.slug}&product=${product.slug}`,
+    },
+  };
 
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 to-white">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+      />
       <div className="bg-linear-to-r from-slate-900 to-slate-800 text-white sticky top-0 z-20 shadow-md">
         <div className="container mx-auto px-4 md:px-8 lg:px-16 py-4 flex items-center justify-between">
           <Link
@@ -125,6 +156,8 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                 width={1200}
                 height={1200}
                 priority
+                fetchPriority="high"
+                sizes="(max-width: 1024px) 100vw, 50vw"
                 className="w-full h-full object-cover"
               />
               <div className="absolute inset-0 bg-linear-to-t from-slate-900/20 via-transparent to-transparent" />

@@ -1,36 +1,19 @@
 'use client';
 
-import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import type { Product } from '@/data/products';
-import type { CategoryWithProducts } from '@/lib/catalog';
 import { getPrimaryImage } from '@/lib/catalog';
 
 type AllProductsProps = {
   products: Product[];
-  categories: CategoryWithProducts[];
+  productCategoryTitles: Record<string, string>;
 };
 
-export default function AllProducts({ products, categories }: AllProductsProps) {
-  const [activeCategory, setActiveCategory] = useState('All');
-
-  const filtered =
-    activeCategory === 'All'
-      ? products
-      : products.filter((p) => {
-          const category = categories.find(cat => cat.products.some(prod => prod.id === p.id));
-          return category?.title === activeCategory;
-        });
+export default function AllProducts({ products, productCategoryTitles }: AllProductsProps) {
 
   return (
-    <section className="min-h-screen bg-gradient-to-br from-slate-50 to-white font-['DM_Sans',sans-serif] pt-10 container mx-auto px-4">
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;700&display=swap');
-        .serif-title { font-family: 'Playfair Display', serif; }
-      `}</style>
-
-
+    <section className="container mx-auto min-h-screen bg-gradient-to-br from-slate-50 to-white px-4 pt-10 font-sans">
    <div className="mb-10 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <div className='mx-auto container'>
             <span className="mb-2 block text-[11px] font-medium uppercase tracking-[0.18em] text-stone-500">
@@ -46,8 +29,8 @@ export default function AllProducts({ products, categories }: AllProductsProps) 
 
       <div className=" py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filtered.map((product) => {
-            const categoryTitle = categories.find((cat) => cat.products.some((prod) => prod.id === product.id))?.title;
+          {products.map((product) => {
+            const categoryTitle = productCategoryTitles[product.id];
 
             return (
              <Link key={product.id} href={`/products/${product.slug}`}>
@@ -84,7 +67,7 @@ export default function AllProducts({ products, categories }: AllProductsProps) 
           })}
         </div>
 
-        {filtered.length === 0 && (
+        {products.length === 0 && (
           <div className="text-center py-24">
             <p className="text-4xl mb-4">🖨️</p>
             <p className="text-slate-400 text-lg">No products in this category yet.</p>
