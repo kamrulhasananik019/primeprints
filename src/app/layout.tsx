@@ -97,12 +97,6 @@ export default function RootLayout({
       lang="en-GB"
       className={`${playfairDisplay.variable} ${dmSans.variable} h-full antialiased`}
     >
-      <head>
-        <link rel="preconnect" href="https://images.unsplash.com" crossOrigin="anonymous" />
-        <link rel="dns-prefetch" href="https://images.unsplash.com" />
-        <link rel="preconnect" href="https://www.google.com" crossOrigin="anonymous" />
-        <link rel="dns-prefetch" href="https://www.google.com" />
-      </head>
       <body className="min-h-full flex flex-col">
         <script
           type="application/ld+json"
