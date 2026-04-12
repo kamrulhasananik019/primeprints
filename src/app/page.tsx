@@ -8,10 +8,19 @@ import PromoBar from "@/components/Home/promobar";
 import Reviews from "@/components/Home/reviews";
 import SeasonalFavorites from "@/components/Home/seasonalfavorites";
 import InfiniteMarquee from "@/components/shared/infinite-marquee";
-import { categories } from "@/utils/data";
+import {
+  getCategoriesWithProducts,
+  getLatestProducts,
+  getSameDayPrinting,
+  getSeasonalFavorites,
+} from "@/lib/catalog";
 
 
 export default function Home() {
+  const categories = getCategoriesWithProducts();
+  const latestProducts = getLatestProducts();
+  const sameDayPrinting = getSameDayPrinting();
+  const seasonalFavorites = getSeasonalFavorites();
   const categoryTitles = categories.map((cat) => cat.title);
 
   return (
@@ -19,10 +28,10 @@ export default function Home() {
     <Banner />
     <InfiniteMarquee bottomItems={categoryTitles} />
     <PromoBar/>
-    <CategorySlider/>
-      <SameDayPrinting/>
-     <AllProducts/>
-    <SeasonalFavorites/>
+    <CategorySlider categories={categories} />
+      <SameDayPrinting products={sameDayPrinting} categories={categories} />
+     <AllProducts products={latestProducts} categories={categories} />
+    <SeasonalFavorites products={seasonalFavorites} />
     <Faq/>
     <Reviews/>
     <LocationMap/>    

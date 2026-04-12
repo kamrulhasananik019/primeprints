@@ -14,7 +14,11 @@ import {
   Search,
   X,
 } from 'lucide-react';
-import { categories } from '@/utils/data';
+import type { CategoryWithProducts } from '@/lib/catalog';
+
+type NavbarProps = {
+  categories: CategoryWithProducts[];
+};
 
 function chunkProducts<T>(items: T[], size: number): T[][] {
   const chunks: T[][] = [];
@@ -25,7 +29,7 @@ function chunkProducts<T>(items: T[], size: number): T[][] {
   return chunks;
 }
 
-export default function Navbar() {
+export default function Navbar({ categories }: NavbarProps) {
   const pathname = usePathname();
   const router = useRouter();
 

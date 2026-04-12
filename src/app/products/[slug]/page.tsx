@@ -4,12 +4,15 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Clock, Layers, Package, Ruler, Star } from 'lucide-react';
 import InfiniteMarquee from '@/components/shared/infinite-marquee';
-import { categories, getPrimaryImage, getRelatedProducts } from '@/utils/data';
+import { allProducts } from '@/data/products';
+import { getCategoriesWithProducts, getPrimaryImage, getRelatedProducts } from '@/lib/catalog';
+
+export const dynamic = 'force-static';
+
+const categories = getCategoriesWithProducts();
 
 export function generateStaticParams() {
-  return categories.flatMap((category) =>
-    category.products.map((product) => ({ slug: product.slug }))
-  );
+  return allProducts.map((product) => ({ slug: product.slug }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {

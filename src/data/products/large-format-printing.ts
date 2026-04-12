@@ -1,0 +1,25 @@
+import type { Product } from '../categories';
+
+export const largeFormatPrinting: Product[] = [
+  { id: 'lf-01', slug: 'poster-printing', name: 'Poster Printing', category: 'large-format-printing', images: [], description: 'High res posters.', specs: { ink: 'UV Stable' }, status: 'Standard' },
+  { id: 'lf-02', slug: 'a0-printing', name: 'A0 Printing', category: 'large-format-printing', images: [], description: 'Giant format A0.', specs: { size: '841 x 1189 mm' }, status: 'Large' },
+  { id: 'lf-03', slug: 'a1-printing', name: 'A1 Printing', category: 'large-format-printing', images: [], description: 'Standard large A1.', specs: { size: '594 x 841 mm' }, status: 'Standard' },
+  { id: 'lf-04', slug: 'a2-printing', name: 'A2 Printing', category: 'large-format-printing', images: [], description: 'Medium large A2.', specs: { size: '420 x 594 mm' }, status: 'Standard' },
+  { id: 'lf-05', slug: 'a3-printing', name: 'A3 Printing', category: 'large-format-printing', images: [], description: 'Small format A3.', specs: { size: '297 x 420 mm' }, status: 'Standard' },
+  { id: 'lf-06', slug: 'academic-poster-printing', name: 'Academic Poster Printing', category: 'large-format-printing', images: [], description: 'Conference posters.', specs: { material: 'Fabric/Paper' }, status: 'Academic' },
+  { id: 'lf-07', slug: 'medical-poster-printing', name: 'Medical Poster Printing', category: 'large-format-printing', images: [], description: 'Scientific posters.', specs: { detail: 'Ultra Fine' }, status: 'Professional' },
+  { id: 'lf-08', slug: 'banner-printing', name: 'Banner Printing', category: 'large-format-printing', images: [], description: 'Vinyl banner prints.', specs: { outdoor: 'Yes' }, status: 'latest' },
+  { id: 'lf-09', slug: 'outdoor-banner-printing', name: 'Outdoor Banner Printing', category: 'large-format-printing', images: [], description: 'Weatherproof banners.', specs: { material: 'Mesh/Vinyl' }, status: 'HeavyDuty' },
+  { id: 'lf-10', slug: 'indoor-banner-printing', name: 'Indoor Banner Printing', category: 'large-format-printing', images: [], description: 'Event banners.', specs: { material: 'Satin Fabric' }, status: 'Event' },
+  { id: 'lf-11', slug: 'roller-banner', name: 'Roller Banner / Pull-Up Banner', category: 'large-format-printing', images: [], description: 'Portable displays.', specs: { case: 'Included' }, status: 'TopSeller' },
+  { id: 'lf-12', slug: 'foam-board-printing', name: 'Foam Board Printing', category: 'large-format-printing', images: [], description: 'Lightweight boards.', specs: { thickness: '5mm/10mm' }, status: 'Rigid' },
+  { id: 'lf-13', slug: 'foamex-printing', name: 'Foamex Printing', category: 'large-format-printing', images: [], description: 'Durable plastic boards.', specs: { material: 'PVC Foam' }, status: 'Rigid' },
+  { id: 'lf-14', slug: 'sticker-printing-large', name: 'Sticker Printing', category: 'large-format-printing', images: [], description: 'Large format stickers.', specs: { type: 'Vinyl' }, status: 'Standard' },
+  { id: 'lf-15', slug: 'car-stickers', name: 'Car Stickers', category: 'large-format-printing', images: [], description: 'Vehicle decals.', specs: { finish: 'Weatherproof' }, status: 'Outdoor' },
+  { id: 'lf-16', slug: 'information-boards-printing', name: 'Information Boards Printing', category: 'large-format-printing', images: [], description: 'Wayfinding signs.', specs: { material: 'Dibond/Foamex' }, status: 'Signage' },
+  { id: 'lf-17', slug: 'plan-printing', name: 'Plan Printing', category: 'large-format-printing', images: [], description: 'Architectural plans.', specs: { type: 'Line Drawing' }, status: 'Professional' },
+  { id: 'lf-18', slug: 'pattern-printing', name: 'Pattern Printing', category: 'large-format-printing', images: [], description: 'Sewing and design patterns.', specs: { paper: '60-80gsm' }, status: 'Custom' },
+  { id: 'lf-19', slug: 'wallpaper-printing', name: 'Wallpaper Printing', category: 'large-format-printing', images: [], description: 'Custom wall graphics.', specs: { paste: 'Included/Custom' }, status: 'Decor' },
+  { id: 'lf-20', slug: 'sign-printing', name: 'Sign Printing', category: 'large-format-printing', images: [], description: 'Business signage.', specs: { mount: 'Wall/Post' }, status: 'Corporate' },
+  { id: 'lf-21', slug: 'point-of-sale-printing', name: 'Point of Sale Printing', category: 'large-format-printing', images: [], description: 'Retail POS displays.', specs: { type: 'Counter/Floor' }, status: 'Retail' },
+];

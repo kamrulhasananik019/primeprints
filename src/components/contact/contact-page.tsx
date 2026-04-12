@@ -15,7 +15,7 @@ import {
   Phone,
   Send,
 } from "lucide-react";
-import { categories } from "@/utils/data";
+import type { CategoryWithProducts } from "@/lib/catalog";
 
 const CUSTOM_CATEGORY_VALUE = "__custom_category__";
 const CUSTOM_PRODUCT_VALUE = "__custom_product__";
@@ -56,12 +56,16 @@ const officeHours = [
   { day: "Sunday", hours: "Closed" },
 ];
 
-export default function ContactPageContent() {
+type ContactPageContentProps = {
+  categories: CategoryWithProducts[];
+};
+
+export default function ContactPageContent({ categories }: ContactPageContentProps) {
   const searchParams = useSearchParams();
 
   const sortedCategories = useMemo(
     () => [...categories].sort((a, b) => a.title.localeCompare(b.title)),
-    []
+    [categories]
   );
 
   const initialSelection = useMemo(() => {
@@ -144,7 +148,6 @@ export default function ContactPageContent() {
 
   return (
     <div className="min-h-screen bg-stone-50 text-stone-900 font-sans">
-      {/* Header Section */}
       <header className="relative overflow-hidden border-b border-stone-200 bg-white">
         <div className="absolute -left-24 top-0 h-72 w-72 rounded-full bg-amber-100/60 blur-3xl" />
         <div className="absolute -right-24 bottom-0 h-72 w-72 rounded-full bg-sky-100/70 blur-3xl" />
@@ -195,11 +198,9 @@ export default function ContactPageContent() {
         </div>
       </header>
 
-      {/* Main Content Area */}
       <main className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
         <div className="lg:grid lg:grid-cols-3 lg:gap-12">
-          
-          {/* Left Column: Form */}
+
           <div className="lg:col-span-2">
             <div className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm sm:p-8">
               <h2 className="mb-2 text-2xl font-bold text-stone-900">Send us a request</h2>
@@ -436,7 +437,6 @@ export default function ContactPageContent() {
             </div>
           </div>
 
-          {/* Right Column: Contact Info & Map */}
           <div className="mt-12 space-y-8 lg:col-span-1 lg:mt-0">
 
             <div className="rounded-2xl border border-stone-200 bg-stone-900 p-6 text-white sm:p-8">
@@ -460,7 +460,6 @@ export default function ContactPageContent() {
               </div>
             </div>
             
-            {/* Contact Methods Card */}
             <div className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm sm:p-8">
               <h3 className="mb-6 text-lg font-semibold text-stone-900">Contact Information</h3>
               <dl className="space-y-6">
@@ -486,7 +485,6 @@ export default function ContactPageContent() {
               </dl>
             </div>
 
-            {/* Hours Card */}
             <div className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm sm:p-8">
               <div className="flex items-center gap-2 mb-6">
                 <Clock3 className="h-5 w-5 text-stone-500" />
@@ -502,7 +500,6 @@ export default function ContactPageContent() {
               </ul>
             </div>
 
-            {/* Map Card */}
             <div className="overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm">
               <div className="relative h-48 w-full bg-stone-200">
                  <iframe

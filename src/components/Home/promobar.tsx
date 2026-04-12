@@ -38,7 +38,6 @@ const items: PromoItem[] = [
 export default function PromoBar() {
   return (
     <section className="bg-[#f5f5f5]">
-      {/* Desktop */}
       <div className="hidden md:grid grid-cols-3  mx-auto">
         {items.map((item, index) => {
           const Icon = item.icon;
@@ -65,7 +64,6 @@ export default function PromoBar() {
         })}
       </div>
 
-      {/* Mobile & Tablet Slider */}
       <div className="md:hidden max-w-7xl mx-auto">
         <Swiper
           modules={[Autoplay]}

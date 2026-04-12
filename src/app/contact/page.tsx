@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import ContactPageContent from "@/components/contact/contact-page";
+import { getCategoriesWithProducts } from "@/lib/catalog";
 
 export const metadata: Metadata = {
   title: "Contact | Prime Prints",
@@ -9,9 +10,11 @@ export const metadata: Metadata = {
 };
 
 export default function ContactPage() {
+  const categories = getCategoriesWithProducts();
+
   return (
     <Suspense fallback={<div className="min-h-screen bg-stone-50" />}>
-      <ContactPageContent />
+      <ContactPageContent categories={categories} />
     </Suspense>
   );
 }

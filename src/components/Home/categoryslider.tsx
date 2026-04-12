@@ -1,22 +1,24 @@
 'use client';
 
+import Image from 'next/image';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation } from 'swiper/modules';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
-import { categories } from '@/utils/data';
+import type { CategoryWithProducts } from '@/lib/catalog';
 
-// import 'swiper/css';
-// import 'swiper/css/navigation';
+type CategorySliderProps = {
+  categories: CategoryWithProducts[];
+};
 
-export default function CategorySlider() {
+export default function CategorySlider({ categories }: CategorySliderProps) {
   return (
     <section className="relative overflow-hidden bg-stone-100 py-16 lg:py-20">
-      <div className="absolute   h-[420px] w-[420px] rounded-full bg-gradient-to-br from-stone-200/70 to-transparent blur-3xl" />
+      <div className="absolute h-[420px] w-[420px] rounded-full bg-gradient-to-br from-stone-200/70 to-transparent blur-3xl" />
 
       <div className="mx-auto  px-4 sm:px-6 lg:px-6">
         <div className="mb-10 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-          <div className='mx-auto container'>
+          <div className="mx-auto container">
             <span className="mb-2 block text-[11px] font-medium uppercase tracking-[0.18em] text-stone-500">
               Our Products
             </span>
@@ -64,9 +66,11 @@ export default function CategorySlider() {
               <Link href={`/categories/${category.slug}`}>
                 <div className="group cursor-pointer">
                   <div className="relative mb-4 aspect-[3/3] overflow-hidden rounded-3xl bg-stone-200">
-                    <img
+                    <Image
                       src={category.image}
                       alt={category.title}
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 20vw"
                       className="h-full w-full object-cover transition duration-500 group-hover:scale-110"
                     />
 

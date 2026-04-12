@@ -2,25 +2,29 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { getLatestProducts, categories, getPrimaryImage } from '@/utils/data';
+import Image from 'next/image';
+import type { Product } from '@/data/products';
+import type { CategoryWithProducts } from '@/lib/catalog';
+import { getPrimaryImage } from '@/lib/catalog';
 
-const allProducts = getLatestProducts();
-const CATEGORIES = ['All', ...Array.from(new Set(categories.map((c) => c.title)))];
+type AllProductsProps = {
+  products: Product[];
+  categories: CategoryWithProducts[];
+};
 
-export default function AllProducts() {
+export default function AllProducts({ products, categories }: AllProductsProps) {
   const [activeCategory, setActiveCategory] = useState('All');
 
   const filtered =
     activeCategory === 'All'
-      ? allProducts
-      : allProducts.filter((p) => {
+      ? products
+      : products.filter((p) => {
           const category = categories.find(cat => cat.products.some(prod => prod.id === p.id));
           return category?.title === activeCategory;
         });
 
   return (
     <section className="min-h-screen bg-gradient-to-br from-slate-50 to-white font-['DM_Sans',sans-serif] pt-10 container mx-auto px-4">
-      {/* Google Fonts */}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;700&display=swap');
         .serif-title { font-family: 'Playfair Display', serif; }
@@ -48,20 +52,19 @@ export default function AllProducts() {
             return (
              <Link key={product.id} href={`/products/${product.slug}`}>
   <div className="group cursor-pointer">
-    {/* Image Container - Matches aspect ratio and rounding */}
     <div className="relative mb-4 aspect-[3/3] overflow-hidden rounded-3xl bg-stone-200">
-      <img
+      <Image
         src={getPrimaryImage(product)}
         alt={product.name}
+        fill
+        sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 25vw"
         className="h-full w-full object-cover transition duration-500 group-hover:scale-110"
       />
 
-      {/* Top Left Badge - Now matches the Stone/White Category style */}
       <div className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-[10px] font-medium uppercase tracking-[0.14em] text-stone-700 backdrop-blur">
         Latest
       </div>
 
-      {/* Hover Overlay - Softened to match the clean aesthetic */}
       <div className="absolute inset-0 flex items-end bg-gradient-to-t from-stone-900/40 to-transparent p-6 opacity-0 transition duration-300 group-hover:opacity-100">
         <span className="text-xs font-medium uppercase tracking-widest text-white">
           View Details
@@ -69,7 +72,6 @@ export default function AllProducts() {
       </div>
     </div>
 
-    {/* Typography - Matches Serif headings and Stone secondary text */}
     <h3 className="font-serif text-lg font-semibold text-stone-900">
       {product.name}
     </h3>

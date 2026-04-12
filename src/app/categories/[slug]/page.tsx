@@ -2,8 +2,12 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { categories, getPrimaryImage } from '@/utils/data';
+import { getCategoriesWithProducts, getPrimaryImage } from '@/lib/catalog';
 import InfiniteMarquee from '@/components/shared/infinite-marquee';
+
+export const dynamic = 'force-static';
+
+const categories = getCategoriesWithProducts();
 
 export function generateStaticParams() {
   return categories.map((category) => ({ slug: category.slug }));

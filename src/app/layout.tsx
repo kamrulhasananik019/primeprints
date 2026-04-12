@@ -3,6 +3,7 @@ import { Playfair_Display, DM_Sans } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/layout/navbar";
 import Footer from "@/components/layout/footer";
+import { getCategoriesWithProducts } from "@/lib/catalog";
 
 const playfairDisplay = Playfair_Display({
   variable: "--font-playfair-display",
@@ -61,13 +62,15 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const categories = getCategoriesWithProducts();
+
   return (
     <html
       lang="en"
       className={`${playfairDisplay.variable} ${dmSans.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <Navbar />
+        <Navbar categories={categories} />
         {children}
         <Footer />
       </body>

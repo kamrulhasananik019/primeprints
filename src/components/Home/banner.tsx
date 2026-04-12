@@ -106,7 +106,6 @@ function SlideContent({ slide, index, isActive }: SlideContentProps) {
       {isActive && (
         <div className="relative z-10 flex h-full items-center justify-center md:justify-start px-4 sm:px-8 md:px-12 lg:px-20 xl:px-28">
           <div className="max-w-full sm:max-w-2xl lg:max-w-4xl text-center md:text-left mt-5">
-            {/* Tag */}
             <div>
               <span
               className="anim-tag mb-3 inline-block w-fit rounded-sm border px-2 py-1 text-[10px] font-medium uppercase tracking-[0.18em] sm:mb-5 sm:px-3 sm:text-xs md:px-4 md:text-sm lg:text-base"

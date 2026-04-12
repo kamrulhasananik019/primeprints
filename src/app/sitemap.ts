@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next';
-import { categories } from '@/utils/data';
+import { allProducts } from '@/data/products';
+import { categories } from '@/data/categories';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = 'https://primeprints.co.uk';
@@ -26,14 +27,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.8,
   }));
 
-  const productRoutes: MetadataRoute.Sitemap = categories.flatMap((category) =>
-    category.products.map((product) => ({
-      url: `${baseUrl}/products/${product.slug}`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.7,
-    }))
-  );
+  const productRoutes: MetadataRoute.Sitemap = allProducts.map((product) => ({
+    url: `${baseUrl}/products/${product.slug}`,
+    lastModified: new Date(),
+    changeFrequency: 'weekly',
+    priority: 0.7,
+  }));
 
   return [...staticRoutes, ...categoryRoutes, ...productRoutes];
 }

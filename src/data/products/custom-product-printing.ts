@@ -1,0 +1,26 @@
+import type { Product } from '../categories';
+
+export const customProductPrinting: Product[] = [
+  { id: 'cp-01', slug: 'conference-name-badges', name: 'Conference Name Badges Printing', category: 'custom-product-printing', images: [], description: 'Professional badges.', specs: { type: 'Clip/Pin' }, status: 'Event' },
+  { id: 'cp-02', slug: 'certificate-printing', name: 'Certificate Printing', category: 'custom-product-printing', images: [], description: 'Award certificates.', specs: { paper: 'Parchment/Textured' }, status: 'latest' },
+  { id: 'cp-03', slug: 'number-plate-printing', name: 'Number Plate Printing', category: 'custom-product-printing', images: [], description: 'Standard plates.', specs: { material: 'Acrylic' }, status: 'Auto' },
+  { id: 'cp-04', slug: 'invitation-printing', name: 'Invitation Printing', category: 'custom-product-printing', images: [], description: 'Wedding & Event invites.', specs: { envelopes: 'Optional' }, status: 'Personal' },
+  { id: 'cp-05', slug: 'wedding-table-name-cards', name: 'Wedding Table Name Cards', category: 'custom-product-printing', images: [], description: 'Elegant place cards.', specs: { finish: 'Gold Foil/Matte' }, status: 'Wedding' },
+  { id: 'cp-06', slug: 'table-plan-printing', name: 'Table Plan Printing', category: 'custom-product-printing', images: [], description: 'Seating charts.', specs: { base: 'Foamex' }, status: 'Wedding' },
+  { id: 'cp-07', slug: 'photo-printing', name: 'Photo Printing', category: 'custom-product-printing', images: [], description: 'High gloss photos.', specs: { paper: 'Photo Gloss' }, status: 'Personal' },
+  { id: 'cp-08', slug: 'portfolio-printing', name: 'Portfolio Printing', category: 'custom-product-printing', images: [], description: 'Design portfolios.', specs: { quality: 'HD Print' }, status: 'Creative' },
+  { id: 'cp-09', slug: 'lanyard-printing', name: 'Lanyard Printing', category: 'custom-product-printing', images: [], description: 'Custom neck straps.', specs: { width: '15mm/20mm' }, status: 'Event' },
+  { id: 'cp-10', slug: 'photocopy', name: 'Photocopy', category: 'custom-product-printing', images: [], description: 'Quick copy services.', specs: { color: 'B&W/Full' }, status: 'Essential' },
+  { id: 'cp-11', slug: 'napkin-printing', name: 'Napkin Printing', category: 'custom-product-printing', images: [], description: 'Event napkins.', specs: { ply: '2-ply/3-ply' }, status: 'Event' },
+  { id: 'cp-12', slug: 'pen-printing', name: 'Pen Printing', category: 'custom-product-printing', images: [], description: 'Promotional pens.', specs: { ink: 'Black/Blue' }, status: 'Promo' },
+  { id: 'cp-13', slug: 'mug-printing', name: 'Mug Printing', category: 'custom-product-printing', images: [], description: 'Custom ceramic mugs.', specs: { dishwasher: 'Safe' }, status: 'Gift' },
+  { id: 'cp-14', slug: 'canvas-printing', name: 'Canvas Printing', category: 'custom-product-printing', images: [], description: 'Wall art canvas.', specs: { frame: 'Wood Stretcher' }, status: 'Decor' },
+  { id: 'cp-15', slug: 'bookmark-printing', name: 'Bookmark Printing', category: 'custom-product-printing', images: [], description: 'Paper/Card bookmarks.', specs: { finish: 'Laminated' }, status: 'Gift' },
+  { id: 'cp-16', slug: 'hanging-labels-printing', name: 'Hanging Labels Printing', category: 'custom-product-printing', images: [], description: 'Swing tags.', specs: { hole: 'Punched' }, status: 'Retail' },
+  { id: 'cp-17', slug: 'custom-packaging', name: 'Custom Packaging', category: 'custom-product-printing', images: [], description: 'Branded boxes.', specs: { material: 'Cardboard' }, status: 'Retail' },
+  { id: 'cp-18', slug: 'cd-cover-printing', name: 'CD Cover Printing', category: 'custom-product-printing', images: [], description: 'Sleeves and inlays.', specs: { size: 'Standard CD' }, status: 'Standard' },
+  { id: 'cp-19', slug: 'greeting-cards-printing', name: 'Greeting Cards Printing', category: 'custom-product-printing', images: [], description: 'Bespoke cards.', specs: { inside: 'Printed/Blank' }, status: 'Seasonal' },
+  { id: 'cp-20', slug: 'newsletter-printing', name: 'Newsletter Printing', category: 'custom-product-printing', images: [], description: 'Corporate newsletters.', specs: { pages: 'Multi' }, status: 'Standard' },
+  { id: 'cp-21', slug: 'personalised-notebook-printing', name: 'Personalised Notebook Printing', category: 'custom-product-printing', images: [], description: 'Branded journals.', specs: { cover: 'Hard/Soft' }, status: 'Gift' },
+  { id: 'cp-22', slug: 'placemat-printing', name: 'Placemat Printing', category: 'custom-product-printing', images: [], description: 'Dining placemats.', specs: { finish: 'Wipeable' }, status: 'Hospitality' },
+];

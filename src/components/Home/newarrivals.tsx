@@ -1,25 +1,21 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation } from 'swiper/modules';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
-import { getSameDayPrinting, getPrimaryImage, categories } from '@/utils/data';
+import type { Product } from '@/data/products';
+import type { CategoryWithProducts } from '@/lib/catalog';
+import { getPrimaryImage } from '@/lib/catalog';
 
-// import 'swiper/css';
-// import 'swiper/css/navigation';
+type SameDayPrintingProps = {
+  products: Product[];
+  categories: CategoryWithProducts[];
+};
 
-function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[^\w ]+/g, '')
-    .replace(/ +/g, '-');
-}
-
-export default function SameDayPrinting() {
-  const sameDayPrinting = getSameDayPrinting();
-
+export default function SameDayPrinting({ products, categories }: SameDayPrintingProps) {
   return (
     <section className="relative overflow-hidden bg-stone-50 py-16 lg:py-20">
       <div className="absolute -right-40 -top-20 h-[420px] w-[420px] rounded-full bg-gradient-to-br from-cyan-200/30 to-transparent blur-3xl" />
@@ -72,14 +68,16 @@ export default function SameDayPrinting() {
           }}
           className="!overflow-visible"
         >
-          {sameDayPrinting.map((product) => (
+          {products.map((product) => (
             <SwiperSlide key={product.id} className="h-auto">
               <Link href={`/products/${product.slug}`}>
                 <div className="group cursor-pointer">
                   <div className="relative mb-4 aspect-[3/3] overflow-hidden rounded-3xl bg-stone-200">
-                    <img
+                    <Image
                       src={getPrimaryImage(product)}
                       alt={product.name}
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 20vw"
                       className="h-full w-full object-cover transition duration-500 group-hover:scale-110"
                     />
 
@@ -98,7 +96,6 @@ export default function SameDayPrinting() {
                     {product.name}
                   </h3>
                   <p className="mt-1 text-sm text-stone-500">{categories.find(cat => cat.products.some(p => p.id === product.id))?.title}</p>
-                  {/* <p className="mt-2 text-base font-bold text-cyan-600">${product.price}</p> */}
                 </div>
               </Link>
             </SwiperSlide>
