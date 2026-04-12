@@ -28,8 +28,6 @@ export default function AllProducts({ products, productCategoryTitles }: AllProd
       <div className=" py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {products.map((product) => {
-            const categoryTitle = productCategoryTitles[product.id];
-
             return (
              <Link key={product.id} href={`/products/${product.slug}`}>
   <div className="group cursor-pointer">
@@ -56,9 +54,6 @@ export default function AllProducts({ products, productCategoryTitles }: AllProd
     <h3 className="font-serif text-lg font-semibold text-stone-900">
       {product.name}
     </h3>
-    <p className="mt-1 text-sm text-stone-500">
-      {categoryTitle}
-    </p>
   </div>
 </Link>
             );

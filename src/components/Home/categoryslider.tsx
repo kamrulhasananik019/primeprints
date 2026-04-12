@@ -82,7 +82,6 @@ export default function CategorySlider({ categories }: CategorySliderProps) {
                   <h3 className="font-serif text-lg font-semibold text-stone-900">
                     {category.title}
                   </h3>
-                  <p className="mt-1 text-sm text-stone-500">{category.tag}</p>
                 </div>
               </Link>
             </SwiperSlide>

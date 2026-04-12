@@ -2,8 +2,10 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import RichContent from '@/components/shared/rich-content';
 import { getCategoriesWithProducts, getPrimaryImage } from '@/lib/catalog';
 import InfiniteMarquee from '@/components/shared/infinite-marquee';
+import { isSameRichContent, richContentToPlainText } from '@/lib/rich-content';
 
 export const dynamic = 'force-static';
 
@@ -26,13 +28,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   return {
     title: category.title,
-    description: category.description,
+    description: richContentToPlainText(category.shortDescription || category.longDescription || category.description),
     alternates: {
       canonical: `/categories/${category.slug}`,
     },
     openGraph: {
       title: `${category.title} | Prime Prints`,
-      description: category.description,
+      description: richContentToPlainText(category.shortDescription || category.longDescription || category.description),
       url: `/categories/${category.slug}`,
       images: [{ url: category.image, alt: category.title }],
       type: 'website',
@@ -40,7 +42,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     twitter: {
       card: 'summary_large_image',
       title: `${category.title} | Prime Prints`,
-      description: category.description,
+      description: richContentToPlainText(category.shortDescription || category.longDescription || category.description),
       images: [category.image],
     },
   };
@@ -54,14 +56,25 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
     notFound();
   }
 
+  const categoryShortDescription = category.shortDescription || category.description;
+  const categoryLongDescription = category.longDescription || category.description;
+
   return (
-    <div className="min-h-screen bg-linear-to-br from-stone-50 to-white">
-      <div className="relative overflow-hidden border-b border-stone-200/70">
-        <div className="absolute -right-28 -top-24 h-72 w-72 rounded-full blur-3xl" style={{ backgroundColor: `${category.accent}30` }} />
-        <div className="container mx-auto px-4 py-16 sm:px-6 lg:px-8">
-          <Link href="/" className="mb-8 inline-flex items-center gap-2 text-sm font-medium text-stone-600 transition hover:text-stone-900">
+    <div className="min-h-screen bg-stone-50">
+      <div className="sticky top-0 z-20 bg-white/90 backdrop-blur border-b border-stone-200">
+        <div className="container mx-auto flex items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
+          <Link href="/" className="inline-flex items-center gap-2 text-sm font-medium text-stone-600 transition hover:text-stone-900">
             <span>←</span> Back to Home
           </Link>
+          <span className="rounded-lg bg-stone-100 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-stone-700">
+            {category.tag}
+          </span>
+        </div>
+      </div>
+
+      <div className="relative overflow-hidden border-b border-stone-200/70 bg-white">
+        <div className="absolute -right-28 -top-24 h-72 w-72 rounded-full blur-3xl" style={{ backgroundColor: `${category.accent}30` }} />
+        <div className="container mx-auto px-4 py-12 sm:px-6 lg:px-8 lg:py-14">
           <div className="grid items-center gap-10 lg:grid-cols-2">
             <div>
               <span
@@ -73,9 +86,12 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
               <h1 className="mt-4 font-serif text-4xl font-bold leading-tight text-stone-900 sm:text-5xl lg:text-6xl">
                 {category.title}
               </h1>
-              <p className="mt-4 max-w-xl text-base leading-relaxed text-stone-600 sm:text-lg">
-                {category.description}
-              </p>
+              <RichContent
+                content={categoryShortDescription}
+                wrapperClassName="mt-4 max-w-xl space-y-3"
+                textClassName="text-base leading-relaxed text-stone-600"
+                listClassName="list-disc pl-5 text-base leading-relaxed text-stone-600 space-y-1"
+              />
               <p className="mt-6 text-sm font-medium uppercase tracking-[0.16em] text-stone-500">
                 {category.products.length} products available
               </p>
@@ -102,18 +118,35 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
         </div>
       </div>
 
-      <InfiniteMarquee bottomItems={categories.map((cat) => cat.title)} />
+      <div className="container mx-auto px-4 pt-8 sm:px-6 lg:px-8">
+        <InfiniteMarquee bottomItems={categories.map((cat) => cat.title)} />
+      </div>
+
+      {!isSameRichContent(categoryLongDescription, categoryShortDescription) && (
+        <div className="container mx-auto px-4 pt-8 sm:px-6 lg:px-8">
+          <div className="rounded-2xl border border-stone-200 bg-white p-6 md:p-8">
+            <h2 className="font-serif text-2xl font-bold text-stone-900 mb-4">More Details</h2>
+            <RichContent
+              content={categoryLongDescription}
+              wrapperClassName="space-y-3"
+              textClassName="text-base leading-relaxed text-stone-600"
+              listClassName="list-disc pl-5 text-base leading-relaxed text-stone-600 space-y-1"
+            />
+          </div>
+        </div>
+      )}
 
       <div className="container mx-auto px-4 py-14 sm:px-6 lg:px-8">
         {category.products.length > 0 && (
           <div>
-            <h2 className="mb-8 font-serif text-3xl font-bold text-stone-900 sm:text-4xl">
+            <h2 className="mb-2 font-serif text-3xl font-bold text-stone-900 sm:text-4xl">
               Products in {category.title}
             </h2>
+            <p className="mb-8 text-sm text-stone-500">Click any product to view full details and image gallery.</p>
             <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
               {category.products.map((product) => (
                 <Link key={product.id} href={`/products/${product.slug}`}>
-                  <div className="group cursor-pointer">
+                  <div className="group cursor-pointer rounded-3xl border border-stone-200 bg-white p-3 transition hover:border-stone-300 hover:shadow-md">
                     <div className="relative mb-4 aspect-4/5 overflow-hidden rounded-3xl bg-stone-200">
                       <Image
                         src={getPrimaryImage(product) || category.image}
@@ -131,7 +164,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
                       </div>
                     </div>
                     <h3 className="font-serif text-lg font-semibold text-stone-900">{product.name}</h3>
-                    <p className="mt-1 text-sm text-stone-500 line-clamp-2">{product.description}</p>
+                    <p className="mt-2 text-xs font-medium uppercase tracking-[0.14em] text-stone-500">View Details</p>
                   </div>
                 </Link>
               ))}

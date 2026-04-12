@@ -14,10 +14,44 @@ export const paperProducts: Product[] = [
   {
     id: 'pp-02',
     slug: 'business-cards',
+    title: 'Business Card Printing UK | Same Day Business Cards | Prime Print',
     name: 'Business Cards',
     category: 'paper-products',
     images: [{ url: 'https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=600', alt: 'Business Cards', isPrimary: true }],
-    description: 'Premium quality cards.',
+    description: 'High-quality business cards printed on premium paper.',
+    shortDescription: [
+      {
+        type: 'text',
+        content:
+          'Prime Print offers same day and next day business card printing across the UK with premium quality, fast turnaround, and reliable nationwide delivery.',
+      },
+      {
+        type: 'list',
+        items: ['Urgent same day printing available', 'Free proof before print', 'Affordable and premium options for all business sizes'],
+      },
+    ],
+    longDescription: [
+      {
+        type: 'text',
+        content:
+          'Business card printing in the UK has never been easier. Prime Print supports freelancers, startups, corporate teams, and event professionals with flexible quantities and dependable turnaround for urgent and planned orders.',
+      },
+      {
+        type: 'list',
+        items: [
+          'Standard size 85mm x 55mm plus custom sizes',
+          'Single-sided and double-sided printing',
+          'Premium card stocks including 400gsm, 450gsm, and 600gsm',
+          'Gloss, matt, soft touch, spot UV, foil stamping, and uncoated finishes',
+          'Nationwide delivery across London, Manchester, Birmingham, and all major UK cities',
+        ],
+      },
+      {
+        type: 'text',
+        content:
+          'From networking events and trade shows to daily business use, Prime Print combines quality, speed, and value. Order online at primeprint.uk with 24/7 ordering and responsive support for artwork, finish selection, and delivery timelines.',
+      },
+    ],
     specs: { material: '450gsm Silk', size: '85x55mm' },
     status: 'latest',
   },

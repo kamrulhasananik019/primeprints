@@ -4,14 +4,29 @@ export interface ProductImage {
   isPrimary?: boolean;
 }
 
+export type RichDescriptionBlock =
+  | {
+      type: 'text';
+      content: string;
+    }
+  | {
+      type: 'list';
+      items: string[];
+    };
+
+export type RichDescription = string | RichDescriptionBlock[];
+
 export interface Product {
   id: string;
   slug: string;
+  title?: string;
   name: string;
   category: string;
   images: ProductImage[];
   description: string;
-  details?: string;
+  shortDescription?: RichDescription;
+  longDescription?: RichDescription;
+  details?: RichDescription;
   specs: Record<string, string>;
   status?: string;
 }
@@ -23,6 +38,8 @@ export interface Category {
   image: string;
   tag: string;
   description: string;
+  shortDescription?: RichDescription;
+  longDescription?: RichDescription;
   accent: string;
 }
 
@@ -34,6 +51,29 @@ export const categories: Category[] = [
     image: 'https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=600&q=80',
     tag: 'Print',
     description: 'Essential business and marketing materials printed on high-quality paper stocks.',
+    shortDescription: [
+      {
+        type: 'text',
+        content:
+          'Prime Print delivers fast, high-quality paper product printing across the UK for businesses, events, and everyday marketing campaigns.',
+      },
+      {
+        type: 'list',
+        items: ['Same day and next day options on selected products', 'Nationwide UK delivery', 'Professional print quality and dependable finishing'],
+      },
+    ],
+    longDescription: [
+      {
+        type: 'text',
+        content:
+          'Our paper products category includes business cards, flyers, leaflets, brochures, menus, posters, postcards, and stickers produced with sharp detail and consistent colour.',
+      },
+      {
+        type: 'text',
+        content:
+          'Whether you need short-run prints for a local campaign or larger quantities for exhibitions and national distribution, Prime Print combines competitive pricing, fast turnaround, and reliable UK-wide delivery.',
+      },
+    ],
     accent: '#c9a96e',
   },
   {

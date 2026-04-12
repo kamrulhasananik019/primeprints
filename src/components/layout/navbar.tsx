@@ -16,6 +16,7 @@ import {
   X,
 } from 'lucide-react';
 import type { NavCategory } from '@/lib/catalog';
+import { richContentToPlainText } from '@/lib/rich-content';
 
 type NavbarProps = {
   categories: NavCategory[];
@@ -319,7 +320,9 @@ export default function Navbar({ categories }: NavbarProps) {
                   </div>
                   <div className="mt-6">
                     <h4 className="text-lg font-black text-stone-900">{activeCategory?.title}</h4>
-                    <p className="mt-2 text-sm leading-relaxed text-stone-500">{activeCategory?.description}</p>
+                    <p className="mt-2 text-sm leading-relaxed text-stone-500">
+                      {richContentToPlainText(activeCategory?.description)}
+                    </p>
                     <div className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-stone-50 py-3 text-sm font-bold text-stone-900 transition group-hover:bg-[#234C6A] group-hover:text-white">
                       Explore All <ArrowRight className="h-4 w-4" />
                     </div>

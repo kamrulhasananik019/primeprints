@@ -94,7 +94,6 @@ export default function SameDayPrinting({ products, productCategoryTitles }: Sam
                   <h3 className="font-serif text-lg font-semibold text-stone-900">
                     {product.name}
                   </h3>
-                  <p className="mt-1 text-sm text-stone-500">{productCategoryTitles[product.id]}</p>
                 </div>
               </Link>
             </SwiperSlide>
