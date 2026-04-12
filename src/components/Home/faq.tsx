@@ -1,34 +1,28 @@
-'use client';
-
-import React, { useState } from 'react';
 import { faqData } from '@/utils/faq';
 
 export default function Faq() {
-  const [openIndex, setOpenIndex] = useState<number | null>(null);
-
-  const toggleFaq = (index: number) => {
-    setOpenIndex(openIndex === index ? null : index);
-  };
-
   return (
     <div className="container mx-auto p-4 py-12">
-      <h2 className="text-3xl font-bold text-center mb-8 text-gray-800">Frequently Asked Questions</h2>
+      <h2 className="mb-8 text-center text-3xl font-bold text-gray-800">Frequently Asked Questions</h2>
       <div className="space-y-4">
         {faqData.map((faq, index) => (
-          <div key={index} className="border border-gray-200 rounded-lg shadow-sm">
-            <button
-              className="w-full text-left py-4 px-6 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-t-lg bg-gray-50 hover:bg-gray-100 transition-colors"
-              onClick={() => toggleFaq(index)}
-            >
-              <div className="flex justify-between items-center">
-                <span className="font-semibold text-gray-800">{faq.question}</span>
-                <span className="text-xl text-gray-600 transition-transform duration-300 ease-in-out">{openIndex === index ? '−' : '+'}</span>
-              </div>
-            </button>
-            <div className={`px-6 text-gray-700 transition-all duration-300 ease-in-out overflow-hidden ${openIndex === index ? 'pb-4 max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
+          <details
+            key={index}
+            className="group rounded-lg border border-gray-200 bg-white shadow-sm open:shadow-md"
+          >
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-4 rounded-lg bg-gray-50 px-6 py-4 font-semibold text-gray-800 transition-colors hover:bg-gray-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 [&::-webkit-details-marker]:hidden">
+              <span>{faq.question}</span>
+              <span
+                className="text-xl text-gray-500 transition-transform duration-300 group-open:rotate-180"
+                aria-hidden
+              >
+                ▼
+              </span>
+            </summary>
+            <div className="border-t border-gray-100 px-6 pb-4 pt-3 text-gray-700">
               <p>{faq.answer}</p>
             </div>
-          </div>
+          </details>
         ))}
       </div>
     </div>

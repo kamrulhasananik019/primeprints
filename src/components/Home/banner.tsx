@@ -4,10 +4,6 @@ import Image from 'next/image';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination, Autoplay, EffectFade } from 'swiper/modules';
 
-import 'swiper/css';
-import 'swiper/css/pagination';
-import 'swiper/css/effect-fade';
-
 interface Slide {
   image: string;
   tag: string;
@@ -96,6 +92,7 @@ function SlideContent({ slide, index, isActive }: SlideContentProps) {
         alt={slide.headline.join(' ')}
         fill
         priority={index === 0}
+        fetchPriority={index === 0 ? 'high' : 'low'}
         sizes="100vw"
         className={`absolute inset-0 object-cover object-center transition-transform duration-[6000ms] ease-out ${
           isActive ? 'scale-100' : 'scale-[1.07]'

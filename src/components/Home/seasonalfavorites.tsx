@@ -8,9 +8,6 @@ import Link from 'next/link';
 import type { Product } from '@/data/products';
 import { getPrimaryImage } from '@/lib/catalog';
 
-import 'swiper/css';
-import 'swiper/css/navigation';
-
 type SeasonalFavoritesProps = {
   products: Product[];
 };

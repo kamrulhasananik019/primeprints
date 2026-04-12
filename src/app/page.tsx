@@ -1,13 +1,12 @@
 import type { Metadata } from "next";
+import nextDynamic from "next/dynamic";
 import AllProducts from "@/components/Home/allproducts";
 import Banner from "@/components/Home/banner";
-import CategorySlider from "@/components/Home/categoryslider";
+import HomeDeferredFallback from "@/components/Home/home-deferred-fallback";
 import Faq from "@/components/Home/faq";
 import LocationMap from "@/components/Home/locationmap";
-import SameDayPrinting from "@/components/Home/newarrivals";
 import PromoBar from "@/components/Home/promobar";
 import Reviews from "@/components/Home/reviews";
-import SeasonalFavorites from "@/components/Home/seasonalfavorites";
 import InfiniteMarquee from "@/components/shared/infinite-marquee";
 import { categories } from "@/data/categories";
 import {
@@ -16,6 +15,18 @@ import {
   getSameDayPrinting,
   getSeasonalFavorites,
 } from "@/lib/catalog";
+
+const CategorySlider = nextDynamic(() => import("@/components/Home/categoryslider"), {
+  loading: () => <HomeDeferredFallback minHeight="min-h-[420px]" />,
+});
+
+const SameDayPrinting = nextDynamic(() => import("@/components/Home/newarrivals"), {
+  loading: () => <HomeDeferredFallback minHeight="min-h-[420px]" />,
+});
+
+const SeasonalFavorites = nextDynamic(() => import("@/components/Home/seasonalfavorites"), {
+  loading: () => <HomeDeferredFallback minHeight="min-h-[420px]" />,
+});
 
 export const dynamic = "force-static";
 
