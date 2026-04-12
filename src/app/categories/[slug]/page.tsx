@@ -118,7 +118,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
         </div>
       </div>
 
-      <div className="container mx-auto px-4 pt-8 sm:px-6 lg:px-8">
+      <div >
         <InfiniteMarquee bottomItems={categories.map((cat) => cat.title)} />
       </div>
 

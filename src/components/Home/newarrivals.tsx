@@ -17,11 +17,11 @@ type SameDayPrintingProps = {
 export default function SameDayPrinting({ products, productCategoryTitles }: SameDayPrintingProps) {
   return (
     <section className="relative overflow-hidden bg-stone-50 py-16 lg:py-20">
-      <div className="absolute -right-40 -top-20 h-[420px] w-[420px] rounded-full bg-gradient-to-br from-cyan-200/30 to-transparent blur-3xl" />
+      <div className="absolute -right-40 -top-20 h-105 w-105 rounded-full bg-linear-to-br from-cyan-200/30 to-transparent blur-3xl" />
 
-      <div className="mx-auto px-4 sm:px-6 lg:px-6">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-10 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-          <div className="mx-auto container">
+          <div>
             <span className="mb-2 block text-[11px] font-medium uppercase tracking-[0.18em] text-stone-500">
               Fast Turnaround
             </span>
@@ -59,24 +59,24 @@ export default function SameDayPrinting({ products, productCategoryTitles }: Sam
           }}
           spaceBetween={18}
           breakpoints={{
-            0: { slidesPerView: 1.2 },
-            480: { slidesPerView: 2.1 },
-            768: { slidesPerView: 3.2 },
-            1024: { slidesPerView: 4.2 },
-            1280: { slidesPerView: 5.2 },
+            0: { slidesPerView: 1.1 },
+            480: { slidesPerView: 1.6 },
+            768: { slidesPerView: 2.2 },
+            1024: { slidesPerView: 3.2 },
+            1280: { slidesPerView: 4 },
           }}
-          className="!overflow-visible"
+          className="overflow-visible!"
         >
           {products.map((product) => (
             <SwiperSlide key={product.id} className="h-auto">
               <Link href={`/products/${product.slug}`}>
                 <div className="group cursor-pointer">
-                  <div className="relative mb-4 aspect-[3/3] overflow-hidden rounded-3xl bg-stone-200">
+                  <div className="relative mb-4 aspect-3/3 overflow-hidden rounded-3xl bg-stone-200">
                     <Image
                       src={getPrimaryImage(product)}
                       alt={product.name}
                       fill
-                      sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 20vw"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 25vw"
                       className="h-full w-full object-cover transition duration-500 group-hover:scale-110"
                     />
 
@@ -84,8 +84,8 @@ export default function SameDayPrinting({ products, productCategoryTitles }: Sam
                       Same Day
                     </div>
 
-                    <div className="absolute inset-0 flex items-end bg-gradient-to-t from-black/60 via-black/10 to-transparent p-5 opacity-0 transition duration-300 group-hover:opacity-100">
-                      <span className="flex items-center gap-1 text-sm font-medium text-white">
+                    <div className="absolute inset-0 flex items-end bg-linear-to-t from-stone-900/40 to-transparent p-6 opacity-0 transition duration-300 group-hover:opacity-100">
+                      <span className="text-xs font-medium uppercase tracking-widest text-white">
                         View Details
                       </span>
                     </div>

@@ -17,9 +17,9 @@ export default function SeasonalFavorites({ products }: SeasonalFavoritesProps) 
     <section className="relative overflow-hidden bg-gradient-to-br from-emerald-50 to-stone-50 py-16 lg:py-20">
       <div className="absolute -left-40 -bottom-20 h-[420px] w-[420px] rounded-full bg-gradient-to-br from-emerald-200/40 to-transparent blur-3xl" />
 
-      <div className="mx-auto px-4 sm:px-6 lg:px-6">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-10 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-          <div className="mx-auto container">
+          <div>
             <span className="mb-2 block text-[11px] font-medium uppercase tracking-[0.18em] text-stone-500">
               Customer Favorites
             </span>

@@ -21,13 +21,13 @@ const items = [
 export default function PromoBar() {
   return (
     <section className="bg-[#f5f5f5]">
-      <div className="mx-auto grid max-w-7xl grid-cols-1 divide-y divide-gray-200 border-b border-gray-200 md:grid-cols-3 md:divide-x md:divide-y-0 md:border-0">
+      <div className="container mx-auto grid grid-cols-1 divide-y divide-gray-200 border-b border-gray-200 px-4  md:grid-cols-3 md:divide-x md:divide-y-0 md:border-0">
         {items.map((item, index) => {
           const Icon = item.icon;
           return (
             <div
               key={index}
-              className="flex items-center gap-4 px-5 py-5 md:justify-center md:gap-4 md:px-8 md:py-6"
+              className="flex items-center gap-4 py-5 md:justify-center md:py-6"
             >
               <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#dfeaf2] md:h-16 md:w-16">
                 <Icon className="h-6 w-6 text-gray-800 md:h-7 md:w-7" strokeWidth={1.8} />

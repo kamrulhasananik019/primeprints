@@ -7,7 +7,7 @@ import ProductHero from '@/components/product/product-hero';
 import InfiniteMarquee from '@/components/shared/infinite-marquee';
 import { allProducts } from '@/data/products';
 import { getCategoriesWithProducts, getPrimaryImage, getRelatedProducts } from '@/lib/catalog';
-import { isSameRichContent, richContentToPlainText } from '@/lib/rich-content';
+import { extractFAQsFromRichContent, isSameRichContent, richContentToPlainText } from '@/lib/rich-content';
 import { siteUrl } from '@/lib/site';
 
 export const dynamic = 'force-static';
@@ -106,6 +106,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
   )
     .filter(Boolean)
     .slice(0, 6);
+  const faqItems = extractFAQsFromRichContent(productLongDescription);
   const categoryTitles = categories.map((cat) => cat.title);
   const productJsonLd = {
     '@context': 'https://schema.org',
@@ -127,6 +128,20 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
       url: `${siteUrl}/contact?category=${category.slug}&product=${product.slug}`,
     },
   };
+  const faqJsonLd = faqItems.length
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: faqItems.map((faq) => ({
+          '@type': 'Question',
+          name: faq.question,
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: faq.answer,
+          },
+        })),
+      }
+    : null;
 
   return (
     <div className="min-h-screen bg-stone-50">
@@ -134,6 +149,12 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
       />
+      {faqJsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+        />
+      )}
       <div className="sticky top-0 z-20 border-b border-stone-200 bg-white/95 backdrop-blur">
         <div className="container mx-auto flex items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
           <Link
@@ -148,8 +169,9 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
         </div>
       </div>
 
+      <div >
       <div className="container mx-auto px-4 py-12 sm:px-6 lg:px-8 lg:py-14">
-        <ProductHero
+          <ProductHero
           product={product}
           category={{ title: category.title, slug: category.slug, image: category.image }}
           primaryImage={primaryImage}
@@ -157,12 +179,14 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
           productTitle={productTitle}
           productShortDescription={productShortDescription}
         />
+      </div>
 
         <div className="mt-10">
           <InfiniteMarquee bottomItems={categoryTitles} />
         </div>
 
-        {!isSameRichContent(productLongDescription, productShortDescription) && (
+<div className="container mx-auto px-4 py-12 sm:px-6 lg:px-8 lg:py-14" >
+          {!isSameRichContent(productLongDescription, productShortDescription) && (
           <div className="mt-10 rounded-2xl border border-stone-200 bg-white p-6 md:p-8">
             <h2 className="serif mb-4 text-2xl font-black text-stone-900">More Details</h2>
             <RichContent
@@ -172,6 +196,25 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
               listClassName="list-disc pl-5 text-base leading-relaxed text-stone-600 space-y-1"
               listItemClassName="sans"
             />
+          </div>
+        )}
+
+        {faqItems.length > 0 && (
+          <div className="mt-16 rounded-2xl border border-stone-200 bg-white p-6 md:p-8">
+            <h2 className="serif mb-6 text-2xl font-black text-stone-900">FAQ</h2>
+            <div className="space-y-3">
+              {faqItems.map((faq) => (
+                <details
+                  key={faq.question}
+                  className="group rounded-xl border border-stone-200 bg-stone-50 px-4 py-3"
+                >
+                  <summary className="sans cursor-pointer list-none pr-6 text-sm font-700 text-stone-900">
+                    {faq.question}
+                  </summary>
+                  <p className="sans mt-3 text-sm leading-relaxed text-stone-600">{faq.answer}</p>
+                </details>
+              ))}
+            </div>
           </div>
         )}
 
@@ -247,6 +290,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
             </div>
           </div>
         )}
+</div>
       </div>
     </div>
   );

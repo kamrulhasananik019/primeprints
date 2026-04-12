@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation } from 'swiper/modules';
+import { Navigation, Autoplay, Pagination } from 'swiper/modules';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import type { Category } from '@/data/categories';
@@ -13,12 +13,12 @@ type CategorySliderProps = {
 
 export default function CategorySlider({ categories }: CategorySliderProps) {
   return (
-    <section className="relative overflow-hidden bg-stone-100 py-16 lg:py-20">
-      <div className="absolute h-[420px] w-[420px] rounded-full bg-gradient-to-br from-stone-200/70 to-transparent blur-3xl" />
+    <section className="relative overflow-hidden bg-white py-16 lg:py-20">
+      <div className="absolute h-105 w-105 rounded-full bg-linear-to-br from-stone-200/70 to-transparent blur-3xl" />
 
-      <div className="mx-auto  px-4 sm:px-6 lg:px-6">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-10 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-          <div className="mx-auto container">
+          <div>
             <span className="mb-2 block text-[11px] font-medium uppercase tracking-[0.18em] text-stone-500">
               Our Products
             </span>
@@ -26,6 +26,9 @@ export default function CategorySlider({ categories }: CategorySliderProps) {
             <h2 className="font-serif text-3xl font-bold leading-tight text-stone-900 sm:text-4xl lg:text-5xl">
               Explore all categories
             </h2>
+            <p className="mt-2 max-w-2xl text-sm text-stone-600 sm:text-base">
+              Choose a category to see full product details, pricing options, and fast print turnaround.
+            </p>
           </div>
 
           <div className="flex items-center gap-3">
@@ -46,26 +49,34 @@ export default function CategorySlider({ categories }: CategorySliderProps) {
         </div>
 
         <Swiper
-          modules={[Navigation]}
+          modules={[Navigation, Autoplay, Pagination]}
           navigation={{
             prevEl: '.category-prev',
             nextEl: '.category-next',
           }}
+          pagination={{
+            clickable: true,
+          }}
+          autoplay={{
+            delay: 3500,
+            disableOnInteraction: false,
+          }}
+          loop={categories.length > 5}
           spaceBetween={18}
           breakpoints={{
-            0: { slidesPerView: 1.2 },
-            480: { slidesPerView: 2.1 },
+            0: { slidesPerView: 1.3 },
+            480: { slidesPerView: 2.2 },
             768: { slidesPerView: 3.2 },
-            1024: { slidesPerView: 4.2 },
-            1280: { slidesPerView: 5.2 },
+            1024: { slidesPerView: 4.1 },
+            1280: { slidesPerView: 5.1 },
           }}
-          className="!overflow-visible"
+          className="overflow-visible! pb-10"
         >
           {categories.map((category) => (
             <SwiperSlide key={category.title} className="h-auto">
               <Link href={`/categories/${category.slug}`}>
-                <div className="group cursor-pointer">
-                  <div className="relative mb-4 aspect-[3/3] overflow-hidden rounded-3xl bg-stone-200">
+                <div className="group cursor-pointer text-center">
+                  <div className="relative mx-auto mb-4 aspect-square w-44 overflow-hidden rounded-full border-4 border-white bg-stone-200 shadow-lg ring-1 ring-stone-200 sm:w-48 md:w-52">
                     <Image
                       src={category.image}
                       alt={category.title}
@@ -74,7 +85,7 @@ export default function CategorySlider({ categories }: CategorySliderProps) {
                       className="h-full w-full object-cover transition duration-500 group-hover:scale-110"
                     />
 
-                    <div className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-[10px] font-medium uppercase tracking-[0.14em] text-stone-700 backdrop-blur">
+                    <div className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-white/90 px-3 py-1 text-[10px] font-medium uppercase tracking-[0.14em] text-stone-700 backdrop-blur">
                       {category.tag}
                     </div>
                   </div>

@@ -62,17 +62,21 @@ export default function Home() {
   const categoryTitles = categories.map((cat) => cat.title);
 
   return (
-  <section className="overflow-hidden bg-linear-to-br from-slate-50 to-white font-sans">
-    <Banner />
-    <InfiniteMarquee bottomItems={categoryTitles} />
-    <PromoBar/>
-    <CategorySlider categories={categories} />
+    <main className="overflow-hidden bg-stone-50 font-sans">
+      <Banner />
+
+      <div className="">
+        <InfiniteMarquee bottomItems={categoryTitles} />
+      </div>
+
+      <PromoBar />
+      <CategorySlider categories={categories} />
       <SameDayPrinting products={sameDayPrinting} productCategoryTitles={sameDayCategoryTitles} />
-     <AllProducts products={latestProducts} productCategoryTitles={latestCategoryTitles} />
-    <SeasonalFavorites products={seasonalFavorites} />
-    <Faq/>
-    <Reviews/>
-    <LocationMap/>    
-   </section>
+      <AllProducts products={latestProducts} productCategoryTitles={latestCategoryTitles} />
+      <SeasonalFavorites products={seasonalFavorites} />
+      <Faq />
+      <Reviews />
+      <LocationMap />
+    </main>
   );
 }

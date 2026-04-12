@@ -128,7 +128,7 @@ export default function Navbar({ categories }: NavbarProps) {
   return (
     <div className="sticky top-0 z-50 bg-[#F4EFEB]">
       <div className="hidden border-b border-[#D2C1B6] bg-[#E7DBD3] py-2 lg:block">
-        <div className="mx-auto flex max-w-[1440px] flex-wrap items-center justify-between gap-3 px-6 text-[11px] font-medium uppercase tracking-wider text-stone-500">
+        <div className="container mx-auto flex flex-wrap items-center justify-between gap-3 px-4 text-[11px] font-medium uppercase tracking-wider text-stone-500 sm:px-6 lg:px-8">
           <div className="flex flex-wrap gap-6">
             <a href="mailto:order@primeprint.com" className="inline-flex items-center gap-1.5 transition hover:text-[#234C6A]">
               <Mail className="h-3.5 w-3.5" /> order@primeprint.com
@@ -142,7 +142,7 @@ export default function Navbar({ categories }: NavbarProps) {
       </div>
 
       <header className="relative shadow-sm">
-        <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-3 px-4 py-4 lg:gap-8 lg:px-6">
+        <div className="container mx-auto flex items-center justify-between gap-3 px-4 py-4 sm:px-6 lg:gap-8 lg:px-8">
           <div className="flex items-center gap-4">
             <button className="p-2 text-stone-700 lg:hidden" onClick={() => setIsMobileMenuOpen(true)} aria-label="Open menu">
               <Menu className="h-6 w-6" />
@@ -219,7 +219,7 @@ export default function Navbar({ categories }: NavbarProps) {
         </div>
 
         <nav className="relative hidden border-t border-stone-100 lg:block" onMouseLeave={scheduleCloseMegaMenu}>
-          <div className="relative mx-auto max-w-[1440px] px-6">
+          <div className="relative container mx-auto px-4 sm:px-6 lg:px-8">
             {showLeftArrow && (
               <div className="pointer-events-none absolute bottom-0 left-6 top-0 z-10 flex items-center pr-10 bg-gradient-to-r from-white via-white to-transparent">
                 <button
@@ -274,7 +274,7 @@ export default function Navbar({ categories }: NavbarProps) {
               if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
             }}
           >
-            <div className="mx-auto grid max-w-[1440px] grid-cols-12 gap-8 px-10 py-12">
+            <div className="container mx-auto grid grid-cols-12 gap-8 px-4 py-12 sm:px-6 lg:px-8">
               <div className="col-span-9 grid grid-cols-3 gap-10">
                 {chunkProducts(activeCategory?.products ?? [], 7).map((section, idx) => (
                   <div key={`${activeCategory?.slug ?? 'category'}-${idx}`} className="space-y-5">

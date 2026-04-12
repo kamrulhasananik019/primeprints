@@ -151,7 +151,7 @@ export default function ContactPageContent({ categories }: ContactPageContentPro
       <header className="relative overflow-hidden border-b border-stone-200 bg-white">
         <div className="absolute -left-24 top-0 h-72 w-72 rounded-full bg-amber-100/60 blur-3xl" />
         <div className="absolute -right-24 bottom-0 h-72 w-72 rounded-full bg-sky-100/70 blur-3xl" />
-        <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+        <div className="relative container mx-auto px-4 py-16 sm:px-6 lg:px-8">
           <Link
             href="/"
             className="mb-8 inline-flex items-center gap-2 text-sm text-stone-500 transition hover:text-stone-900"
@@ -198,7 +198,7 @@ export default function ContactPageContent({ categories }: ContactPageContentPro
         </div>
       </header>
 
-      <main className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
+      <main className="container mx-auto px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
         <div className="lg:grid lg:grid-cols-3 lg:gap-12">
 
           <div className="lg:col-span-2">

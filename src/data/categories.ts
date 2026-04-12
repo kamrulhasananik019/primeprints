@@ -55,23 +55,23 @@ export const categories: Category[] = [
       {
         type: 'text',
         content:
-          'Prime Print delivers fast, high-quality paper product printing across the UK for businesses, events, and everyday marketing campaigns.',
+          'Prime Print delivers fast, high-quality paper product printing across the UK for business cards, booklets, flyers, brochures, and wider marketing campaigns.',
       },
       {
         type: 'list',
-        items: ['Same day and next day options on selected products', 'Nationwide UK delivery', 'Professional print quality and dependable finishing'],
+        items: ['Same day and next day printing on popular products', 'Nationwide UK delivery across major cities and postcodes', 'Professional print quality with premium paper and finish options'],
       },
     ],
     longDescription: [
       {
         type: 'text',
         content:
-          'Our paper products category includes business cards, flyers, leaflets, brochures, menus, posters, postcards, and stickers produced with sharp detail and consistent colour.',
+          'Our paper products category covers core commercial print essentials including business cards, multi-page booklets, flyer and leaflet campaigns, and folded or luxury brochures for sales, exhibitions, and events.',
       },
       {
         type: 'text',
         content:
-          'Whether you need short-run prints for a local campaign or larger quantities for exhibitions and national distribution, Prime Print combines competitive pricing, fast turnaround, and reliable UK-wide delivery.',
+          'Whether you need a short-run same day job or high-volume nationwide distribution, Prime Print combines competitive pricing, fast turnaround, and dependable UK-wide delivery with design support, free proofs, and multiple size, paper, and finish choices.',
       },
     ],
     accent: '#c9a96e',
@@ -83,6 +83,10 @@ export const categories: Category[] = [
     image: 'https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=600&q=80',
     tag: 'Finishing',
     description: 'Professional document finishing for reports and presentations.',
+    shortDescription:
+      'Professional document binding services across the UK with same day options for reports, manuals, proposals, and academic submissions.',
+    longDescription:
+      'Prime Print offers a complete range of document binding services including wire binding, plastic comb binding, saddle stitch, perfect binding, glue binding, tape binding, screw binding, book binding, and thesis binding. Designed for business, education, legal, and publishing needs, our binding services combine premium finishing quality, fast turnaround, and dependable nationwide delivery.',
     accent: '#2c3e50',
   },
   {
