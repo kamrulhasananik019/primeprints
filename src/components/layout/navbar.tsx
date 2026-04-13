@@ -16,7 +16,6 @@ import {
   X,
 } from 'lucide-react';
 import type { NavCategory } from '@/lib/catalog';
-import { richContentToPlainText } from '@/lib/rich-content';
 
 type NavbarProps = {
   categories: NavCategory[];
@@ -93,7 +92,7 @@ export default function Navbar({ categories }: NavbarProps) {
   };
 
   const activeCategory = useMemo(
-    () => categories.find((cat) => cat.slug === activeSlug) ?? null,
+    () => categories.find((cat) => cat.id === activeSlug) ?? null,
     [activeSlug, categories]
   );
 
@@ -103,12 +102,12 @@ export default function Navbar({ categories }: NavbarProps) {
 
     const results: Array<{ label: string; href: string; type: 'category' | 'product' }> = [];
     for (const category of categories) {
-      if (category.title.toLowerCase().includes(text)) {
-        results.push({ label: category.title, href: `/categories/${category.slug}`, type: 'category' });
+      if (category.name.toLowerCase().includes(text)) {
+        results.push({ label: category.name, href: `/categories/${category.id}`, type: 'category' });
       }
       for (const product of category.products) {
         if (product.name.toLowerCase().includes(text)) {
-          results.push({ label: product.name, href: `/products/${product.slug}`, type: 'product' });
+          results.push({ label: product.name, href: `/products/${product.id}`, type: 'product' });
         }
       }
     }
@@ -155,7 +154,7 @@ export default function Navbar({ categories }: NavbarProps) {
             </Link>
           </div>
 
-          <div className={`relative hidden max-w-2xl flex-1 transition-all duration-300 md:flex ${searchFocused ? 'z-[110]' : 'z-10'}`}>
+          <div className={`relative hidden max-w-2xl flex-1 transition-all duration-300 md:flex ${searchFocused ? 'z-110' : 'z-10'}`}>
             <form onSubmit={handleSearchSubmit} className="w-full">
               <div className="relative">
                 <input
@@ -172,7 +171,7 @@ export default function Navbar({ categories }: NavbarProps) {
             </form>
 
             {searchFocused && query.trim() && (
-              <div className="absolute left-0 right-0 top-[calc(100%+8px)] z-[150] overflow-hidden rounded-xl border border-stone-200 bg-white p-1 shadow-2xl ring-1 ring-black/5">
+              <div className="absolute left-0 right-0 top-[calc(100%+8px)] z-150 overflow-hidden rounded-xl border border-stone-200 bg-white p-1 shadow-2xl ring-1 ring-black/5">
                 {searchResults.length > 0 ? (
                   <div className="flex flex-col">
                     {searchResults.map((result) => (
@@ -221,7 +220,7 @@ export default function Navbar({ categories }: NavbarProps) {
         <nav className="relative hidden border-t border-stone-100 lg:block" onMouseLeave={scheduleCloseMegaMenu}>
           <div className="relative container mx-auto px-4 sm:px-6 lg:px-8">
             {showLeftArrow && (
-              <div className="pointer-events-none absolute bottom-0 left-6 top-0 z-10 flex items-center pr-10 bg-gradient-to-r from-white via-white to-transparent">
+              <div className="pointer-events-none absolute bottom-0 left-6 top-0 z-10 flex items-center pr-10 bg-linear-to-r from-white via-white to-transparent">
                 <button
                   onClick={() => scrollCategories('left')}
                   className="pointer-events-auto rounded-full border border-stone-200 bg-white p-1 shadow-sm hover:bg-[#D2C1B6]/40 hover:text-[#234C6A]"
@@ -232,7 +231,7 @@ export default function Navbar({ categories }: NavbarProps) {
               </div>
             )}
             {showRightArrow && (
-              <div className="pointer-events-none absolute bottom-0 right-6 top-0 z-10 flex items-center pl-10 bg-gradient-to-l from-white via-white to-transparent">
+              <div className="pointer-events-none absolute bottom-0 right-6 top-0 z-10 flex items-center pl-10 bg-linear-to-l from-white via-white to-transparent">
                 <button
                   onClick={() => scrollCategories('right')}
                   className="pointer-events-auto rounded-full border border-stone-200 bg-white p-1 shadow-sm hover:bg-[#D2C1B6]/40 hover:text-[#234C6A]"
@@ -250,16 +249,16 @@ export default function Navbar({ categories }: NavbarProps) {
               style={{ msOverflowStyle: 'none', scrollbarWidth: 'none' }}
             >
               {categories.map((cat) => (
-                <li key={cat.id} className="relative flex-shrink-0" onMouseEnter={() => openMegaMenu(cat.slug)}>
+                <li key={cat.id} className="relative shrink-0" onMouseEnter={() => openMegaMenu(cat.id)}>
                   <Link
-                    href={`/categories/${cat.slug}`}
+                    href={`/categories/${cat.id}`}
                     className={`inline-block whitespace-nowrap rounded-md px-4 py-3 text-[13px] font-bold transition-all ${
-                      activeSlug === cat.slug || pathname === `/categories/${cat.slug}`
+                      activeSlug === cat.id || pathname === `/categories/${cat.id}`
                         ? 'bg-[#D2C1B6]/40 text-[#1B3C53]'
                         : 'text-stone-600 hover:bg-stone-50 hover:text-stone-900'
                     }`}
                   >
-                    {cat.title}
+                    {cat.name}
                   </Link>
                 </li>
               ))}
@@ -277,7 +276,7 @@ export default function Navbar({ categories }: NavbarProps) {
             <div className="container mx-auto grid grid-cols-12 gap-8 px-4 py-12 sm:px-6 lg:px-8">
               <div className="col-span-9 grid grid-cols-3 gap-10">
                 {chunkProducts(activeCategory?.products ?? [], 7).map((section, idx) => (
-                  <div key={`${activeCategory?.slug ?? 'category'}-${idx}`} className="space-y-5">
+                  <div key={`${activeCategory?.id ?? 'category'}-${idx}`} className="space-y-5">
                     <h3 className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-stone-400">
                       <span className="h-1 w-1 rounded-full bg-[#456882]"></span>
                       {idx === 0 ? 'Top Choices' : 'Extended Range'}
@@ -286,7 +285,7 @@ export default function Navbar({ categories }: NavbarProps) {
                       {section.map((product) => (
                         <li key={product.id}>
                           <Link
-                            href={`/products/${product.slug}`}
+                            href={`/products/${product.id}`}
                             className="group/item flex items-center justify-between py-0.5 text-[14px] font-medium text-stone-600 transition hover:text-[#234C6A]"
                           >
                             <span>{product.name}</span>
@@ -300,28 +299,23 @@ export default function Navbar({ categories }: NavbarProps) {
               </div>
 
               <div className="col-span-3 border-l border-stone-100 pl-10">
-                <Link href={activeCategory ? `/categories/${activeCategory.slug}` : '/'} className="group block">
-                  <div className="relative aspect-[16/10] overflow-hidden rounded-2xl bg-stone-100 shadow-inner">
+                <Link href={activeCategory ? `/categories/${activeCategory.id}` : '/'} className="group block">
+                  <div className="relative aspect-16/10 overflow-hidden rounded-2xl bg-stone-100 shadow-inner">
                     {activeCategory && (
                       <Image
-                        src={activeCategory.image}
-                        alt={activeCategory.title}
+                        src={activeCategory.imageUrl}
+                        alt={activeCategory.name}
                         fill
                         sizes="20vw"
                         className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                       />
                     )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
-                    <div className="absolute bottom-4 left-4">
-                      <div className="rounded-full bg-white/20 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-white backdrop-blur-md">
-                        {activeCategory?.tag}
-                      </div>
-                    </div>
+                    <div className="absolute inset-0 bg-linear-to-t from-black/40 to-transparent"></div>
                   </div>
                   <div className="mt-6">
-                    <h4 className="text-lg font-black text-stone-900">{activeCategory?.title}</h4>
+                    <h4 className="text-lg font-black text-stone-900">{activeCategory?.name}</h4>
                     <p className="mt-2 text-sm leading-relaxed text-stone-500">
-                      {richContentToPlainText(activeCategory?.description)}
+                      {activeCategory?.description}
                     </p>
                     <div className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-stone-50 py-3 text-sm font-bold text-stone-900 transition group-hover:bg-[#234C6A] group-hover:text-white">
                       Explore All <ArrowRight className="h-4 w-4" />
@@ -335,7 +329,7 @@ export default function Navbar({ categories }: NavbarProps) {
       </header>
 
       <div
-        className={`fixed inset-0 z-[200] bg-stone-900/60 backdrop-blur-sm transition-opacity duration-300 lg:hidden ${
+        className={`fixed inset-0 z-200 bg-stone-900/60 backdrop-blur-sm transition-opacity duration-300 lg:hidden ${
           isMobileMenuOpen ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
         }`}
         onClick={() => setIsMobileMenuOpen(false)}
@@ -374,16 +368,16 @@ export default function Navbar({ categories }: NavbarProps) {
                 <li key={cat.id} className="overflow-hidden rounded-xl">
                   <button
                     className={`flex w-full items-center justify-between px-4 py-4 font-bold text-stone-700 transition ${
-                      mobileActiveSlug === cat.slug ? 'bg-[#D2C1B6]/40 text-[#234C6A]' : 'hover:bg-stone-50'
+                      mobileActiveSlug === cat.id ? 'bg-[#D2C1B6]/40 text-[#234C6A]' : 'hover:bg-stone-50'
                     }`}
-                    onClick={() => setMobileActiveSlug((prev) => (prev === cat.slug ? null : cat.slug))}
+                    onClick={() => setMobileActiveSlug((prev) => (prev === cat.id ? null : cat.id))}
                   >
-                    <span>{cat.title}</span>
-                    <ChevronDown className={`h-4 w-4 transition-transform duration-300 ${mobileActiveSlug === cat.slug ? 'rotate-180' : ''}`} />
+                    <span>{cat.name}</span>
+                    <ChevronDown className={`h-4 w-4 transition-transform duration-300 ${mobileActiveSlug === cat.id ? 'rotate-180' : ''}`} />
                   </button>
                   <div
                     className={`grid transition-all duration-300 ease-in-out ${
-                      mobileActiveSlug === cat.slug ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
+                      mobileActiveSlug === cat.id ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
                     }`}
                   >
                     <div className="overflow-hidden bg-stone-50/50">
@@ -391,7 +385,7 @@ export default function Navbar({ categories }: NavbarProps) {
                         {cat.products.map((product) => (
                           <Link
                             key={product.id}
-                            href={`/products/${product.slug}`}
+                            href={`/products/${product.id}`}
                             onClick={() => setIsMobileMenuOpen(false)}
                             className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-stone-600 transition hover:bg-white hover:text-[#234C6A]"
                           >

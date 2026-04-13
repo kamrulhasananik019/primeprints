@@ -1,5 +1,5 @@
 import type { MetadataRoute } from 'next';
-import { getCategories, getProductsWithDetails } from '@/lib/d1';
+import { getCategories, getProducts } from '@/lib/d1';
 import { siteUrl } from '@/lib/site';
 
 export const dynamic = 'force-dynamic';
@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = siteUrl;
 
-  const [categories, allProducts] = await Promise.all([getCategories(), getProductsWithDetails(1000)]);
+  const [categories, allProducts] = await Promise.all([getCategories(), getProducts(1000)]);
 
   const staticRoutes: MetadataRoute.Sitemap = [
     {
@@ -25,14 +25,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ];
 
   const categoryRoutes: MetadataRoute.Sitemap = categories.map((category) => ({
-    url: `${baseUrl}/categories/${category.slug}`,
+    url: `${baseUrl}/categories/${category.id}`,
     lastModified: new Date(),
     changeFrequency: 'weekly',
     priority: 0.8,
   }));
 
   const productRoutes: MetadataRoute.Sitemap = allProducts.map((product) => ({
-    url: `${baseUrl}/products/${product.slug}`,
+    url: `${baseUrl}/products/${product.id}`,
     lastModified: new Date(),
     changeFrequency: 'weekly',
     priority: 0.7,

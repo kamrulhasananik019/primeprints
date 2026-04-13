@@ -96,7 +96,7 @@ export default function DeliveryMarketing({
               className="flex! h-auto justify-center"
             >
               <Link
-                href={`/products/${product.slug}`}
+                href={`/products/${product.id}`}
                 className="block w-full max-w-87.5"
               >
                 <div className="group flex h-full flex-col">

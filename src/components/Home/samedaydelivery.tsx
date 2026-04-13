@@ -21,7 +21,7 @@ export default function SameDayPrinting({
 }: SameDayPrintingProps) {
   return (
     <section className="relative overflow-hidden bg-stone-50 py-16 lg:py-20">
-      <div className="absolute -right-40 -top-20 h-[420px] w-[420px] rounded-full bg-gradient-to-br from-cyan-200/30 to-transparent blur-3xl" />
+      <div className="absolute -right-40 -top-20 h-105 w-105 rounded-full bg-linear-to-br from-cyan-200/30 to-transparent blur-3xl" />
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-10 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
@@ -90,19 +90,19 @@ export default function SameDayPrinting({
               slidesPerView: 4,
             },
           }}
-          className="!overflow-visible"
+          className="overflow-visible!"
         >
           {products.map((product) => (
             <SwiperSlide
               key={product.id}
-              className="!flex h-auto justify-center"
+              className="flex! h-auto justify-center"
             >
               <Link
-                href={`/products/${product.slug}`}
-                className="block w-full max-w-[350px]"
+                href={`/products/${product.id}`}
+                className="block w-full max-w-87.5"
               >
                 <div className="group flex h-full flex-col">
-                  <div className="relative mb-4 h-[360px] overflow-hidden rounded-3xl bg-stone-200 sm:h-[380px] lg:h-[400px]">
+                  <div className="relative mb-4 h-90 overflow-hidden rounded-3xl bg-stone-200 sm:h-95 lg:h-100">
                     <Image
                       src={getPrimaryImage(product)}
                       alt={product.name}
@@ -115,7 +115,7 @@ export default function SameDayPrinting({
                       Same Day
                     </div>
 
-                    <div className="absolute inset-0 flex items-end bg-gradient-to-t from-stone-900/60 via-stone-900/10 to-transparent p-6 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                    <div className="absolute inset-0 flex items-end bg-linear-to-t from-stone-900/60 via-stone-900/10 to-transparent p-6 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                       <span className="text-xs font-medium uppercase tracking-[0.2em] text-white">
                         View Details
                       </span>

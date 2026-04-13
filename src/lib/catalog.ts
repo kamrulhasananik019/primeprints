@@ -1,7 +1,7 @@
-import { getCategories, getProductsByCategory2, getProductsWithDetails } from '@/lib/d1';
+import { getCategories, getProducts, getProductsByCategoryId } from '@/lib/d1';
 
 export type CatalogCategory = Awaited<ReturnType<typeof getCategories>>[number];
-export type CatalogProduct = Awaited<ReturnType<typeof getProductsWithDetails>>[number];
+export type CatalogProduct = Awaited<ReturnType<typeof getProducts>>[number];
 
 export { getPrimaryImage } from '@/lib/product-media';
 
@@ -9,7 +9,7 @@ export type CategoryWithProducts = CatalogCategory & {
   products: CatalogProduct[];
 };
 
-export type NavProduct = Pick<CatalogProduct, 'id' | 'slug' | 'name'>;
+export type NavProduct = Pick<CatalogProduct, 'id' | 'name'>;
 
 export type NavCategory = CatalogCategory & {
   products: NavProduct[];
@@ -21,7 +21,7 @@ export async function getCategoriesWithProducts(): Promise<CategoryWithProducts[
   return Promise.all(
     categories.map(async (category) => ({
       ...category,
-      products: await getProductsByCategory2(category.slug, 1000),
+      products: await getProductsByCategoryId(category.id, 1000),
     }))
   );
 }
@@ -31,10 +31,10 @@ export async function getNavCategories(): Promise<NavCategory[]> {
 
   return Promise.all(
     categories.map(async (category) => {
-      const products = await getProductsByCategory2(category.slug, 6);
+      const products = await getProductsByCategoryId(category.id, 6);
       return {
         ...category,
-        products: products.map((product) => ({ id: product.id, slug: product.slug, name: product.name })),
+        products: products.map((product) => ({ id: product.id, name: product.name })),
       };
     })
   );
@@ -44,40 +44,40 @@ export function getProductCategoryTitleMap(
   products: CatalogProduct[],
   categories: CatalogCategory[] = []
 ): Record<string, string> {
-  const categoryTitleBySlug = new Map(categories.map((category) => [category.slug, category.title]));
+  const categoryNameById = new Map(categories.map((category) => [category.id, category.name]));
   return Object.fromEntries(
-    products.map((product) => [product.id, categoryTitleBySlug.get(product.category) ?? ''])
+    products.map((product) => [product.id, categoryNameById.get(product.categoryId[0] ?? '') ?? ''])
   );
 }
 
 export async function getLatestProducts(): Promise<CatalogProduct[]> {
-  const products = await getProductsWithDetails(1000);
-  return products.filter((product) => product.status?.toLowerCase().includes('latest'));
+  const products = await getProducts(1000);
+  return products.filter((product) => product.badges.some((badge) => badge.toLowerCase() === 'latest'));
 }
 
 export async function getSameDayPrinting(): Promise<CatalogProduct[]> {
-  const products = await getProductsWithDetails(1000);
-  return products.filter((product) => product.status?.toLowerCase().includes('samedayprinting'));
+  const products = await getProducts(1000);
+  return products.filter((product) => product.badges.some((badge) => badge.toLowerCase() === 'samedayprinting'));
 }
 
 export async function getSeasonalFavorites(): Promise<CatalogProduct[]> {
-  const products = await getProductsWithDetails(1000);
-  return products.filter((product) => product.status?.toLowerCase().includes('seasonal'));
+  const products = await getProducts(1000);
+  return products.filter((product) => product.badges.some((badge) => badge.toLowerCase() === 'seasonal'));
 }
 
 export async function getDeliveryMarketing(): Promise<CatalogProduct[]> {
-  const products = await getProductsWithDetails(1000);
-  return products.filter((product) => product.status?.toLowerCase().includes('deliverymarketing'));
+  const products = await getProducts(1000);
+  return products.filter((product) => product.badges.some((badge) => badge.toLowerCase() === 'deliverymarketing'));
 }
 
 export async function getRelatedProducts(productId: string, limit = 3): Promise<CatalogProduct[]> {
-  const products = await getProductsWithDetails(1000);
+  const products = await getProducts(1000);
   const current = products.find((product) => product.id === productId);
   if (!current) {
     return [];
   }
 
   return products
-    .filter((product) => product.category === current.category && product.id !== productId)
+    .filter((product) => product.categoryId.some((id) => current.categoryId.includes(id)) && product.id !== productId)
     .slice(0, limit);
 }

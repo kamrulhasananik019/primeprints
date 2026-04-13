@@ -73,25 +73,21 @@ export default function CategorySlider({ categories }: CategorySliderProps) {
           className="overflow-visible! pb-10"
         >
           {categories.map((category) => (
-            <SwiperSlide key={category.title} className="h-auto">
-              <Link href={`/categories/${category.slug}`}>
+            <SwiperSlide key={category.id} className="h-auto">
+              <Link href={`/categories/${category.id}`}>
                 <div className="group cursor-pointer text-center">
                   <div className="relative mx-auto mb-4 aspect-square w-44 overflow-hidden rounded-full border-4 border-white bg-stone-200 shadow-lg ring-1 ring-stone-200 sm:w-48 md:w-52">
                     <Image
-                      src={category.image}
-                      alt={category.title}
+                      src={category.imageUrl}
+                      alt={category.name}
                       fill
                       sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 20vw"
                       className="h-full w-full object-cover transition duration-500 group-hover:scale-110"
                     />
-
-                    <div className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-white/90 px-3 py-1 text-[10px] font-medium uppercase tracking-[0.14em] text-stone-700 backdrop-blur">
-                      {category.tag}
-                    </div>
                   </div>
 
                   <h3 className="font-serif text-lg font-semibold text-stone-900">
-                    {category.title}
+                    {category.name}
                   </h3>
                 </div>
               </Link>

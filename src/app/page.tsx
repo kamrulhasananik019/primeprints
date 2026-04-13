@@ -61,7 +61,7 @@ export default async function Home() {
   const latestCategoryTitles = getProductCategoryTitleMap(latestProducts, categories);
   const sameDayCategoryTitles = getProductCategoryTitleMap(sameDayPrinting, categories);
   const deliveryMarketingCategoryTitles = getProductCategoryTitleMap(deliveryMarketingProducts, categories);
-  const categoryTitles = categories.map((cat) => cat.title);
+  const categoryTitles = categories.map((cat) => cat.name);
 
   return (
     <main className="overflow-hidden bg-stone-50 font-sans">

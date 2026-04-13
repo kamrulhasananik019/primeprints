@@ -64,7 +64,7 @@ export default function ContactPageContent({ categories }: ContactPageContentPro
   const searchParams = useSearchParams();
 
   const sortedCategories = useMemo(
-    () => [...categories].sort((a, b) => a.title.localeCompare(b.title)),
+    () => [...categories].sort((a, b) => a.name.localeCompare(b.name)),
     [categories]
   );
 
@@ -82,18 +82,18 @@ export default function ContactPageContent({ categories }: ContactPageContentPro
     }
 
     const matchedCategory = sortedCategories.find(
-      (category) => category.slug === categoryParam
+      (category) => category.id === categoryParam
     );
 
     if (matchedCategory) {
       const matchedProduct = matchedCategory.products.find(
-        (product) => product.slug === productParam
+        (product) => product.id === productParam
       );
 
       return {
-        categorySlug: matchedCategory.slug,
+        categorySlug: matchedCategory.id,
         productSlug: matchedProduct
-          ? matchedProduct.slug
+          ? matchedProduct.id
           : productParam
             ? CUSTOM_PRODUCT_VALUE
             : "",
@@ -125,7 +125,7 @@ export default function ContactPageContent({ categories }: ContactPageContentPro
   );
 
   const selectedCategory = sortedCategories.find(
-    (category) => category.slug === selectedCategorySlug
+    (category) => category.id === selectedCategorySlug
   );
 
   const productsForCategory = selectedCategory
@@ -307,8 +307,8 @@ export default function ContactPageContent({ categories }: ContactPageContentPro
                     >
                       <option value="" disabled>Select a category</option>
                       {sortedCategories.map((category) => (
-                        <option key={category.id} value={category.slug}>
-                          {category.title}
+                        <option key={category.id} value={category.id}>
+                          {category.name}
                         </option>
                       ))}
                       <option value={CUSTOM_CATEGORY_VALUE}>Other (write custom)</option>
@@ -353,7 +353,7 @@ export default function ContactPageContent({ categories }: ContactPageContentPro
                           selectedCategorySlug &&
                           selectedCategorySlug !== CUSTOM_CATEGORY_VALUE
                         ) {
-                          setCustomCategory((previous) => previous || selectedCategory?.title || "");
+                          setCustomCategory((previous) => previous || selectedCategory?.name || "");
                           setSelectedCategorySlug(CUSTOM_CATEGORY_VALUE);
                         }
                       }}
@@ -366,7 +366,7 @@ export default function ContactPageContent({ categories }: ContactPageContentPro
                       {isCustomCategory
                         ? null
                         : productsForCategory.map((product) => (
-                            <option key={product.id} value={product.slug}>
+                            <option key={product.id} value={product.id}>
                               {product.name}
                             </option>
                           ))}
