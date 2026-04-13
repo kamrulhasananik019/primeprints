@@ -20,6 +20,64 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Cloudflare D1 Setup
+
+Wrangler is installed and configured with a D1 binding named `DB`.
+
+1. Login to Cloudflare:
+
+```bash
+pnpm cf:login
+```
+
+2. Create the remote D1 database:
+
+```bash
+pnpm cf:d1:create
+```
+
+3. Copy the `database_id` from command output into `wrangler.jsonc`.
+
+4. Apply local migration:
+
+```bash
+pnpm cf:d1:migrate
+```
+
+5. Apply remote migration:
+
+```bash
+pnpm cf:d1:migrate:remote
+```
+
+Useful command:
+
+```bash
+pnpm cf:d1:list
+```
+
+## Use D1 In Next.js
+
+1. Copy environment variables:
+
+```bash
+cp .env.example .env.local
+```
+
+2. Fill in `CF_ACCOUNT_ID` and `CF_API_TOKEN` in `.env.local`.
+
+3. Start the app:
+
+```bash
+pnpm dev
+```
+
+4. Test D1 route:
+
+```bash
+curl http://localhost:3000/api/d1-health
+```
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

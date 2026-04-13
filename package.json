@@ -6,7 +6,12 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "cf:login": "wrangler login",
+    "cf:d1:create": "wrangler d1 create primeprints-db",
+    "cf:d1:migrate": "wrangler d1 migrations apply primeprints-db --local",
+    "cf:d1:migrate:remote": "wrangler d1 migrations apply primeprints-db --remote",
+    "cf:d1:list": "wrangler d1 list"
   },
   "dependencies": {
     "lucide-react": "^1.7.0",
@@ -23,6 +28,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.2",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "wrangler": "^4.81.1"
   }
 }
