@@ -1,4 +1,5 @@
 import { d1Query } from '@/lib/cloudflare-d1';
+import { unstable_cache } from 'next/cache';
 import type { RichDescription } from '@/types/rich-content';
 
 export type CategoryRecord = {
@@ -55,10 +56,34 @@ function parseRichValue(value: string | null | undefined): RichDescription {
 	}
 }
 
+const getCachedCategories = unstable_cache(
+	async () => {
+		try {
+			return await d1Query<CategoryRow>('SELECT id, name, description, image_url, parent_id FROM categories ORDER BY name ASC');
+		} catch {
+			return [];
+		}
+	},
+	['catalog-categories'],
+	{ revalidate: 300, tags: ['catalog'] }
+);
+
+const getCachedProducts = unstable_cache(
+	async () => {
+		try {
+			return await d1Query<ProductRow>(
+				'SELECT id, name, image_url, description, short_description, badges, category_id FROM products ORDER BY name ASC'
+			);
+		} catch {
+			return [];
+		}
+	},
+	['catalog-products'],
+	{ revalidate: 300, tags: ['catalog'] }
+);
+
 export async function getCategories(): Promise<CategoryRecord[]> {
-	const rows = await d1Query<CategoryRow>(
-		'SELECT id, name, description, image_url, parent_id FROM categories ORDER BY name ASC'
-	);
+	const rows = await getCachedCategories();
 	return rows.map((row) => ({
 		id: row.id,
 		name: row.name,
@@ -69,11 +94,8 @@ export async function getCategories(): Promise<CategoryRecord[]> {
 }
 
 export async function getCategoryById(id: string): Promise<CategoryRecord | null> {
-	const rows = await d1Query<CategoryRow>(
-		'SELECT id, name, description, image_url, parent_id FROM categories WHERE id = ? OR LOWER(name) = LOWER(?) LIMIT 1',
-		[id, id]
-	);
-	const row = rows[0];
+	const rows = await getCachedCategories();
+	const row = rows.find((item) => item.id === id || item.name.toLowerCase() === id.toLowerCase());
 	if (!row) return null;
 	return {
 		id: row.id,
@@ -85,11 +107,8 @@ export async function getCategoryById(id: string): Promise<CategoryRecord | null
 }
 
 export async function getProducts(limit = 100): Promise<ProductRecord[]> {
-	const rows = await d1Query<ProductRow>(
-		'SELECT id, name, image_url, description, short_description, badges, category_id FROM products ORDER BY name ASC LIMIT ?',
-		[limit]
-	);
-	return rows.map((row) => ({
+	const rows = await getCachedProducts();
+	return rows.slice(0, limit).map((row) => ({
 		id: row.id,
 		name: row.name,
 		imageUrl: parseJsonArray(row.image_url),
@@ -101,11 +120,8 @@ export async function getProducts(limit = 100): Promise<ProductRecord[]> {
 }
 
 export async function getProductById(id: string): Promise<ProductRecord | null> {
-	const rows = await d1Query<ProductRow>(
-		'SELECT id, name, image_url, description, short_description, badges, category_id FROM products WHERE id = ? OR LOWER(name) = LOWER(?) LIMIT 1',
-		[id, id]
-	);
-	const row = rows[0];
+	const rows = await getCachedProducts();
+	const row = rows.find((item) => item.id === id || item.name.toLowerCase() === id.toLowerCase());
 	if (!row) return null;
 	return {
 		id: row.id,

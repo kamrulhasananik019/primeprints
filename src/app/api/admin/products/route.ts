@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { NextResponse } from 'next/server';
+import { revalidateTag } from 'next/cache';
 
 import { requireAdminSession, toStoredRichText } from '@/lib/admin-api';
 import { d1Execute, d1Query } from '@/lib/cloudflare-d1';
@@ -56,6 +57,7 @@ export async function POST(request: Request) {
       'INSERT INTO products (id, name, image_url, description, short_description, badges, category_id) VALUES (?, ?, ?, ?, ?, ?, ?)',
       [randomUUID(), name, JSON.stringify(imageUrls), description, shortDescription, JSON.stringify(badges), JSON.stringify(categoryIds)]
     );
+    revalidateTag('catalog', 'max');
 
     return NextResponse.json({ ok: true });
   } catch (error) {

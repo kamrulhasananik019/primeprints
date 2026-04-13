@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { randomBytes, randomUUID, scryptSync } from 'node:crypto';
 import { d1Execute, d1Query } from '@/lib/cloudflare-d1';
+import { revalidateTag } from 'next/cache';
 
 function hashPassword(password: string): string {
   const salt = randomBytes(16).toString('hex');
@@ -9,9 +10,9 @@ function hashPassword(password: string): string {
 }
 
 export async function POST() {
+  try {
     const adminEmail = process.env.ADMIN_EMAIL || 'kamrulhasananik019@gmail.com';
     const adminPassword = process.env.ADMIN_PASSWORD || '1122@#Aa';
-
     const existingAdmin = await d1Query<{ id: string }>('SELECT id FROM admins WHERE LOWER(email) = LOWER(?) LIMIT 1', [adminEmail]);
     if (!existingAdmin[0]?.id) {
       await d1Execute('INSERT INTO admins (id, email, password_hash) VALUES (?, ?, ?)', [
@@ -21,7 +22,6 @@ export async function POST() {
       ]);
     }
 
-  try {
     if (!process.env.CF_ACCOUNT_ID || !process.env.CF_D1_DATABASE_ID || !process.env.CF_API_TOKEN) {
       return NextResponse.json(
         {
@@ -113,6 +113,8 @@ export async function POST() {
       d1Query<{ count: number }>('SELECT COUNT(*) as count FROM categories'),
       d1Query<{ count: number }>('SELECT COUNT(*) as count FROM products'),
     ]);
+
+    revalidateTag('catalog', 'max');
 
     return NextResponse.json({
       ok: true,

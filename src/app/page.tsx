@@ -28,7 +28,7 @@ const DeliveryMarketing = nextDynamic(() => import("@/components/Home/deliveryma
   loading: () => <HomeDeferredFallback minHeight="min-h-[420px]" />,
 });
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: "Same Day Delivery in London & UK | Prime Prints",

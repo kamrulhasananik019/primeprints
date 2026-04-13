@@ -32,7 +32,13 @@ export function richContentToPlainText(content?: RichDescription): string {
     return content;
   }
 
-  return content
+  if (!Array.isArray(content) && content?.type === 'doc') {
+    return tiptapToPlainText(content.content ?? []);
+  }
+
+  const blocks = Array.isArray(content) ? content : [];
+
+  return blocks
     .map((block) => {
       if (block.type === 'text') {
         return block.content;
@@ -66,7 +72,7 @@ export function isSameRichContent(a?: RichDescription, b?: RichDescription): boo
 }
 
 export function extractFAQsFromRichContent(content?: RichDescription): FAQItem[] {
-  if (!content || typeof content === 'string') {
+  if (!content || typeof content === 'string' || !Array.isArray(content)) {
     return [];
   }
 

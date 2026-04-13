@@ -38,4 +38,4 @@ export type RichDescriptionBlock =
       content: TipTapDoc;
     };
 
-export type RichDescription = string | RichDescriptionBlock[];
+export type RichDescription = string | RichDescriptionBlock[] | TipTapDoc;

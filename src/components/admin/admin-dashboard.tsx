@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import RichEditorField from '@/components/admin/rich-editor-field';
 
 type Category = {
   id: string;
@@ -28,6 +29,9 @@ export default function AdminDashboard({ adminEmail }: Props) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [activeTab, setActiveTab] = useState<'categories' | 'products'>('categories');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
   const [categoryForm, setCategoryForm] = useState({ name: '', imageUrl: '', parentId: '', description: '' });
   const [productForm, setProductForm] = useState({
@@ -40,11 +44,15 @@ export default function AdminDashboard({ adminEmail }: Props) {
   });
 
   const refresh = async () => {
-    const [catsRes, prodRes] = await Promise.all([fetch('/api/admin/categories'), fetch('/api/admin/products')]);
-    const cats = (await catsRes.json()) as { ok: boolean; rows?: Category[] };
-    const prods = (await prodRes.json()) as { ok: boolean; rows?: Product[] };
+    setLoading(true);
+    setError('');
+    const [catsRes, prodRes] = await Promise.all([fetch('/api/admin/categories', { cache: 'no-store' }), fetch('/api/admin/products', { cache: 'no-store' })]);
+    const cats = (await catsRes.json()) as { ok: boolean; rows?: Category[]; error?: string };
+    const prods = (await prodRes.json()) as { ok: boolean; rows?: Product[]; error?: string };
     if (cats.ok) setCategories(cats.rows || []);
     if (prods.ok) setProducts(prods.rows || []);
+    if (!cats.ok || !prods.ok) setError(cats.error || prods.error || 'Failed to load data.');
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -55,7 +63,9 @@ export default function AdminDashboard({ adminEmail }: Props) {
 
   const createCategory = async (event: React.FormEvent) => {
     event.preventDefault();
-    await fetch('/api/admin/categories', {
+    setError('');
+    setSuccess('');
+    const response = await fetch('/api/admin/categories', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -65,13 +75,21 @@ export default function AdminDashboard({ adminEmail }: Props) {
         description: categoryForm.description,
       }),
     });
+    const data = (await response.json()) as { ok: boolean; error?: string };
+    if (!data.ok) {
+      setError(data.error || 'Failed to create category');
+      return;
+    }
     setCategoryForm({ name: '', imageUrl: '', parentId: '', description: '' });
     await refresh();
+    setSuccess('Category created');
   };
 
   const createProduct = async (event: React.FormEvent) => {
     event.preventDefault();
-    await fetch('/api/admin/products', {
+    setError('');
+    setSuccess('');
+    const response = await fetch('/api/admin/products', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -83,8 +101,40 @@ export default function AdminDashboard({ adminEmail }: Props) {
         shortDescription: productForm.shortDescription,
       }),
     });
+    const data = (await response.json()) as { ok: boolean; error?: string };
+    if (!data.ok) {
+      setError(data.error || 'Failed to create product');
+      return;
+    }
     setProductForm({ name: '', imageUrls: '', badges: '', categoryIds: '', description: '', shortDescription: '' });
     await refresh();
+    setSuccess('Product created');
+  };
+
+  const removeCategory = async (id: string) => {
+    setError('');
+    setSuccess('');
+    const response = await fetch(`/api/admin/categories/${id}`, { method: 'DELETE' });
+    const data = (await response.json()) as { ok: boolean; error?: string };
+    if (!data.ok) {
+      setError(data.error || 'Failed to delete category');
+      return;
+    }
+    await refresh();
+    setSuccess('Category deleted');
+  };
+
+  const removeProduct = async (id: string) => {
+    setError('');
+    setSuccess('');
+    const response = await fetch(`/api/admin/products/${id}`, { method: 'DELETE' });
+    const data = (await response.json()) as { ok: boolean; error?: string };
+    if (!data.ok) {
+      setError(data.error || 'Failed to delete product');
+      return;
+    }
+    await refresh();
+    setSuccess('Product deleted');
   };
 
   const logout = async () => {
@@ -93,90 +143,114 @@ export default function AdminDashboard({ adminEmail }: Props) {
   };
 
   return (
-    <main className="mx-auto max-w-6xl px-4 py-10">
-      <div className="mb-8 flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-black text-stone-900">Custom Admin</h1>
-          <p className="text-sm text-stone-600">Logged in as {adminEmail}</p>
+    <main className="mx-auto max-w-7xl px-4 py-10">
+      <div className="mb-8 rounded-2xl border border-stone-200 bg-gradient-to-r from-slate-900 to-cyan-900 p-6 text-white">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-black">Prime Prints Admin</h1>
+            <p className="mt-1 text-sm text-cyan-100">Logged in as {adminEmail}</p>
+          </div>
+          <button onClick={logout} className="rounded-lg border border-white/30 px-4 py-2 text-sm">
+            Logout
+          </button>
         </div>
-        <button onClick={logout} className="rounded-lg border border-stone-300 px-4 py-2 text-sm">
-          Logout
-        </button>
       </div>
 
+      {error ? <p className="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p> : null}
+      {success ? <p className="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">{success}</p> : null}
+
       <div className="mb-6 flex gap-2">
-        <button onClick={() => setActiveTab('categories')} className="rounded-lg bg-stone-900 px-4 py-2 text-sm text-white">
+        <button
+          onClick={() => setActiveTab('categories')}
+          className={`rounded-lg px-4 py-2 text-sm ${activeTab === 'categories' ? 'bg-stone-900 text-white' : 'border border-stone-300 bg-white text-stone-700'}`}
+        >
           Categories
         </button>
-        <button onClick={() => setActiveTab('products')} className="rounded-lg bg-stone-900 px-4 py-2 text-sm text-white">
+        <button
+          onClick={() => setActiveTab('products')}
+          className={`rounded-lg px-4 py-2 text-sm ${activeTab === 'products' ? 'bg-stone-900 text-white' : 'border border-stone-300 bg-white text-stone-700'}`}
+        >
           Products
+        </button>
+        <button onClick={() => void refresh()} className="rounded-lg border border-stone-300 bg-white px-4 py-2 text-sm text-stone-700">
+          {loading ? 'Refreshing...' : 'Refresh'}
         </button>
       </div>
 
       {activeTab === 'categories' ? (
-        <section className="grid gap-6 md:grid-cols-2">
+        <section className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
           <form onSubmit={createCategory} className="space-y-3 rounded-2xl border border-stone-200 bg-white p-5">
             <h2 className="text-xl font-bold">Create Category</h2>
-            <input required value={categoryForm.name} onChange={(e) => setCategoryForm((s) => ({ ...s, name: e.target.value }))} placeholder="Name" className="w-full rounded border px-3 py-2" />
-            <input required value={categoryForm.imageUrl} onChange={(e) => setCategoryForm((s) => ({ ...s, imageUrl: e.target.value }))} placeholder="Image URL" className="w-full rounded border px-3 py-2" />
-            <select value={categoryForm.parentId} onChange={(e) => setCategoryForm((s) => ({ ...s, parentId: e.target.value }))} className="w-full rounded border px-3 py-2">
+            <input required value={categoryForm.name} onChange={(e) => setCategoryForm((s) => ({ ...s, name: e.target.value }))} placeholder="Name" className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm" />
+            <input required value={categoryForm.imageUrl} onChange={(e) => setCategoryForm((s) => ({ ...s, imageUrl: e.target.value }))} placeholder="Image URL" className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm" />
+            <select value={categoryForm.parentId} onChange={(e) => setCategoryForm((s) => ({ ...s, parentId: e.target.value }))} className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm">
               <option value="">No parent</option>
               {categoryOptions.map((item) => (
-                <option key={item.id} value={item.id}>{item.name}</option>
+                <option key={item.id} value={item.id}>
+                  {item.name}
+                </option>
               ))}
             </select>
-            <textarea
-              required
-              rows={8}
+            <RichEditorField
+              label="Description"
               value={categoryForm.description}
-              onChange={(e) => setCategoryForm((s) => ({ ...s, description: e.target.value }))}
-              placeholder="Description: markdown text OR full Tiptap JSON string"
-              className="w-full rounded border px-3 py-2"
+              onChange={(value) => setCategoryForm((s) => ({ ...s, description: value }))}
+              minRows={8}
             />
-            <button className="rounded bg-stone-900 px-3 py-2 text-sm font-semibold text-white">Save Category</button>
+            <button className="rounded-lg bg-stone-900 px-3 py-2 text-sm font-semibold text-white">Save Category</button>
           </form>
           <div className="space-y-3 rounded-2xl border border-stone-200 bg-white p-5">
             <h2 className="text-xl font-bold">Categories ({categories.length})</h2>
             {categories.map((item) => (
-              <div key={item.id} className="rounded border p-3">
-                <p className="font-semibold">{item.name}</p>
-                <p className="text-xs text-stone-500">{item.id}</p>
+              <div key={item.id} className="rounded-lg border border-stone-200 p-3">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="font-semibold">{item.name}</p>
+                    <p className="text-xs text-stone-500">{item.id}</p>
+                  </div>
+                  <button onClick={() => void removeCategory(item.id)} className="rounded-md border border-red-300 px-2 py-1 text-xs text-red-700">
+                    Delete
+                  </button>
+                </div>
               </div>
             ))}
           </div>
         </section>
       ) : (
-        <section className="grid gap-6 md:grid-cols-2">
+        <section className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
           <form onSubmit={createProduct} className="space-y-3 rounded-2xl border border-stone-200 bg-white p-5">
             <h2 className="text-xl font-bold">Create Product</h2>
-            <input required value={productForm.name} onChange={(e) => setProductForm((s) => ({ ...s, name: e.target.value }))} placeholder="Name" className="w-full rounded border px-3 py-2" />
-            <input value={productForm.badges} onChange={(e) => setProductForm((s) => ({ ...s, badges: e.target.value }))} placeholder="Badges (comma separated)" className="w-full rounded border px-3 py-2" />
-            <input value={productForm.categoryIds} onChange={(e) => setProductForm((s) => ({ ...s, categoryIds: e.target.value }))} placeholder="Category IDs (comma separated)" className="w-full rounded border px-3 py-2" />
-            <textarea rows={4} value={productForm.imageUrls} onChange={(e) => setProductForm((s) => ({ ...s, imageUrls: e.target.value }))} placeholder="Image URLs (one per line)" className="w-full rounded border px-3 py-2" />
-            <textarea
-              required
-              rows={6}
+            <input required value={productForm.name} onChange={(e) => setProductForm((s) => ({ ...s, name: e.target.value }))} placeholder="Name" className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm" />
+            <input value={productForm.badges} onChange={(e) => setProductForm((s) => ({ ...s, badges: e.target.value }))} placeholder="Badges (comma separated)" className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm" />
+            <input value={productForm.categoryIds} onChange={(e) => setProductForm((s) => ({ ...s, categoryIds: e.target.value }))} placeholder="Category IDs (comma separated)" className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm" />
+            <textarea rows={4} value={productForm.imageUrls} onChange={(e) => setProductForm((s) => ({ ...s, imageUrls: e.target.value }))} placeholder="Image URLs (one per line)" className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm" />
+            <RichEditorField
+              label="Short Description"
               value={productForm.shortDescription}
-              onChange={(e) => setProductForm((s) => ({ ...s, shortDescription: e.target.value }))}
-              placeholder="Short Description: markdown OR Tiptap JSON"
-              className="w-full rounded border px-3 py-2"
+              onChange={(value) => setProductForm((s) => ({ ...s, shortDescription: value }))}
+              minRows={6}
             />
-            <textarea
-              required
-              rows={8}
+            <RichEditorField
+              label="Description"
               value={productForm.description}
-              onChange={(e) => setProductForm((s) => ({ ...s, description: e.target.value }))}
-              placeholder="Description: markdown OR Tiptap JSON"
-              className="w-full rounded border px-3 py-2"
+              onChange={(value) => setProductForm((s) => ({ ...s, description: value }))}
+              minRows={8}
             />
-            <button className="rounded bg-stone-900 px-3 py-2 text-sm font-semibold text-white">Save Product</button>
+            <button className="rounded-lg bg-stone-900 px-3 py-2 text-sm font-semibold text-white">Save Product</button>
           </form>
           <div className="space-y-3 rounded-2xl border border-stone-200 bg-white p-5">
             <h2 className="text-xl font-bold">Products ({products.length})</h2>
             {products.map((item) => (
-              <div key={item.id} className="rounded border p-3">
-                <p className="font-semibold">{item.name}</p>
-                <p className="text-xs text-stone-500">{item.id}</p>
+              <div key={item.id} className="rounded-lg border border-stone-200 p-3">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="font-semibold">{item.name}</p>
+                    <p className="text-xs text-stone-500">{item.id}</p>
+                  </div>
+                  <button onClick={() => void removeProduct(item.id)} className="rounded-md border border-red-300 px-2 py-1 text-xs text-red-700">
+                    Delete
+                  </button>
+                </div>
               </div>
             ))}
           </div>

@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { NextResponse } from 'next/server';
+import { revalidateTag } from 'next/cache';
 
 import { requireAdminSession, toStoredRichText } from '@/lib/admin-api';
 import { d1Execute, d1Query } from '@/lib/cloudflare-d1';
@@ -50,6 +51,7 @@ export async function POST(request: Request) {
       'INSERT INTO categories (id, name, description, image_url, parent_id) VALUES (?, ?, ?, ?, ?)',
       [randomUUID(), name, description, imageUrl, parentId]
     );
+    revalidateTag('catalog', 'max');
 
     return NextResponse.json({ ok: true });
   } catch (error) {

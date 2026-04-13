@@ -22,7 +22,7 @@ const dmSans = DM_Sans({
   adjustFontFallback: true,
 });
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 export const viewport: Viewport = {
   width: "device-width",

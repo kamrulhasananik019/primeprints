@@ -17,6 +17,21 @@ export default function RichContent({
   listItemClassName,
   wrapperClassName,
 }: RichContentProps) {
+  const renderMarkdown = (value: string) => (
+    <ReactMarkdown
+      components={{
+        p: ({ children }) => <p className={textClassName}>{children}</p>,
+        ul: ({ children }) => <ul className={listClassName || 'list-disc pl-5'}>{children}</ul>,
+        li: ({ children }) => <li className={listItemClassName || textClassName}>{children}</li>,
+        h2: ({ children }) => <h2 className="sans text-2xl font-700 text-stone-900">{children}</h2>,
+        h3: ({ children }) => <h3 className="sans text-xl font-700 text-stone-900">{children}</h3>,
+        h4: ({ children }) => <h4 className="sans text-lg font-700 text-stone-900">{children}</h4>,
+      }}
+    >
+      {value}
+    </ReactMarkdown>
+  );
+
   const renderTipTapNodes = (nodes: TipTapNode[], keyPrefix: string): React.ReactNode => {
     return nodes.map((node, index) => {
       const key = `${keyPrefix}-${node.type}-${index}`;
@@ -85,27 +100,18 @@ export default function RichContent({
   };
 
   if (typeof content === 'string') {
-    return (
-      <div className={wrapperClassName}>
-        <ReactMarkdown
-          components={{
-            p: ({ children }) => <p className={textClassName}>{children}</p>,
-            ul: ({ children }) => <ul className={listClassName || 'list-disc pl-5'}>{children}</ul>,
-            li: ({ children }) => <li className={listItemClassName || textClassName}>{children}</li>,
-            h2: ({ children }) => <h2 className="sans text-2xl font-700 text-stone-900">{children}</h2>,
-            h3: ({ children }) => <h3 className="sans text-xl font-700 text-stone-900">{children}</h3>,
-            h4: ({ children }) => <h4 className="sans text-lg font-700 text-stone-900">{children}</h4>,
-          }}
-        >
-          {content}
-        </ReactMarkdown>
-      </div>
-    );
+    return <div className={wrapperClassName}>{renderMarkdown(content)}</div>;
   }
+
+  if (!Array.isArray(content) && content?.type === 'doc') {
+    return <div className={wrapperClassName}>{renderTipTapNodes(content.content ?? [], 'tiptap-root')}</div>;
+  }
+
+  const blocks = Array.isArray(content) ? content : [];
 
   return (
     <div className={wrapperClassName}>
-      {content.map((block, index) => {
+      {blocks.map((block, index) => {
         if (block.type === 'text') {
           return (
             <p key={`text-${index}`} className={textClassName}>

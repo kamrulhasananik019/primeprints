@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidateTag } from 'next/cache';
 
 import { requireAdminSession, toStoredRichText } from '@/lib/admin-api';
 import { d1Execute } from '@/lib/cloudflare-d1';
@@ -30,6 +31,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       parentId,
       id,
     ]);
+    revalidateTag('catalog', 'max');
 
     return NextResponse.json({ ok: true });
   } catch (error) {
@@ -44,6 +46,7 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
     await requireAdminSession();
     const { id } = await params;
     await d1Execute('DELETE FROM categories WHERE id = ?', [id]);
+    revalidateTag('catalog', 'max');
     return NextResponse.json({ ok: true });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
