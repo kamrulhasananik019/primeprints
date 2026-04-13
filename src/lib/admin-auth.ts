@@ -1,4 +1,4 @@
-import { createHmac, timingSafeEqual } from 'node:crypto';
+import { createHmac, scryptSync, timingSafeEqual } from 'node:crypto';
 
 const COOKIE_NAME = 'primeprints_admin_session';
 const SESSION_TTL_SECONDS = 60 * 60 * 12;
@@ -71,4 +71,56 @@ export function getAdminCredentials() {
 
 export function getAdminSessionCookieName() {
   return COOKIE_NAME;
+}
+
+function safeEqualString(a: string, b: string): boolean {
+  const aBuf = Buffer.from(a);
+  const bBuf = Buffer.from(b);
+  if (aBuf.length !== bBuf.length) {
+    return false;
+  }
+  return timingSafeEqual(aBuf, bBuf);
+}
+
+function verifyScryptColon(password: string, stored: string): boolean {
+  const parts = stored.split(':');
+  if (parts.length !== 3 || parts[0] !== 'scrypt') return false;
+  const salt = parts[1];
+  const hashHex = parts[2];
+  if (!salt || !hashHex) return false;
+  const derived = scryptSync(password, salt, hashHex.length / 2).toString('hex');
+  return safeEqualString(derived, hashHex);
+}
+
+function verifyScryptDollar(password: string, stored: string): boolean {
+  const parts = stored.split('$');
+  if (parts.length < 3 || parts[0] !== 'scrypt') return false;
+  const salt = parts[1];
+  const hash = parts[2];
+  if (!salt || !hash) return false;
+
+  const isHex = /^[a-f0-9]+$/i.test(hash);
+  if (isHex) {
+    const derivedHex = scryptSync(password, salt, hash.length / 2).toString('hex');
+    return safeEqualString(derivedHex, hash);
+  }
+
+  const derivedB64 = scryptSync(password, salt, 64).toString('base64');
+  return safeEqualString(derivedB64, hash);
+}
+
+export function verifyPasswordAgainstHash(password: string, storedHash: string): boolean {
+  const normalized = storedHash.trim();
+  if (!normalized) return false;
+
+  if (normalized.startsWith('scrypt:')) {
+    return verifyScryptColon(password, normalized);
+  }
+
+  if (normalized.startsWith('scrypt$')) {
+    return verifyScryptDollar(password, normalized);
+  }
+
+  // Fallback for plain-text passwords in older/local setups.
+  return safeEqualString(password, normalized);
 }

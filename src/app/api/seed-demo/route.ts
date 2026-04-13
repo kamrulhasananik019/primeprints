@@ -1,8 +1,26 @@
 import { NextResponse } from 'next/server';
-import { randomUUID } from 'node:crypto';
+import { randomBytes, randomUUID, scryptSync } from 'node:crypto';
 import { d1Execute, d1Query } from '@/lib/cloudflare-d1';
 
+function hashPassword(password: string): string {
+  const salt = randomBytes(16).toString('hex');
+  const hash = scryptSync(password, salt, 64).toString('hex');
+  return `scrypt:${salt}:${hash}`;
+}
+
 export async function POST() {
+    const adminEmail = process.env.ADMIN_EMAIL || 'kamrulhasananik019@gmail.com';
+    const adminPassword = process.env.ADMIN_PASSWORD || '1122@#Aa';
+
+    const existingAdmin = await d1Query<{ id: string }>('SELECT id FROM admins WHERE LOWER(email) = LOWER(?) LIMIT 1', [adminEmail]);
+    if (!existingAdmin[0]?.id) {
+      await d1Execute('INSERT INTO admins (id, email, password_hash) VALUES (?, ?, ?)', [
+        randomUUID(),
+        adminEmail,
+        hashPassword(adminPassword),
+      ]);
+    }
+
   try {
     if (!process.env.CF_ACCOUNT_ID || !process.env.CF_D1_DATABASE_ID || !process.env.CF_API_TOKEN) {
       return NextResponse.json(
@@ -15,9 +33,21 @@ export async function POST() {
     }
 
     const categorySeed = [
-      ['Paper Products', 'High-volume paper product printing for cards, flyers, and booklets.', 'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=1200&q=80'],
-      ['Large Format Printing', 'Posters, banners, and display graphics for events and retail.', 'https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?w=1200&q=80'],
-      ['Garment Printing', 'Custom t-shirt and hoodie printing for teams, events, and brands.', 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=1200&q=80'],
+      [
+        'Paper Products',
+        JSON.stringify([{ type: 'markdown', content: 'High-volume paper product printing for cards, flyers, and booklets.' }]),
+        'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=1200&q=80',
+      ],
+      [
+        'Large Format Printing',
+        JSON.stringify([{ type: 'markdown', content: 'Posters, banners, and display graphics for events and retail.' }]),
+        'https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?w=1200&q=80',
+      ],
+      [
+        'Garment Printing',
+        JSON.stringify([{ type: 'markdown', content: 'Custom t-shirt and hoodie printing for teams, events, and brands.' }]),
+        'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=1200&q=80',
+      ],
     ];
 
     const categoryIds: string[] = [];
@@ -41,8 +71,8 @@ export async function POST() {
     const productSeed = [
       {
         name: 'Premium Business Cards',
-        shortDescription: 'A premium first impression for meetings, events, and sales teams.',
-        description: 'Luxury cards with soft-touch and spot UV finishing.',
+        shortDescription: JSON.stringify([{ type: 'markdown', content: 'A premium first impression for meetings, events, and sales teams.' }]),
+        description: JSON.stringify([{ type: 'markdown', content: 'Luxury cards with soft-touch and spot UV finishing.' }]),
         imageUrls: [
           'https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=1200&h=1200&fit=crop&q=80',
           'https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=1200&q=80',
@@ -52,8 +82,8 @@ export async function POST() {
       },
       {
         name: 'Event Poster A1',
-        shortDescription: 'High-impact large format color output with quick turnaround.',
-        description: 'Bold A1 posters for retail windows and event promotion.',
+        shortDescription: JSON.stringify([{ type: 'markdown', content: 'High-impact large format color output with quick turnaround.' }]),
+        description: JSON.stringify([{ type: 'markdown', content: 'Bold A1 posters for retail windows and event promotion.' }]),
         imageUrls: ['https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=1200&q=80'],
         badges: ['deliverymarketing'],
         categoryIds: categoryIds[1] ? [categoryIds[1]] : [],
