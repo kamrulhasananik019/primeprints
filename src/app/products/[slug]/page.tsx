@@ -5,43 +5,34 @@ import { notFound } from 'next/navigation';
 import RichContent from '@/components/shared/rich-content';
 import ProductHero from '@/components/product/product-hero';
 import InfiniteMarquee from '@/components/shared/infinite-marquee';
-import { allProducts } from '@/data/products';
-import { getCategoriesWithProducts, getPrimaryImage, getRelatedProducts } from '@/lib/catalog';
+import { getCategories, getCategoryBySlug, getProductWithDetailsBySlug, getProductsByCategory2 } from '@/lib/d1';
 import { extractFAQsFromRichContent, isSameRichContent, richContentToPlainText } from '@/lib/rich-content';
 import { siteUrl } from '@/lib/site';
 
-export const dynamic = 'force-static';
+export const revalidate = 300;
 
-const categories = getCategoriesWithProducts();
-
-export function generateStaticParams() {
-  return allProducts.map((product) => ({ slug: product.slug }));
+function getPrimaryImage(product: { images: Array<{ url: string; isPrimary?: boolean }> }): string {
+  const primary = product.images.find((img) => img.isPrimary);
+  return primary?.url ?? product.images[0]?.url ?? '';
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  let productName = '';
-  let productDescription = '';
-  let productImage = '';
+  const product = await getProductWithDetailsBySlug(slug);
 
-  for (const category of categories) {
-    const product = category.products.find((item) => item.slug === slug);
-    if (product) {
-      productName = product.title || product.name;
-      productDescription = richContentToPlainText(
-        product.shortDescription || product.longDescription || product.details || product.description
-      );
-      productImage = getPrimaryImage(product) || category.image;
-      break;
-    }
-  }
-
-  if (!productName) {
+  if (!product) {
     return {
       title: 'Product Not Found',
       robots: { index: false, follow: false },
     };
   }
+
+  const category = await getCategoryBySlug(product.category);
+  const productName = product.title || product.name;
+  const productDescription = richContentToPlainText(
+    product.shortDescription || product.longDescription || product.details || product.description
+  );
+  const productImage = getPrimaryImage(product) || category?.image || '';
 
   return {
     title: productName,
@@ -68,31 +59,30 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function ProductDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
 
-  let product = null;
-  let category = null;
-  for (const cat of categories) {
-    const found = cat.products.find((item) => item.slug === slug);
-    if (found) {
-      product = found;
-      category = cat;
-      break;
-    }
-  }
-
-  if (!product || !category) {
+  const product = await getProductWithDetailsBySlug(slug);
+  if (!product) {
     notFound();
   }
 
-  const related = getRelatedProducts(product.id);
-  const otherCategoryProducts = categories
-    .filter((cat) => cat.id !== category.id)
-    .flatMap((cat) =>
-      cat.products.slice(0, 2).map((item) => ({
-        ...item,
-        categoryTitle: cat.title,
-      }))
-    )
-    .slice(0, 6);
+  const category = await getCategoryBySlug(product.category);
+
+  if (!category) {
+    notFound();
+  }
+
+  const categoryProducts = await getProductsByCategory2(category.slug, 24);
+  const related = categoryProducts.filter((item) => item.id !== product.id).slice(0, 3);
+  const allCategories = await getCategories();
+
+  const otherCategoryProductsNested = await Promise.all(
+    allCategories
+      .filter((cat) => cat.slug !== category.slug)
+      .map(async (cat) => {
+        const products = await getProductsByCategory2(cat.slug, 2);
+        return products.map((item) => ({ ...item, categoryTitle: cat.title }));
+      })
+  );
+  const otherCategoryProducts = otherCategoryProductsNested.flat().slice(0, 6);
 
   const primaryImage = getPrimaryImage(product) || category.image;
   const productTitle = product.title || product.name;
@@ -107,7 +97,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
     .filter(Boolean)
     .slice(0, 6);
   const faqItems = extractFAQsFromRichContent(productLongDescription);
-  const categoryTitles = categories.map((cat) => cat.title);
+  const categoryTitles = allCategories.map((cat) => cat.title);
   const productJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Product',

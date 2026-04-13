@@ -47,6 +47,20 @@ async function seedDatabase() {
     // Seed products with normalized data
     for (const product of allProducts) {
       try {
+        // Clear old normalized rows so reseeding does not duplicate child records.
+        const existingDescriptions = await runD1Query<{ id: string }>(
+          'SELECT id FROM product_descriptions WHERE product_id = ?1',
+          [product.id]
+        );
+
+        for (const desc of existingDescriptions) {
+          await runD1Query('DELETE FROM description_blocks WHERE description_id = ?1', [desc.id]);
+        }
+
+        await runD1Query('DELETE FROM product_descriptions WHERE product_id = ?1', [product.id]);
+        await runD1Query('DELETE FROM product_images WHERE product_id = ?1', [product.id]);
+        await runD1Query('DELETE FROM product_specs WHERE product_id = ?1', [product.id]);
+
         // Insert product
         await runD1Query(
           `INSERT OR REPLACE INTO products (id, slug, name, title, category, status)
@@ -122,8 +136,30 @@ async function seedDatabase() {
             // Complex structure with mixed types
             blocks = descContent.map((block: any) => {
               if (typeof block === 'string') {
+                const trimmed = block.trim();
+                if (trimmed.endsWith(':') && trimmed.length <= 120) {
+                  return { type: 'header', content: { content: trimmed, level: 3 } };
+                }
                 return { type: 'text', content: { content: block } };
               }
+
+              if (block?.type === 'text' && typeof block.content === 'string') {
+                const trimmed = block.content.trim();
+                if (trimmed.endsWith(':') && trimmed.length <= 120) {
+                  return { type: 'header', content: { content: trimmed, level: 3 } };
+                }
+              }
+
+              if (block?.type === 'faq') {
+                return {
+                  type: 'faq',
+                  content: {
+                    question: block.question,
+                    answer: block.answer,
+                  },
+                };
+              }
+
               return {
                 type: block.type || 'text',
                 content: block,

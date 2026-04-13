@@ -30,6 +30,26 @@ export default function RichContent({
           );
         }
 
+        if (block.type === 'header') {
+          const HeaderTag = block.level === 3 ? 'h3' : block.level === 4 ? 'h4' : 'h2';
+          return (
+            <HeaderTag key={`header-${index}`} className="sans text-xl font-700 text-stone-900">
+              {block.content}
+            </HeaderTag>
+          );
+        }
+
+        if (block.type === 'faq') {
+          return (
+            <details key={`faq-${index}`} className="rounded-xl border border-stone-200 bg-stone-50 px-4 py-3">
+              <summary className="sans cursor-pointer list-none pr-6 text-sm font-700 text-stone-900">
+                {block.question}
+              </summary>
+              <p className="sans mt-3 text-sm leading-relaxed text-stone-600">{block.answer}</p>
+            </details>
+          );
+        }
+
         return (
           <ul key={`list-${index}`} className={listClassName || 'list-disc pl-5'}>
             {block.items.map((item, itemIndex) => (

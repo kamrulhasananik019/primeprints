@@ -20,6 +20,14 @@ export function richContentToPlainText(content?: RichDescription): string {
         return block.content;
       }
 
+      if (block.type === 'header') {
+        return block.content;
+      }
+
+      if (block.type === 'faq') {
+        return `${block.question} ${block.answer}`;
+      }
+
       return block.items.join(', ');
     })
     .join(' ')
@@ -39,6 +47,15 @@ export function extractFAQsFromRichContent(content?: RichDescription): FAQItem[]
   const faqItems: FAQItem[] = [];
 
   for (const block of content) {
+    if (block.type === 'faq') {
+      const question = block.question.replace(/\s+/g, ' ').trim();
+      const answer = block.answer.replace(/\s+/g, ' ').trim();
+      if (question && answer) {
+        faqItems.push({ question, answer });
+      }
+      continue;
+    }
+
     if (block.type !== 'list') {
       continue;
     }

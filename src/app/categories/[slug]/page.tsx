@@ -3,21 +3,20 @@ import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import RichContent from '@/components/shared/rich-content';
-import { getCategoriesWithProducts, getPrimaryImage } from '@/lib/catalog';
+import { getCategories, getCategoryBySlug, getProductsByCategory2 } from '@/lib/d1';
 import InfiniteMarquee from '@/components/shared/infinite-marquee';
 import { isSameRichContent, richContentToPlainText } from '@/lib/rich-content';
 
-export const dynamic = 'force-static';
+export const revalidate = 300;
 
-const categories = getCategoriesWithProducts();
-
-export function generateStaticParams() {
-  return categories.map((category) => ({ slug: category.slug }));
+function getPrimaryImage(product: { images: Array<{ url: string; isPrimary?: boolean }> }): string {
+  const primary = product.images.find((img) => img.isPrimary);
+  return primary?.url ?? product.images[0]?.url ?? '';
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const category = categories.find((cat) => cat.slug === slug);
+  const category = await getCategoryBySlug(slug);
 
   if (!category) {
     return {
@@ -28,13 +27,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   return {
     title: category.title,
-    description: richContentToPlainText(category.shortDescription || category.longDescription || category.description),
+    description: richContentToPlainText(category.description),
     alternates: {
       canonical: `/categories/${category.slug}`,
     },
     openGraph: {
       title: `${category.title} | Prime Prints`,
-      description: richContentToPlainText(category.shortDescription || category.longDescription || category.description),
+      description: richContentToPlainText(category.description),
       url: `/categories/${category.slug}`,
       images: [{ url: category.image, alt: category.title }],
       type: 'website',
@@ -42,7 +41,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     twitter: {
       card: 'summary_large_image',
       title: `${category.title} | Prime Prints`,
-      description: richContentToPlainText(category.shortDescription || category.longDescription || category.description),
+      description: richContentToPlainText(category.description),
       images: [category.image],
     },
   };
@@ -50,14 +49,17 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const category = categories.find(cat => cat.slug === slug);
+  const category = await getCategoryBySlug(slug);
 
   if (!category) {
     notFound();
   }
 
-  const categoryShortDescription = category.shortDescription || category.description;
-  const categoryLongDescription = category.longDescription || category.description;
+  const products = await getProductsByCategory2(category.slug, 200);
+  const categories = await getCategories();
+
+  const categoryShortDescription = category.description;
+  const categoryLongDescription = category.description;
 
   return (
     <div className="min-h-screen bg-stone-50">
@@ -93,7 +95,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
                 listClassName="list-disc pl-5 text-base leading-relaxed text-stone-600 space-y-1"
               />
               <p className="mt-6 text-sm font-medium uppercase tracking-[0.16em] text-stone-500">
-                {category.products.length} products available
+                {products.length} products available
               </p>
               <div className="mt-6">
                 <Link
@@ -137,14 +139,14 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
       )}
 
       <div className="container mx-auto px-4 py-14 sm:px-6 lg:px-8">
-        {category.products.length > 0 && (
+        {products.length > 0 && (
           <div>
             <h2 className="mb-2 font-serif text-3xl font-bold text-stone-900 sm:text-4xl">
               Products in {category.title}
             </h2>
             <p className="mb-8 text-sm text-stone-500">Click any product to view full details and image gallery.</p>
             <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
-              {category.products.map((product) => (
+              {products.map((product) => (
                 <Link key={product.id} href={`/products/${product.slug}`}>
                   <div className="group cursor-pointer rounded-3xl border border-stone-200 bg-white p-3 transition hover:border-stone-300 hover:shadow-md">
                     <div className="relative mb-4 aspect-4/5 overflow-hidden rounded-3xl bg-stone-200">
@@ -172,7 +174,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
           </div>
         )}
 
-        {category.products.length === 0 && (
+        {products.length === 0 && (
           <div className="rounded-2xl border border-stone-200 bg-white p-10 text-center">
             <p className="text-stone-600 text-lg">
               No products available in this category yet. Check back soon!

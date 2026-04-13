@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getProductWithDetails, getProductsWithDetails, getProductsByCategory2 } from '@/lib/d1';
+import { getProductWithDetailsBySlug, getProductsWithDetails, getProductsByCategory2 } from '@/lib/d1';
 
 export const dynamic = 'force-dynamic';
 
@@ -11,8 +11,7 @@ export async function GET(request: Request) {
     const limit = parseInt(searchParams.get('limit') || '1000', 10);
 
     if (slug) {
-      const products = await getProductsWithDetails(limit);
-      const product = products.find((p: any) => p.slug === slug);
+      const product = await getProductWithDetailsBySlug(slug);
       
       if (!product) {
         return NextResponse.json(

@@ -12,6 +12,16 @@ export type RichDescriptionBlock =
   | {
       type: 'list';
       items: string[];
+    }
+  | {
+      type: 'header';
+      content: string;
+      level?: 2 | 3 | 4;
+    }
+  | {
+      type: 'faq';
+      question: string;
+      answer: string;
     };
 
 export type RichDescription = string | RichDescriptionBlock[];

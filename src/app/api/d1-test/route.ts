@@ -76,7 +76,7 @@ export async function GET(request: NextRequest) {
     // Get everything (default)
     if (action === 'all') {
       const tables = await getAllTables();
-      const allData: Record<string, unknown[]> = {};
+      const allData: Record<string, { schema: unknown[]; data: unknown[] }> = {};
 
       for (const { name } of tables) {
         const data = await getTableData(name, limit);
