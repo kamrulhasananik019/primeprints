@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { randomBytes, randomUUID, scryptSync } from 'node:crypto';
 import { d1Execute, d1Query } from '@/lib/cloudflare-d1';
 import { revalidateTag } from 'next/cache';
+import { toSlug } from '@/lib/slug';
 
 function hashPassword(password: string): string {
   const salt = randomBytes(16).toString('hex');
@@ -58,8 +59,9 @@ export async function POST() {
         continue;
       }
       const id = randomUUID();
-      await d1Execute('INSERT INTO categories (id, name, description, image_url, parent_id) VALUES (?, ?, ?, ?, ?)', [
+      await d1Execute('INSERT INTO categories (id, slug, name, description, image_url, parent_id) VALUES (?, ?, ?, ?, ?, ?)', [
         id,
+        toSlug(name),
         name,
         description,
         imageUrl,
@@ -96,9 +98,10 @@ export async function POST() {
         continue;
       }
       await d1Execute(
-        'INSERT INTO products (id, name, image_url, description, short_description, badges, category_id) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        'INSERT INTO products (id, slug, name, image_url, description, short_description, badges, category_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
         [
           randomUUID(),
+          toSlug(item.name),
           item.name,
           JSON.stringify(item.imageUrls),
           item.description,

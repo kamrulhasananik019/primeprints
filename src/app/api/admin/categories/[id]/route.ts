@@ -3,6 +3,7 @@ import { revalidateTag } from 'next/cache';
 
 import { requireAdminSession, toStoredRichText } from '@/lib/admin-api';
 import { d1Execute } from '@/lib/cloudflare-d1';
+import { toSlug } from '@/lib/slug';
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -16,6 +17,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     };
 
     const name = String(body.name || '').trim();
+    const slug = toSlug(name);
     const imageUrl = String(body.imageUrl || '').trim();
     const parentId = body.parentId ? String(body.parentId) : null;
     const description = toStoredRichText(body.description);
@@ -24,7 +26,8 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       return NextResponse.json({ ok: false, error: 'name, imageUrl, and description are required.' }, { status: 400 });
     }
 
-    await d1Execute('UPDATE categories SET name = ?, description = ?, image_url = ?, parent_id = ? WHERE id = ?', [
+    await d1Execute('UPDATE categories SET slug = ?, name = ?, description = ?, image_url = ?, parent_id = ? WHERE id = ?', [
+      slug,
       name,
       description,
       imageUrl,

@@ -4,6 +4,7 @@ import { revalidateTag } from 'next/cache';
 
 import { requireAdminSession, toStoredRichText } from '@/lib/admin-api';
 import { d1Execute, d1Query } from '@/lib/cloudflare-d1';
+import { toSlug } from '@/lib/slug';
 
 type CategoryRow = {
   id: string;
@@ -39,6 +40,7 @@ export async function POST(request: Request) {
     };
 
     const name = String(body.name || '').trim();
+    const slug = toSlug(name);
     const imageUrl = String(body.imageUrl || '').trim();
     const parentId = body.parentId ? String(body.parentId) : null;
     const description = toStoredRichText(body.description);
@@ -48,8 +50,8 @@ export async function POST(request: Request) {
     }
 
     await d1Execute(
-      'INSERT INTO categories (id, name, description, image_url, parent_id) VALUES (?, ?, ?, ?, ?)',
-      [randomUUID(), name, description, imageUrl, parentId]
+      'INSERT INTO categories (id, slug, name, description, image_url, parent_id) VALUES (?, ?, ?, ?, ?, ?)',
+      [randomUUID(), slug, name, description, imageUrl, parentId]
     );
     revalidateTag('catalog', 'max');
 

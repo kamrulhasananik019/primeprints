@@ -38,7 +38,7 @@ export default function AdminDashboard({ adminEmail }: Props) {
     name: '',
     imageUrls: '',
     badges: '',
-    categoryIds: '',
+    categoryNames: '',
     description: '',
     shortDescription: '',
   });
@@ -96,7 +96,7 @@ export default function AdminDashboard({ adminEmail }: Props) {
         name: productForm.name,
         imageUrls: productForm.imageUrls.split('\n').map((item) => item.trim()).filter(Boolean),
         badges: productForm.badges.split(',').map((item) => item.trim()).filter(Boolean),
-        categoryIds: productForm.categoryIds.split(',').map((item) => item.trim()).filter(Boolean),
+        categoryIds: productForm.categoryNames.split(',').map((item) => item.trim()).filter(Boolean),
         description: productForm.description,
         shortDescription: productForm.shortDescription,
       }),
@@ -106,7 +106,7 @@ export default function AdminDashboard({ adminEmail }: Props) {
       setError(data.error || 'Failed to create product');
       return;
     }
-    setProductForm({ name: '', imageUrls: '', badges: '', categoryIds: '', description: '', shortDescription: '' });
+    setProductForm({ name: '', imageUrls: '', badges: '', categoryNames: '', description: '', shortDescription: '' });
     await refresh();
     setSuccess('Product created');
   };
@@ -222,7 +222,8 @@ export default function AdminDashboard({ adminEmail }: Props) {
             <h2 className="text-xl font-bold">Create Product</h2>
             <input required value={productForm.name} onChange={(e) => setProductForm((s) => ({ ...s, name: e.target.value }))} placeholder="Name" className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm" />
             <input value={productForm.badges} onChange={(e) => setProductForm((s) => ({ ...s, badges: e.target.value }))} placeholder="Badges (comma separated)" className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm" />
-            <input value={productForm.categoryIds} onChange={(e) => setProductForm((s) => ({ ...s, categoryIds: e.target.value }))} placeholder="Category IDs (comma separated)" className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm" />
+            <input value={productForm.categoryNames} onChange={(e) => setProductForm((s) => ({ ...s, categoryNames: e.target.value }))} placeholder="Category names (comma separated)" className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm" />
+            <p className="text-xs text-stone-500">Available: {categories.map((item) => item.name).join(', ')}</p>
             <textarea rows={4} value={productForm.imageUrls} onChange={(e) => setProductForm((s) => ({ ...s, imageUrls: e.target.value }))} placeholder="Image URLs (one per line)" className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm" />
             <RichEditorField
               label="Short Description"

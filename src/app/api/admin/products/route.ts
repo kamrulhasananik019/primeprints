@@ -4,6 +4,7 @@ import { revalidateTag } from 'next/cache';
 
 import { requireAdminSession, toStoredRichText } from '@/lib/admin-api';
 import { d1Execute, d1Query } from '@/lib/cloudflare-d1';
+import { toSlug } from '@/lib/slug';
 
 type ProductRow = {
   id: string;
@@ -15,6 +16,28 @@ type ProductRow = {
   category_id: string;
   created_at: string;
 };
+
+async function resolveCategoryIds(values: string[]): Promise<string[]> {
+  if (values.length === 0) return [];
+
+  const byId = await d1Query<{ id: string }>(
+    `SELECT id FROM categories WHERE id IN (${values.map(() => '?').join(',')})`,
+    values
+  );
+  const matchedIds = new Set(byId.map((row) => row.id));
+  const unresolved = values.filter((value) => !matchedIds.has(value));
+
+  if (unresolved.length === 0) {
+    return Array.from(matchedIds);
+  }
+
+  const byName = await d1Query<{ id: string }>(
+    `SELECT id FROM categories WHERE LOWER(name) IN (${unresolved.map(() => 'LOWER(?)').join(',')})`,
+    unresolved
+  );
+
+  return Array.from(new Set([...matchedIds, ...byName.map((row) => row.id)]));
+}
 
 export async function GET() {
   try {
@@ -43,9 +66,11 @@ export async function POST(request: Request) {
     };
 
     const name = String(body.name || '').trim();
+    const slug = toSlug(name);
     const imageUrls = Array.isArray(body.imageUrls) ? body.imageUrls.map((item) => String(item).trim()).filter(Boolean) : [];
     const badges = Array.isArray(body.badges) ? body.badges.map((item) => String(item).trim()).filter(Boolean) : [];
-    const categoryIds = Array.isArray(body.categoryIds) ? body.categoryIds.map((item) => String(item).trim()).filter(Boolean) : [];
+    const categoryInputs = Array.isArray(body.categoryIds) ? body.categoryIds.map((item) => String(item).trim()).filter(Boolean) : [];
+    const categoryIds = await resolveCategoryIds(categoryInputs);
     const description = toStoredRichText(body.description);
     const shortDescription = toStoredRichText(body.shortDescription);
 
@@ -54,8 +79,8 @@ export async function POST(request: Request) {
     }
 
     await d1Execute(
-      'INSERT INTO products (id, name, image_url, description, short_description, badges, category_id) VALUES (?, ?, ?, ?, ?, ?, ?)',
-      [randomUUID(), name, JSON.stringify(imageUrls), description, shortDescription, JSON.stringify(badges), JSON.stringify(categoryIds)]
+      'INSERT INTO products (id, slug, name, image_url, description, short_description, badges, category_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      [randomUUID(), slug, name, JSON.stringify(imageUrls), description, shortDescription, JSON.stringify(badges), JSON.stringify(categoryIds)]
     );
     revalidateTag('catalog', 'max');
 
