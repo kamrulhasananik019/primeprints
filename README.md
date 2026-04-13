@@ -56,6 +56,49 @@ Useful command:
 pnpm cf:d1:list
 ```
 
+## Cloudflare R2 Setup (Images, Videos, Files)
+
+1. Create an R2 bucket:
+
+```bash
+pnpm cf:r2:create
+```
+
+2. Create an R2 API token in Cloudflare with bucket read/write access.
+
+3. Get your R2 S3 API credentials (`Access Key ID` and `Secret Access Key`).
+
+4. Update `.env.local`:
+
+```bash
+R2_ACCOUNT_ID=your_cloudflare_account_id
+R2_BUCKET=primeprints-assets
+R2_ACCESS_KEY_ID=your_r2_access_key_id
+R2_SECRET_ACCESS_KEY=your_r2_secret_access_key
+# Optional public delivery URL (recommended)
+R2_PUBLIC_URL=https://pub-xxxx.r2.dev
+# Optional size limit in bytes (default 100MB)
+R2_MAX_UPLOAD_BYTES=104857600
+```
+
+5. Use upload API (multipart form-data):
+
+```bash
+curl -X POST http://localhost:3000/api/r2/upload \
+	-F "file=@/path/to/your-file.jpg" \
+	-F "folder=images"
+```
+
+Response includes `key` and `url`.
+
+6. Delete an object by key:
+
+```bash
+curl -X POST http://localhost:3000/api/r2/delete \
+	-H "Content-Type: application/json" \
+	-d '{"key":"images/your-object-key.jpg"}'
+```
+
 ## Use D1 In Next.js
 
 1. Copy environment variables:
@@ -77,6 +120,39 @@ pnpm dev
 ```bash
 curl http://localhost:3000/api/d1-health
 ```
+
+## Admin Panel Setup
+
+This project now includes a protected admin panel at `/admin` with D1-backed login and product CRUD APIs.
+
+1. Add admin env values in `.env.local`:
+
+```bash
+ADMIN_SESSION_SECRET=replace-with-long-random-secret
+ADMIN_SESSION_TTL_SECONDS=28800
+```
+
+2. Apply admin migration:
+
+```bash
+pnpm cf:d1:migrate
+pnpm cf:d1:migrate:remote
+```
+
+3. Generate a password hash for the first admin user:
+
+```bash
+node -e "const {scryptSync,randomBytes}=require('crypto');const p='ChangeMe123!';const s=randomBytes(16).toString('hex');const h=scryptSync(p,s,64).toString('hex');console.log('scrypt$'+s+'$'+h)"
+```
+
+4. Insert admin in D1 (replace values):
+
+```sql
+INSERT INTO admins (id, email, password_hash)
+VALUES ('admin-1', 'admin@example.com', 'scrypt$<salt>$<hash>');
+```
+
+5. Start app and login at `/admin/login`.
 
 ## Learn More
 
