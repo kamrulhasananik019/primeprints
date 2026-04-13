@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import nextDynamic from "next/dynamic";
-import AllProducts from "@/components/Home/allproducts";
+import DiscountsAndPackages from "@/components/Home/discountsandpackages";
 import Banner from "@/components/Home/banner";
 import HomeDeferredFallback from "@/components/Home/home-deferred-fallback";
 import Faq from "@/components/Home/faq";
@@ -10,6 +10,7 @@ import Reviews from "@/components/Home/reviews";
 import InfiniteMarquee from "@/components/shared/infinite-marquee";
 import { categories } from "@/data/categories";
 import {
+  getDeliveryMarketing,
   getLatestProducts,
   getProductCategoryTitleMap,
   getSameDayPrinting,
@@ -20,35 +21,35 @@ const CategorySlider = nextDynamic(() => import("@/components/Home/categoryslide
   loading: () => <HomeDeferredFallback minHeight="min-h-[420px]" />,
 });
 
-const SameDayPrinting = nextDynamic(() => import("@/components/Home/newarrivals"), {
+const SameDayPrinting = nextDynamic(() => import("@/components/Home/samedaydelivery"), {
   loading: () => <HomeDeferredFallback minHeight="min-h-[420px]" />,
 });
 
-const SeasonalFavorites = nextDynamic(() => import("@/components/Home/seasonalfavorites"), {
+const DeliveryMarketing = nextDynamic(() => import("@/components/Home/deliverymarketing"), {
   loading: () => <HomeDeferredFallback minHeight="min-h-[420px]" />,
 });
 
 export const dynamic = "force-static";
 
 export const metadata: Metadata = {
-  title: "Same Day Printing in London",
+  title: "Same Day Delivery in London & UK | Prime Prints",
   description:
-    "Prime Prints offers same-day printing for business cards, flyers, posters, banners, and custom print products across London.",
+    "Prime Prints offers same day delivery in London and across the UK with 24-hour delivery for business cards, flyers, posters, banners, and custom print products.",
   alternates: {
     canonical: "/",
   },
   openGraph: {
-    title: "Prime Prints | Same Day Printing in London",
+    title: "Prime Prints | Same Day Delivery in London & UK",
     description:
-      "Fast, premium printing for business and personal projects. Same-day options available.",
+      "Fast, premium printing with same day delivery in London and 24-hour UK delivery options.",
     url: "/",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Prime Prints | Same Day Printing in London",
+    title: "Prime Prints | Same Day Delivery in London & UK",
     description:
-      "Fast, premium printing for business and personal projects. Same-day options available.",
+      "Fast, premium printing with same day delivery in London and 24-hour UK delivery options.",
   },
 };
 
@@ -56,9 +57,10 @@ export const metadata: Metadata = {
 export default function Home() {
   const latestProducts = getLatestProducts();
   const sameDayPrinting = getSameDayPrinting();
-  const seasonalFavorites = getSeasonalFavorites();
+  const deliveryMarketingProducts = getDeliveryMarketing();
   const latestCategoryTitles = getProductCategoryTitleMap(latestProducts);
   const sameDayCategoryTitles = getProductCategoryTitleMap(sameDayPrinting);
+  const deliveryMarketingCategoryTitles = getProductCategoryTitleMap(deliveryMarketingProducts);
   const categoryTitles = categories.map((cat) => cat.title);
 
   return (
@@ -72,8 +74,8 @@ export default function Home() {
       <PromoBar />
       <CategorySlider categories={categories} />
       <SameDayPrinting products={sameDayPrinting} productCategoryTitles={sameDayCategoryTitles} />
-      <AllProducts products={latestProducts} productCategoryTitles={latestCategoryTitles} />
-      <SeasonalFavorites products={seasonalFavorites} />
+      <DiscountsAndPackages products={latestProducts} productCategoryTitles={latestCategoryTitles} />
+      <DeliveryMarketing products={deliveryMarketingProducts} productCategoryTitles={deliveryMarketingCategoryTitles} />
       <Faq />
       <Reviews />
       <LocationMap />

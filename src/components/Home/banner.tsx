@@ -26,7 +26,7 @@ const slides: Slide[] = [
     image: 'https://images.unsplash.com/photo-1586075010923-2dd4570fb338?w=1600&q=80',
     tag: 'Fast Turnaround',
     headline: ['Same Day.', 'Any Print.', 'Every Time.'],
-    sub: 'Rush printing available 24/7 — because your deadline is our deadline.',
+    sub: 'Same day delivery within London and across the UK, with 24-hour print support for urgent orders.',
     cta: 'Order Now',
     accent: '#0066FF',
   },
@@ -94,13 +94,13 @@ function SlideContent({ slide, index, isActive }: SlideContentProps) {
         priority={index === 0}
         fetchPriority={index === 0 ? 'high' : 'low'}
         sizes="100vw"
-        className={`absolute inset-0 object-cover object-center transition-transform duration-[6000ms] ease-out ${
+        className={`absolute inset-0 object-cover object-center transition-transform duration-6000 ease-out ${
           isActive ? 'scale-100' : 'scale-[1.07]'
         }`}
       />
 
 
-      <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/50 to-black/10" />
+      <div className="absolute inset-0 bg-linear-to-r from-black/85 via-black/50 to-black/10" />
 
     
       {isActive && (
@@ -134,7 +134,7 @@ function SlideContent({ slide, index, isActive }: SlideContentProps) {
             </h1>
 
          
-            <p className="anim-sub mb-6 max-w-[280px] text-sm font-light leading-relaxed text-white/75 sm:mb-8 sm:max-w-md sm:text-base md:max-w-lg md:text-lg lg:max-w-xl lg:text-xl">
+            <p className="anim-sub mb-6 max-w-70 text-sm font-light leading-relaxed text-white/75 sm:mb-8 sm:max-w-md sm:text-base md:max-w-lg md:text-lg lg:max-w-xl lg:text-xl">
               {slide.sub}
             </p>
 
@@ -183,7 +183,7 @@ export default function Banner() {
     <>
       <style>{animStyles}</style>
 
-      <div className="relative w-full h-[70vh] md:h-[88vh] min-h-[400px] md:min-h-[520px] max-h-[600px] md:max-h-[800px]">
+      <div className="relative w-full h-[70vh] md:h-[88vh] min-h-100 md:min-h-130 max-h-150 md:max-h-200">
         <Swiper
           pagination={{ clickable: true }}
           modules={[Pagination, Autoplay, EffectFade]}

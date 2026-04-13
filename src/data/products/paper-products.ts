@@ -13,7 +13,7 @@ export const paperProducts: Product[] = [
     longDescription:
       'Prime Print provides fast, high-quality banner printing across the UK using durable materials and sharp full-colour output. Choose PVC and vinyl options in custom sizes for storefronts, trade shows, pop-ups, conferences, and promotional campaigns. Same day and next day turnaround is available for urgent deadlines, backed by reliable nationwide delivery.',
     specs: { material: '500gsm PVC', finish: 'Eyelets & Hemmed' },
-    status: 'latest',
+    status: 'latest samedayprinting',
   },
   {
     id: 'pp-02',
@@ -134,7 +134,7 @@ export const paperProducts: Product[] = [
       },
     ],
     specs: { material: '450gsm Silk', size: '85x55mm' },
-    status: 'latest',
+    status: 'latest samedayprinting',
   },
   {
     id: 'pp-03',
@@ -267,7 +267,7 @@ export const paperProducts: Product[] = [
       },
     ],
     specs: { binding: 'Saddle Stitch', pages: '8-64' },
-    status: 'Standard',
+    status: 'samedayprinting deliverymarketing',
   },
   {
     id: 'pp-04',
@@ -281,7 +281,7 @@ export const paperProducts: Product[] = [
     longDescription:
       'Prime Print offers brochure printing across the UK with fast turnaround and consistent quality for company profiles, product guides, and promotional handouts. We print in multiple sizes and fold formats with options for gloss, matt, and premium finishes, supported by free proofs before production. From short runs to large-volume campaigns, our brochure service is built for speed, value, and reliable nationwide delivery.',
     specs: { material: '170gsm Silk', fold: 'Half/Tri-fold' },
-    status: 'Standard',
+    status: 'samedayprinting',
   },
   {
     id: 'pp-05',
@@ -309,7 +309,7 @@ export const paperProducts: Product[] = [
     longDescription:
       'Prime Print offers leaflet printing services across the UK with flexible sizes, single or double-sided print, and gloss, matt, silk, or uncoated finishes. Whether you need a short-run local drop or high-volume distribution, we deliver sharp print quality, fast turnaround, and competitive pricing with reliable delivery nationwide.',
     specs: { material: '150gsm Silk', size: 'A4/A5' },
-    status: 'Standard',
+    status: 'samedayprinting',
   },
   {
     id: 'pp-07',
@@ -358,14 +358,14 @@ export const paperProducts: Product[] = [
     slug: 'menu-printing',
     name: 'Menu Printing',
     category: 'paper-products',
-    images: [{ url: 'https://images.unsplash.com/photo-1590650516494-0c8e4a4dd67e?w=600', alt: 'Menus', isPrimary: true }],
+    images: [{ url: 'https://images.unsplash.com/photo-1583931382172-358051e70402?w=600', alt: 'Menus', isPrimary: true }],
     description: 'Restaurant and takeaway menus.',
     shortDescription:
       'Restaurant and takeaway menu printing with same day options, durable finishes, and fast UK-wide delivery.',
     longDescription:
       'Prime Print provides menu printing for restaurants, cafes, bars, hotels, and event catering teams across the UK. Choose from folded, flat, booklet, or laminated menu formats with premium paper and finish options to match your brand. Our service combines quick turnaround, dependable quality, and nationwide delivery for both routine updates and urgent reprints.',
     specs: { finish: 'Laminated', material: '350gsm' },
-    status: 'Popular',
+    status: 'Popular deliverymarketing',
   },
   {
     id: 'pp-11',
@@ -393,7 +393,7 @@ export const paperProducts: Product[] = [
     longDescription:
       'Prime Print provides postcard printing across the UK in a range of sizes, paper stocks, and finishes for both marketing and personal use. From promotional mailers and discount campaigns to event invitations and thank-you cards, our postcard service focuses on vibrant print, fast turnaround, and reliable nationwide delivery.',
     specs: { material: '350gsm Card', size: 'A6' },
-    status: 'Seasonal',
+    status: 'Seasonal deliverymarketing',
   },
   {
     id: 'pp-13',
@@ -407,7 +407,7 @@ export const paperProducts: Product[] = [
     longDescription:
       'Prime Print offers sticker printing services across the UK for product labels, event branding, retail packaging, and promotional campaigns. Choose from kiss-cut, die-cut, sheet, and roll formats with paper or vinyl materials and gloss, matt, or uncoated finishes. Same day and next day turnaround is available for urgent jobs with fast nationwide delivery.',
     specs: { material: 'Paper/Vinyl', cut: 'Kiss-cut' },
-    status: 'latest',
+    status: 'latest samedayprinting',
   },
   {
     id: 'pp-14',

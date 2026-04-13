@@ -51,6 +51,10 @@ export function getSeasonalFavorites(): Product[] {
   return allProducts.filter((product) => product.status?.toLowerCase().includes('seasonal'));
 }
 
+export function getDeliveryMarketing(): Product[] {
+  return allProducts.filter((product) => product.status?.toLowerCase().includes('deliverymarketing'));
+}
+
 export function getRelatedProducts(productId: string, limit = 3): Product[] {
   const current = allProducts.find((product) => product.id === productId);
   if (!current) {
