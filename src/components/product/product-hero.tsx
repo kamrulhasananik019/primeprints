@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { Star } from 'lucide-react';
 import type { CatalogProduct } from '@/lib/catalog';
+import { getCategoryPath } from '@/lib/slug';
 
 type ProductHeroProps = {
   product: CatalogProduct;
@@ -105,7 +106,7 @@ export default function ProductHero({
             Get Quote
           </Link>
           <Link
-            href={`/categories/${category.id}`}
+            href={getCategoryPath(category.id, category.name)}
             className="sans inline-flex items-center rounded-xl border border-slate-300 px-6 py-3 text-sm font-700 text-slate-700 transition hover:border-slate-400 hover:text-slate-900"
           >
             View Category

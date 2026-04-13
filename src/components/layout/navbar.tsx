@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import type { NavCategory } from '@/lib/catalog';
 import { richContentToPlainText } from '@/lib/rich-content';
+import { getCategoryPath, getProductPath } from '@/lib/slug';
 
 type NavbarProps = {
   categories: NavCategory[];
@@ -104,11 +105,11 @@ export default function Navbar({ categories }: NavbarProps) {
     const results: Array<{ label: string; href: string; type: 'category' | 'product' }> = [];
     for (const category of categories) {
       if (category.name.toLowerCase().includes(text)) {
-        results.push({ label: category.name, href: `/categories/${category.id}`, type: 'category' });
+        results.push({ label: category.name, href: getCategoryPath(category.id, category.name), type: 'category' });
       }
       for (const product of category.products) {
         if (product.name.toLowerCase().includes(text)) {
-          results.push({ label: product.name, href: `/products/${product.id}`, type: 'product' });
+          results.push({ label: product.name, href: getProductPath(product.id, product.name), type: 'product' });
         }
       }
     }
@@ -252,9 +253,9 @@ export default function Navbar({ categories }: NavbarProps) {
               {categories.map((cat) => (
                 <li key={cat.id} className="relative shrink-0" onMouseEnter={() => openMegaMenu(cat.id)}>
                   <Link
-                    href={`/categories/${cat.id}`}
+                    href={getCategoryPath(cat.id, cat.name)}
                     className={`inline-block whitespace-nowrap rounded-md px-4 py-3 text-[13px] font-bold transition-all ${
-                      activeSlug === cat.id || pathname === `/categories/${cat.id}`
+                      activeSlug === cat.id || pathname === getCategoryPath(cat.id, cat.name)
                         ? 'bg-[#D2C1B6]/40 text-[#1B3C53]'
                         : 'text-stone-600 hover:bg-stone-50 hover:text-stone-900'
                     }`}
@@ -286,7 +287,7 @@ export default function Navbar({ categories }: NavbarProps) {
                       {section.map((product) => (
                         <li key={product.id}>
                           <Link
-                            href={`/products/${product.id}`}
+                            href={getProductPath(product.id, product.name)}
                             className="group/item flex items-center justify-between py-0.5 text-[14px] font-medium text-stone-600 transition hover:text-[#234C6A]"
                           >
                             <span>{product.name}</span>
@@ -300,7 +301,7 @@ export default function Navbar({ categories }: NavbarProps) {
               </div>
 
               <div className="col-span-3 border-l border-stone-100 pl-10">
-                <Link href={activeCategory ? `/categories/${activeCategory.id}` : '/'} className="group block">
+                <Link href={activeCategory ? getCategoryPath(activeCategory.id, activeCategory.name) : '/'} className="group block">
                   <div className="relative aspect-16/10 overflow-hidden rounded-2xl bg-stone-100 shadow-inner">
                     {activeCategory && (
                       <Image
@@ -386,7 +387,7 @@ export default function Navbar({ categories }: NavbarProps) {
                         {cat.products.map((product) => (
                           <Link
                             key={product.id}
-                            href={`/products/${product.id}`}
+                            href={getProductPath(product.id, product.name)}
                             onClick={() => setIsMobileMenuOpen(false)}
                             className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-stone-600 transition hover:bg-white hover:text-[#234C6A]"
                           >

@@ -1,6 +1,7 @@
 import { d1Query } from '@/lib/cloudflare-d1';
 import { unstable_cache } from 'next/cache';
 import type { RichDescription } from '@/types/rich-content';
+import { toSlug } from '@/lib/slug';
 
 export type CategoryRecord = {
 	id: string;
@@ -95,7 +96,8 @@ export async function getCategories(): Promise<CategoryRecord[]> {
 
 export async function getCategoryById(id: string): Promise<CategoryRecord | null> {
 	const rows = await getCachedCategories();
-	const row = rows.find((item) => item.id === id || item.name.toLowerCase() === id.toLowerCase());
+	const normalized = id.toLowerCase();
+	const row = rows.find((item) => item.id === id || item.name.toLowerCase() === normalized || toSlug(item.name) === normalized);
 	if (!row) return null;
 	return {
 		id: row.id,
@@ -121,7 +123,8 @@ export async function getProducts(limit = 100): Promise<ProductRecord[]> {
 
 export async function getProductById(id: string): Promise<ProductRecord | null> {
 	const rows = await getCachedProducts();
-	const row = rows.find((item) => item.id === id || item.name.toLowerCase() === id.toLowerCase());
+	const normalized = id.toLowerCase();
+	const row = rows.find((item) => item.id === id || item.name.toLowerCase() === normalized || toSlug(item.name) === normalized);
 	if (!row) return null;
 	return {
 		id: row.id,

@@ -9,6 +9,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 import type { CatalogProduct } from '@/lib/catalog';
 import { getPrimaryImage } from '@/lib/product-media';
+import { getProductPath } from '@/lib/slug';
 
 type SameDayPrintingProps = {
   products: CatalogProduct[];
@@ -98,7 +99,7 @@ export default function SameDayPrinting({
               className="flex! h-auto justify-center"
             >
               <Link
-                href={`/products/${product.id}`}
+                href={getProductPath(product.id, product.name)}
                 className="block w-full max-w-87.5"
               >
                 <div className="group flex h-full flex-col">

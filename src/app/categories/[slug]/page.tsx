@@ -7,6 +7,7 @@ import InfiniteMarquee from '@/components/shared/infinite-marquee';
 import { getPrimaryImage } from '@/lib/product-media';
 import RichContent from '@/components/shared/rich-content';
 import { richContentToPlainText } from '@/lib/rich-content';
+import { getCategoryPath, getProductPath } from '@/lib/slug';
 
 export const revalidate = 300;
 
@@ -25,12 +26,12 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     title: category.name,
     description: richContentToPlainText(category.description),
     alternates: {
-      canonical: `/categories/${category.id}`,
+      canonical: getCategoryPath(category.id, category.name),
     },
     openGraph: {
       title: `${category.name} | Prime Prints`,
       description: richContentToPlainText(category.description),
-      url: `/categories/${category.id}`,
+      url: getCategoryPath(category.id, category.name),
       images: [{ url: category.imageUrl, alt: category.name }],
       type: 'website',
     },
@@ -102,7 +103,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
             <p className="mb-8 text-sm text-stone-500">Click any product to view full details and image gallery.</p>
             <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
               {products.map((product) => (
-                <Link key={product.id} href={`/products/${product.id}`}>
+                <Link key={product.id} href={getProductPath(product.id, product.name)}>
                   <div className="group cursor-pointer rounded-3xl border border-stone-200 bg-white p-3 transition hover:border-stone-300 hover:shadow-md">
                     <div className="relative mb-4 aspect-4/5 overflow-hidden rounded-3xl bg-stone-200">
                       <Image

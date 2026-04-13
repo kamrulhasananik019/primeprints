@@ -1,4 +1,5 @@
-import { getCategories, getProducts, getProductsByCategoryId } from '@/lib/d1';
+import { getCategories, getProducts } from '@/lib/d1';
+import { unstable_cache } from 'next/cache';
 
 export type CatalogCategory = Awaited<ReturnType<typeof getCategories>>[number];
 export type CatalogProduct = Awaited<ReturnType<typeof getProducts>>[number];
@@ -15,29 +16,34 @@ export type NavCategory = CatalogCategory & {
   products: NavProduct[];
 };
 
-export async function getCategoriesWithProducts(): Promise<CategoryWithProducts[]> {
-  const categories = await getCategories();
+const getCatalogSnapshot = unstable_cache(
+  async () => {
+    const [categories, products] = await Promise.all([getCategories(), getProducts(1000)]);
+    return { categories, products };
+  },
+  ['catalog-snapshot'],
+  { revalidate: 300, tags: ['catalog'] }
+);
 
-  return Promise.all(
-    categories.map(async (category) => ({
+export async function getCategoriesWithProducts(): Promise<CategoryWithProducts[]> {
+  const { categories, products } = await getCatalogSnapshot();
+
+  return categories.map((category) => ({
       ...category,
-      products: await getProductsByCategoryId(category.id, 1000),
-    }))
-  );
+      products: products.filter((product) => product.categoryId.includes(category.id)),
+    }));
 }
 
 export async function getNavCategories(): Promise<NavCategory[]> {
-  const categories = await getCategories();
+  const { categories, products } = await getCatalogSnapshot();
 
-  return Promise.all(
-    categories.map(async (category) => {
-      const products = await getProductsByCategoryId(category.id, 6);
+  return categories.map((category) => {
+      const categoryProducts = products.filter((product) => product.categoryId.includes(category.id)).slice(0, 6);
       return {
         ...category,
-        products: products.map((product) => ({ id: product.id, name: product.name })),
+        products: categoryProducts.map((product) => ({ id: product.id, name: product.name })),
       };
-    })
-  );
+    });
 }
 
 export function getProductCategoryTitleMap(
@@ -51,27 +57,27 @@ export function getProductCategoryTitleMap(
 }
 
 export async function getLatestProducts(): Promise<CatalogProduct[]> {
-  const products = await getProducts(1000);
+  const { products } = await getCatalogSnapshot();
   return products.filter((product) => product.badges.some((badge) => badge.toLowerCase() === 'latest'));
 }
 
 export async function getSameDayPrinting(): Promise<CatalogProduct[]> {
-  const products = await getProducts(1000);
+  const { products } = await getCatalogSnapshot();
   return products.filter((product) => product.badges.some((badge) => badge.toLowerCase() === 'samedayprinting'));
 }
 
 export async function getSeasonalFavorites(): Promise<CatalogProduct[]> {
-  const products = await getProducts(1000);
+  const { products } = await getCatalogSnapshot();
   return products.filter((product) => product.badges.some((badge) => badge.toLowerCase() === 'seasonal'));
 }
 
 export async function getDeliveryMarketing(): Promise<CatalogProduct[]> {
-  const products = await getProducts(1000);
+  const { products } = await getCatalogSnapshot();
   return products.filter((product) => product.badges.some((badge) => badge.toLowerCase() === 'deliverymarketing'));
 }
 
 export async function getRelatedProducts(productId: string, limit = 3): Promise<CatalogProduct[]> {
-  const products = await getProducts(1000);
+  const { products } = await getCatalogSnapshot();
   const current = products.find((product) => product.id === productId);
   if (!current) {
     return [];

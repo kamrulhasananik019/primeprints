@@ -8,6 +8,7 @@ import { Navigation, Autoplay } from 'swiper/modules';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import type { CatalogProduct } from '@/lib/catalog';
 import { getPrimaryImage } from '@/lib/product-media';
+import { getProductPath } from '@/lib/slug';
 
 type DeliveryMarketingProps = {
   products: CatalogProduct[];
@@ -96,7 +97,7 @@ export default function DeliveryMarketing({
               className="flex! h-auto justify-center"
             >
               <Link
-                href={`/products/${product.id}`}
+                href={getProductPath(product.id, product.name)}
                 className="block w-full max-w-87.5"
               >
                 <div className="group flex h-full flex-col">
