@@ -123,7 +123,7 @@ curl http://localhost:3000/api/d1-health
 
 ## Admin Panel Setup
 
-This project now includes a protected admin panel at `/admin` with D1-backed login and product CRUD APIs.
+This project now includes a protected admin CMS at `/admin` with D1-backed login and CRUD APIs for categories and products.
 
 1. Add admin env values in `.env.local`:
 
@@ -153,6 +153,25 @@ VALUES ('admin-1', 'admin@example.com', 'scrypt$<salt>$<hash>');
 ```
 
 5. Start app and login at `/admin/login`.
+
+## New Database Shape
+
+Migration `0005_reset_schema_keep_admin.sql` resets all non-admin tables and keeps admin auth tables.
+
+Tables kept:
+
+- `admins`
+- `admin_login_audit`
+
+Tables recreated:
+
+- `categories`
+- `products`
+
+Data model:
+
+- `Category`: id, slug, name, description, imageUrl, parentId
+- `Product`: id, slug, name, description, shortDescription, imageUrl[], badges[], categoryId[]
 
 ## Learn More
 

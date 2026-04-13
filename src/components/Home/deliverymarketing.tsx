@@ -6,11 +6,11 @@ import Link from 'next/link';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Autoplay } from 'swiper/modules';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import type { Product } from '@/data/products';
-import { getPrimaryImage } from '@/lib/catalog';
+import type { CatalogProduct } from '@/lib/catalog';
+import { getPrimaryImage } from '@/lib/product-media';
 
 type DeliveryMarketingProps = {
-  products: Product[];
+  products: CatalogProduct[];
   productCategoryTitles: Record<string, string>;
 };
 

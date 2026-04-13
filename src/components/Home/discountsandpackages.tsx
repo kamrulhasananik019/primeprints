@@ -1,10 +1,10 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import type { Product } from '@/data/products';
-import { getPrimaryImage } from '@/lib/catalog';
+import type { CatalogProduct } from '@/lib/catalog';
+import { getPrimaryImage } from '@/lib/product-media';
 
 type DiscountsAndPackagesProps = {
-  products: Product[];
+  products: CatalogProduct[];
   productCategoryTitles: Record<string, string>;
 };
 

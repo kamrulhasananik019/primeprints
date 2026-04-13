@@ -1,4 +1,5 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next';
+import { withPayload } from '@payloadcms/next/withPayload';
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
@@ -6,27 +7,27 @@ const nextConfig: NextConfig = {
   compress: true,
   productionBrowserSourceMaps: false,
   experimental: {
-    optimizePackageImports: ["lucide-react"],
+    optimizePackageImports: ['lucide-react'],
   },
   images: {
-    formats: ["image/avif", "image/webp"],
+    formats: ['image/avif', 'image/webp'],
     /** Fewer repeat optimizations / origin fetches for Unsplash URLs at runtime. */
     minimumCacheTTL: 60 * 60 * 24 * 7,
     remotePatterns: [
       {
-        protocol: "https",
-        hostname: "images.unsplash.com",
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
       },
     ],
   },
   async headers() {
     return [
       {
-        source: "/:path*.(avif|webp|png|jpg|jpeg|gif|svg|ico|woff|woff2)",
+        source: '/:path*.(avif|webp|png|jpg|jpeg|gif|svg|ico|woff|woff2)',
         headers: [
           {
-            key: "Cache-Control",
-            value: "public, max-age=2592000, stale-while-revalidate=86400",
+            key: 'Cache-Control',
+            value: 'public, max-age=2592000, stale-while-revalidate=86400',
           },
         ],
       },
@@ -34,4 +35,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withPayload(nextConfig);

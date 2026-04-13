@@ -1,67 +1,83 @@
-import { categories, type Category, type Product } from '@/data/categories';
-import { allProducts } from '@/data/products';
+import { getCategories, getProductsByCategory2, getProductsWithDetails } from '@/lib/d1';
 
-export type CategoryWithProducts = Category & {
-  products: Product[];
+export type CatalogCategory = Awaited<ReturnType<typeof getCategories>>[number];
+export type CatalogProduct = Awaited<ReturnType<typeof getProductsWithDetails>>[number];
+
+export { getPrimaryImage } from '@/lib/product-media';
+
+export type CategoryWithProducts = CatalogCategory & {
+  products: CatalogProduct[];
 };
 
-export type NavProduct = Pick<Product, 'id' | 'slug' | 'name'>;
+export type NavProduct = Pick<CatalogProduct, 'id' | 'slug' | 'name'>;
 
-export type NavCategory = Category & {
+export type NavCategory = CatalogCategory & {
   products: NavProduct[];
 };
 
-export function getPrimaryImage(product: Product): string {
-  const primary = product.images.find((img) => img.isPrimary);
-  return primary?.url ?? product.images[0]?.url ?? '';
+export async function getCategoriesWithProducts(): Promise<CategoryWithProducts[]> {
+  const categories = await getCategories();
+
+  return Promise.all(
+    categories.map(async (category) => ({
+      ...category,
+      products: await getProductsByCategory2(category.slug, 1000),
+    }))
+  );
 }
 
-export function getCategoriesWithProducts(): CategoryWithProducts[] {
-  return categories.map((category) => ({
-    ...category,
-    products: allProducts.filter((product) => product.category === category.slug),
-  }));
+export async function getNavCategories(): Promise<NavCategory[]> {
+  const categories = await getCategories();
+
+  return Promise.all(
+    categories.map(async (category) => {
+      const products = await getProductsByCategory2(category.slug, 6);
+      return {
+        ...category,
+        products: products.map((product) => ({ id: product.id, slug: product.slug, name: product.name })),
+      };
+    })
+  );
 }
 
-export function getNavCategories(): NavCategory[] {
-  return categories.map((category) => ({
-    ...category,
-    products: allProducts
-      .filter((product) => product.category === category.slug)
-      .map((product) => ({ id: product.id, slug: product.slug, name: product.name })),
-  }));
-}
-
-export function getProductCategoryTitleMap(products: Product[]): Record<string, string> {
+export function getProductCategoryTitleMap(
+  products: CatalogProduct[],
+  categories: CatalogCategory[] = []
+): Record<string, string> {
   const categoryTitleBySlug = new Map(categories.map((category) => [category.slug, category.title]));
   return Object.fromEntries(
     products.map((product) => [product.id, categoryTitleBySlug.get(product.category) ?? ''])
   );
 }
 
-export function getLatestProducts(): Product[] {
-  return allProducts.filter((product) => product.status?.toLowerCase().includes('latest'));
+export async function getLatestProducts(): Promise<CatalogProduct[]> {
+  const products = await getProductsWithDetails(1000);
+  return products.filter((product) => product.status?.toLowerCase().includes('latest'));
 }
 
-export function getSameDayPrinting(): Product[] {
-  return allProducts.filter((product) => product.status?.toLowerCase().includes('samedayprinting'));
+export async function getSameDayPrinting(): Promise<CatalogProduct[]> {
+  const products = await getProductsWithDetails(1000);
+  return products.filter((product) => product.status?.toLowerCase().includes('samedayprinting'));
 }
 
-export function getSeasonalFavorites(): Product[] {
-  return allProducts.filter((product) => product.status?.toLowerCase().includes('seasonal'));
+export async function getSeasonalFavorites(): Promise<CatalogProduct[]> {
+  const products = await getProductsWithDetails(1000);
+  return products.filter((product) => product.status?.toLowerCase().includes('seasonal'));
 }
 
-export function getDeliveryMarketing(): Product[] {
-  return allProducts.filter((product) => product.status?.toLowerCase().includes('deliverymarketing'));
+export async function getDeliveryMarketing(): Promise<CatalogProduct[]> {
+  const products = await getProductsWithDetails(1000);
+  return products.filter((product) => product.status?.toLowerCase().includes('deliverymarketing'));
 }
 
-export function getRelatedProducts(productId: string, limit = 3): Product[] {
-  const current = allProducts.find((product) => product.id === productId);
+export async function getRelatedProducts(productId: string, limit = 3): Promise<CatalogProduct[]> {
+  const products = await getProductsWithDetails(1000);
+  const current = products.find((product) => product.id === productId);
   if (!current) {
     return [];
   }
 
-  return allProducts
+  return products
     .filter((product) => product.category === current.category && product.id !== productId)
     .slice(0, limit);
 }

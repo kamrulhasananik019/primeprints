@@ -4,11 +4,12 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { Clock, Layers, Package, Ruler, Star } from 'lucide-react';
-import type { Product, RichDescription } from '@/data/categories';
+import type { RichDescription } from '@/data/categories';
+import type { CatalogProduct } from '@/lib/catalog';
 import RichContent from '@/components/shared/rich-content';
 
 type ProductHeroProps = {
-  product: Product;
+  product: CatalogProduct;
   category: {
     title: string;
     slug: string;

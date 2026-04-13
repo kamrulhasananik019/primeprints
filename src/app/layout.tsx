@@ -22,7 +22,7 @@ const dmSans = DM_Sans({
   adjustFontFallback: true,
 });
 
-export const dynamic = "force-static";
+export const dynamic = "force-dynamic";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -85,12 +85,12 @@ const organizationJsonLd = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const categories = getNavCategories();
+  const categories = await getNavCategories();
 
   return (
     <html

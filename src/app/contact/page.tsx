@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import ContactPageContent from "@/components/contact/contact-page";
 import { getCategoriesWithProducts } from "@/lib/catalog";
 
-export const dynamic = "force-static";
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Contact | Prime Prints",
@@ -27,8 +27,8 @@ export const metadata: Metadata = {
   },
 };
 
-export default function ContactPage() {
-  const categories = getCategoriesWithProducts();
+export default async function ContactPage() {
+  const categories = await getCategoriesWithProducts();
 
   return (
     <Suspense fallback={<div className="min-h-screen bg-stone-50" />}>

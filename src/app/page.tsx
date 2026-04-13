@@ -8,13 +8,12 @@ import LocationMap from "@/components/Home/locationmap";
 import PromoBar from "@/components/Home/promobar";
 import Reviews from "@/components/Home/reviews";
 import InfiniteMarquee from "@/components/shared/infinite-marquee";
-import { categories } from "@/data/categories";
+import { getCategories } from "@/lib/d1";
 import {
   getDeliveryMarketing,
   getLatestProducts,
   getProductCategoryTitleMap,
   getSameDayPrinting,
-  getSeasonalFavorites,
 } from "@/lib/catalog";
 
 const CategorySlider = nextDynamic(() => import("@/components/Home/categoryslider"), {
@@ -29,7 +28,7 @@ const DeliveryMarketing = nextDynamic(() => import("@/components/Home/deliveryma
   loading: () => <HomeDeferredFallback minHeight="min-h-[420px]" />,
 });
 
-export const dynamic = "force-static";
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Same Day Delivery in London & UK | Prime Prints",
@@ -54,13 +53,14 @@ export const metadata: Metadata = {
 };
 
 
-export default function Home() {
-  const latestProducts = getLatestProducts();
-  const sameDayPrinting = getSameDayPrinting();
-  const deliveryMarketingProducts = getDeliveryMarketing();
-  const latestCategoryTitles = getProductCategoryTitleMap(latestProducts);
-  const sameDayCategoryTitles = getProductCategoryTitleMap(sameDayPrinting);
-  const deliveryMarketingCategoryTitles = getProductCategoryTitleMap(deliveryMarketingProducts);
+export default async function Home() {
+  const categories = await getCategories();
+  const latestProducts = await getLatestProducts();
+  const sameDayPrinting = await getSameDayPrinting();
+  const deliveryMarketingProducts = await getDeliveryMarketing();
+  const latestCategoryTitles = getProductCategoryTitleMap(latestProducts, categories);
+  const sameDayCategoryTitles = getProductCategoryTitleMap(sameDayPrinting, categories);
+  const deliveryMarketingCategoryTitles = getProductCategoryTitleMap(deliveryMarketingProducts, categories);
   const categoryTitles = categories.map((cat) => cat.title);
 
   return (
