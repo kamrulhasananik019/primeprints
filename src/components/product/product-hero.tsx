@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { Clock, Layers, Package, Ruler, Star } from 'lucide-react';
-import type { RichDescription } from '@/data/categories';
+import type { RichDescription } from '@/types/rich-content';
 import type { CatalogProduct } from '@/lib/catalog';
 import RichContent from '@/components/shared/rich-content';
 

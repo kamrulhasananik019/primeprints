@@ -1,4 +1,6 @@
-import type { RichDescription } from '@/data/categories';
+import ReactMarkdown from 'react-markdown';
+
+import type { RichDescription, TipTapNode } from '@/types/rich-content';
 
 type RichContentProps = {
   content: RichDescription;
@@ -15,8 +17,90 @@ export default function RichContent({
   listItemClassName,
   wrapperClassName,
 }: RichContentProps) {
+  const renderTipTapNodes = (nodes: TipTapNode[], keyPrefix: string): React.ReactNode => {
+    return nodes.map((node, index) => {
+      const key = `${keyPrefix}-${node.type}-${index}`;
+
+      if (node.type === 'heading') {
+        const level = Number((node.attrs as { level?: number } | undefined)?.level ?? 2);
+        const content = renderTipTapNodes(node.content ?? [], `${key}-content`);
+
+        if (level === 3) {
+          return (
+            <h3 key={key} className="sans text-xl font-700 text-stone-900">
+              {content}
+            </h3>
+          );
+        }
+
+        if (level >= 4) {
+          return (
+            <h4 key={key} className="sans text-lg font-700 text-stone-900">
+              {content}
+            </h4>
+          );
+        }
+
+        return (
+          <h2 key={key} className="sans text-2xl font-700 text-stone-900">
+            {content}
+          </h2>
+        );
+      }
+
+      if (node.type === 'paragraph') {
+        return (
+          <p key={key} className={textClassName}>
+            {renderTipTapNodes(node.content ?? [], `${key}-content`)}
+          </p>
+        );
+      }
+
+      if (node.type === 'bulletList') {
+        return (
+          <ul key={key} className={listClassName || 'list-disc pl-5'}>
+            {renderTipTapNodes(node.content ?? [], `${key}-content`)}
+          </ul>
+        );
+      }
+
+      if (node.type === 'listItem') {
+        return (
+          <li key={key} className={listItemClassName || textClassName}>
+            {renderTipTapNodes(node.content ?? [], `${key}-content`)}
+          </li>
+        );
+      }
+
+      if (node.type === 'text') {
+        return <span key={key}>{node.text ?? ''}</span>;
+      }
+
+      if (node.content?.length) {
+        return <span key={key}>{renderTipTapNodes(node.content, `${key}-content`)}</span>;
+      }
+
+      return null;
+    });
+  };
+
   if (typeof content === 'string') {
-    return <p className={textClassName}>{content}</p>;
+    return (
+      <div className={wrapperClassName}>
+        <ReactMarkdown
+          components={{
+            p: ({ children }) => <p className={textClassName}>{children}</p>,
+            ul: ({ children }) => <ul className={listClassName || 'list-disc pl-5'}>{children}</ul>,
+            li: ({ children }) => <li className={listItemClassName || textClassName}>{children}</li>,
+            h2: ({ children }) => <h2 className="sans text-2xl font-700 text-stone-900">{children}</h2>,
+            h3: ({ children }) => <h3 className="sans text-xl font-700 text-stone-900">{children}</h3>,
+            h4: ({ children }) => <h4 className="sans text-lg font-700 text-stone-900">{children}</h4>,
+          }}
+        >
+          {content}
+        </ReactMarkdown>
+      </div>
+    );
   }
 
   return (
@@ -48,6 +132,28 @@ export default function RichContent({
               <p className="sans mt-3 text-sm leading-relaxed text-stone-600">{block.answer}</p>
             </details>
           );
+        }
+
+        if (block.type === 'markdown') {
+          return (
+            <ReactMarkdown
+              key={`markdown-${index}`}
+              components={{
+                p: ({ children }) => <p className={textClassName}>{children}</p>,
+                ul: ({ children }) => <ul className={listClassName || 'list-disc pl-5'}>{children}</ul>,
+                li: ({ children }) => <li className={listItemClassName || textClassName}>{children}</li>,
+                h2: ({ children }) => <h2 className="sans text-2xl font-700 text-stone-900">{children}</h2>,
+                h3: ({ children }) => <h3 className="sans text-xl font-700 text-stone-900">{children}</h3>,
+                h4: ({ children }) => <h4 className="sans text-lg font-700 text-stone-900">{children}</h4>,
+              }}
+            >
+              {block.content}
+            </ReactMarkdown>
+          );
+        }
+
+        if (block.type === 'tiptap') {
+          return <div key={`tiptap-${index}`}>{renderTipTapNodes(block.content.content, `tiptap-${index}`)}</div>;
         }
 
         return (

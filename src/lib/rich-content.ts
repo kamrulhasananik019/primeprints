@@ -1,9 +1,27 @@
-import type { RichDescription } from '@/data/categories';
+import type { RichDescription, TipTapNode } from '@/types/rich-content';
 
 export type FAQItem = {
   question: string;
   answer: string;
 };
+
+function tiptapToPlainText(nodes: TipTapNode[]): string {
+  return nodes
+    .map((node) => {
+      if (node.type === 'text') {
+        return node.text ?? '';
+      }
+
+      if (!node.content?.length) {
+        return '';
+      }
+
+      return tiptapToPlainText(node.content);
+    })
+    .join(' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
 
 export function richContentToPlainText(content?: RichDescription): string {
   if (!content) {
@@ -26,6 +44,14 @@ export function richContentToPlainText(content?: RichDescription): string {
 
       if (block.type === 'faq') {
         return `${block.question} ${block.answer}`;
+      }
+
+      if (block.type === 'markdown') {
+        return block.content;
+      }
+
+      if (block.type === 'tiptap') {
+        return tiptapToPlainText(block.content.content);
       }
 
       return block.items.join(', ');

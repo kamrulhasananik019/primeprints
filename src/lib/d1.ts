@@ -3,7 +3,8 @@ import { cache } from 'react';
 import config from '@payload-config';
 import { getPayload } from 'payload';
 
-import type { RichDescription } from '@/data/categories';
+import { demoCategories, demoProducts } from '@/payload/demo-data';
+import type { RichDescription } from '@/types/rich-content';
 
 type PayloadCategoryDoc = {
   id: string;
@@ -35,6 +36,53 @@ type PayloadProductDoc = {
 };
 
 const getPayloadClient = cache(async () => getPayload({ config }));
+const hasDatabaseUrl = Boolean(process.env.DATABASE_URL);
+
+const demoCategoryAccentBySlug: Record<string, string> = {
+  'paper-products': '#1f6f8b',
+  'large-format-printing': '#e85d04',
+  'garment-printing': '#2a9d8f',
+};
+
+function mapDemoCategory(category: (typeof demoCategories)[number]) {
+  return {
+    id: category.id,
+    slug: category.slug,
+    title: category.name,
+    image: category.imageUrl,
+    tag: category.tag,
+    description: category.description,
+    shortDescription: category.description,
+    longDescription: category.description,
+    accent: demoCategoryAccentBySlug[category.slug] ?? '#1b3c53',
+    parentId: category.parentId,
+  };
+}
+
+function mapDemoProduct(product: (typeof demoProducts)[number]) {
+  const categorySlug = product.categoryId[0] ?? '';
+
+  return {
+    id: product.id,
+    slug: product.slug,
+    name: product.name,
+    title: product.name,
+    category: categorySlug,
+    categoryId: [categorySlug],
+    description: product.description,
+    shortDescription: product.shortDescription,
+    longDescription: product.description,
+    details: product.shortDescription,
+    badges: product.badges,
+    status: product.badges.join(','),
+    images: product.imageUrls.map((url, index) => ({
+      url,
+      alt: index === 0 ? product.name : `${product.name} ${index + 1}`,
+      isPrimary: index === 0,
+    })),
+    specs: {},
+  };
+}
 
 function parseJsonArray(value: unknown): string[] {
   if (!value) {
@@ -153,12 +201,21 @@ function normalizeProductDoc(doc: Record<string, unknown>): PayloadProductDoc {
 }
 
 export async function getCategories() {
+  if (!hasDatabaseUrl) {
+    return demoCategories.map(mapDemoCategory);
+  }
+
   const payload = await getPayloadClient();
   const response = await payload.find({ collection: 'categories', limit: 1000, sort: 'title' });
   return response.docs.map((doc) => mapCategory(normalizeCategoryDoc(doc as Record<string, unknown>)));
 }
 
 export async function getCategoryBySlug(slug: string) {
+  if (!hasDatabaseUrl) {
+    const category = demoCategories.find((item) => item.slug === slug);
+    return category ? mapDemoCategory(category) : null;
+  }
+
   const payload = await getPayloadClient();
   const response = await payload.find({ collection: 'categories', limit: 1, where: { slug: { equals: slug } } });
 
@@ -170,12 +227,21 @@ export async function getCategoryBySlug(slug: string) {
 }
 
 export async function getProductsWithDetails(limit = 100) {
+  if (!hasDatabaseUrl) {
+    return demoProducts.map(mapDemoProduct).slice(0, limit);
+  }
+
   const payload = await getPayloadClient();
   const response = await payload.find({ collection: 'products', limit, sort: '-createdAt' });
   return response.docs.map((doc) => mapProduct(normalizeProductDoc(doc as Record<string, unknown>)));
 }
 
 export async function getProductWithDetailsBySlug(slug: string) {
+  if (!hasDatabaseUrl) {
+    const product = demoProducts.find((item) => item.slug === slug);
+    return product ? mapDemoProduct(product) : null;
+  }
+
   const payload = await getPayloadClient();
   const response = await payload.find({ collection: 'products', limit: 1, where: { slug: { equals: slug } } });
 
