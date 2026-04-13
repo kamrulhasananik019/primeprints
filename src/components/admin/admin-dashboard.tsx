@@ -62,7 +62,10 @@ export default function AdminDashboard({ adminEmail }: Props) {
   };
 
   useEffect(() => {
-    void refresh();
+    const timer = setTimeout(() => {
+      void refresh();
+    }, 0);
+    return () => clearTimeout(timer);
   }, []);
 
   const categoryOptions = useMemo(() => categories.map((item) => ({ id: item.id, name: item.name })), [categories]);

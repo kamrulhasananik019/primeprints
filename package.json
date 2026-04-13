@@ -16,8 +16,6 @@
     "cf:r2:list": "wrangler r2 bucket list"
   },
   "dependencies": {
-    "@payloadcms/db-postgres": "^3.82.1",
-    "@payloadcms/next": "^3.82.1",
     "@tiptap/extension-text-align": "^3.22.3",
     "@tiptap/extension-underline": "^3.22.3",
     "@tiptap/react": "^3.22.3",
@@ -25,7 +23,6 @@
     "aws4fetch": "^1.0.20",
     "lucide-react": "^1.7.0",
     "next": "16.2.2",
-    "payload": "^3.82.1",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "react-markdown": "^10.1.0",

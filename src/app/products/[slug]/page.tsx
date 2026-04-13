@@ -102,7 +102,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
 
       <div className="sticky top-0 z-20 border-b border-stone-200 bg-white/95 backdrop-blur">
         <div className="container mx-auto flex items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
-          <Link href={getCategoryPath(category.id, category.name)} className="sans flex items-center gap-2 text-sm font-500 text-stone-600 transition-colors hover:text-stone-900">
+          <Link href={getCategoryPath(category.id, category.name)} prefetch={false} className="sans flex items-center gap-2 text-sm font-500 text-stone-600 transition-colors hover:text-stone-900">
             Back to {category.name}
           </Link>
           <span className="rounded-lg bg-stone-100 px-3 py-1 text-xs font-600 uppercase tracking-wider text-stone-700">{category.name}</span>
@@ -139,7 +139,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
               </div>
               <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                 {related.map((rel) => (
-                  <Link key={rel.id} href={getProductPath(rel.id, rel.name)} className="group block">
+                  <Link key={rel.id} href={getProductPath(rel.id, rel.name)} prefetch={false} className="group block">
                     <div className="group cursor-pointer">
                       <div className="relative mb-4 aspect-square overflow-hidden rounded-3xl bg-stone-200">
                         <Image
@@ -170,7 +170,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
 
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {otherCategoryProducts.map((item) => (
-                  <Link key={item.id} href={getProductPath(item.id, item.name)} className="group block">
+                  <Link key={item.id} href={getProductPath(item.id, item.name)} prefetch={false} className="group block">
                     <div className="group cursor-pointer">
                       <div className="relative mb-4 aspect-square overflow-hidden rounded-3xl bg-stone-200">
                         <Image

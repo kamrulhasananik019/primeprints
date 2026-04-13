@@ -29,7 +29,7 @@ export default function DiscountsAndPackages({ products, productCategoryTitles }
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {products.map((product) => {
               return (
-                <Link key={product.id} href={getProductPath(product.id, product.name)}>
+                <Link key={product.id} href={getProductPath(product.id, product.name)} prefetch={false}>
                   <div className="group cursor-pointer">
                     <div className="relative mb-4 aspect-3/3 overflow-hidden rounded-3xl bg-stone-200">
                       <Image

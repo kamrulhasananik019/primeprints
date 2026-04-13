@@ -254,6 +254,7 @@ export default function Navbar({ categories }: NavbarProps) {
                 <li key={cat.id} className="relative shrink-0" onMouseEnter={() => openMegaMenu(cat.id)}>
                   <Link
                     href={getCategoryPath(cat.id, cat.name)}
+                    prefetch={false}
                     className={`inline-block whitespace-nowrap rounded-md px-4 py-3 text-[13px] font-bold transition-all ${
                       activeSlug === cat.id || pathname === getCategoryPath(cat.id, cat.name)
                         ? 'bg-[#D2C1B6]/40 text-[#1B3C53]'
@@ -288,6 +289,7 @@ export default function Navbar({ categories }: NavbarProps) {
                         <li key={product.id}>
                           <Link
                             href={getProductPath(product.id, product.name)}
+                            prefetch={false}
                             className="group/item flex items-center justify-between py-0.5 text-[14px] font-medium text-stone-600 transition hover:text-[#234C6A]"
                           >
                             <span>{product.name}</span>
@@ -301,7 +303,7 @@ export default function Navbar({ categories }: NavbarProps) {
               </div>
 
               <div className="col-span-3 border-l border-stone-100 pl-10">
-                <Link href={activeCategory ? getCategoryPath(activeCategory.id, activeCategory.name) : '/'} className="group block">
+                <Link href={activeCategory ? getCategoryPath(activeCategory.id, activeCategory.name) : '/'} prefetch={false} className="group block">
                   <div className="relative aspect-16/10 overflow-hidden rounded-2xl bg-stone-100 shadow-inner">
                     {activeCategory && (
                       <Image
@@ -388,6 +390,7 @@ export default function Navbar({ categories }: NavbarProps) {
                           <Link
                             key={product.id}
                             href={getProductPath(product.id, product.name)}
+                            prefetch={false}
                             onClick={() => setIsMobileMenuOpen(false)}
                             className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-stone-600 transition hover:bg-white hover:text-[#234C6A]"
                           >

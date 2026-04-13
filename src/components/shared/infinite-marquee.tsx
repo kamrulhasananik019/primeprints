@@ -9,9 +9,10 @@ type InfiniteMarqueeProps = {
 
 export default function InfiniteMarquee({
   topText = 'SAME DAY PRINT AVAILABLE',
-  bottomItems: _bottomItems = [],
+  bottomItems = [],
   className = '',
 }: InfiniteMarqueeProps) {
+  void bottomItems;
   const topBaseItems = Array.from({ length: 10 }, () => topText);
   const topTickerItems = [...topBaseItems, ...topBaseItems];
 

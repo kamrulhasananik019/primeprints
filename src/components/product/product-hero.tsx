@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Star } from 'lucide-react';
 import type { CatalogProduct } from '@/lib/catalog';
 import { getCategoryPath } from '@/lib/slug';
@@ -30,14 +30,11 @@ export default function ProductHero({
 }: ProductHeroProps) {
   const [selectedImage, setSelectedImage] = useState(primaryImage);
 
-  useEffect(() => {
-    setSelectedImage(primaryImage);
-  }, [primaryImage, product.id]);
-
   const galleryImages = useMemo(
     () => Array.from(new Set([primaryImage, ...product.imageUrl, ...relatedImages])).filter(Boolean).slice(0, 8),
     [primaryImage, product.imageUrl, relatedImages]
   );
+  const activeImage = galleryImages.includes(selectedImage) ? selectedImage : primaryImage;
 
   return (
     <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:gap-12">
@@ -45,7 +42,7 @@ export default function ProductHero({
         <div className="relative overflow-hidden rounded-3xl border border-stone-200 bg-white shadow-xl">
           <div className="relative aspect-square">
             <Image
-              src={selectedImage}
+              src={activeImage}
               alt={productTitle}
               fill
               priority
