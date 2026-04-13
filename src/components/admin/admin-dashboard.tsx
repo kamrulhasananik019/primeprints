@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import RichEditorField from '@/components/admin/rich-editor-field';
+import Swal from 'sweetalert2';
 
 type Category = {
   id: string;
@@ -30,8 +31,13 @@ export default function AdminDashboard({ adminEmail }: Props) {
   const [products, setProducts] = useState<Product[]>([]);
   const [activeTab, setActiveTab] = useState<'categories' | 'products'>('categories');
   const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null);
+  const [editingProductId, setEditingProductId] = useState<string | null>(null);
+  const [busyCategoryId, setBusyCategoryId] = useState<string | null>(null);
+  const [busyProductId, setBusyProductId] = useState<string | null>(null);
 
   const [categoryForm, setCategoryForm] = useState({ name: '', imageUrl: '', parentId: '', description: '' });
   const [productForm, setProductForm] = useState({
@@ -65,8 +71,11 @@ export default function AdminDashboard({ adminEmail }: Props) {
     event.preventDefault();
     setError('');
     setSuccess('');
-    const response = await fetch('/api/admin/categories', {
-      method: 'POST',
+    setSaving(true);
+    const endpoint = editingCategoryId ? `/api/admin/categories/${editingCategoryId}` : '/api/admin/categories';
+    const method = editingCategoryId ? 'PATCH' : 'POST';
+    const response = await fetch(endpoint, {
+      method,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         name: categoryForm.name,
@@ -78,19 +87,27 @@ export default function AdminDashboard({ adminEmail }: Props) {
     const data = (await response.json()) as { ok: boolean; error?: string };
     if (!data.ok) {
       setError(data.error || 'Failed to create category');
+      await Swal.fire({ icon: 'error', title: 'Error', text: data.error || 'Failed to save category' });
+      setSaving(false);
       return;
     }
     setCategoryForm({ name: '', imageUrl: '', parentId: '', description: '' });
+    setEditingCategoryId(null);
     await refresh();
-    setSuccess('Category created');
+    setSaving(false);
+    setSuccess(editingCategoryId ? 'Category updated' : 'Category created');
+    await Swal.fire({ icon: 'success', title: 'Saved', text: editingCategoryId ? 'Category updated successfully' : 'Category created successfully' });
   };
 
   const createProduct = async (event: React.FormEvent) => {
     event.preventDefault();
     setError('');
     setSuccess('');
-    const response = await fetch('/api/admin/products', {
-      method: 'POST',
+    setSaving(true);
+    const endpoint = editingProductId ? `/api/admin/products/${editingProductId}` : '/api/admin/products';
+    const method = editingProductId ? 'PATCH' : 'POST';
+    const response = await fetch(endpoint, {
+      method,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         name: productForm.name,
@@ -104,37 +121,122 @@ export default function AdminDashboard({ adminEmail }: Props) {
     const data = (await response.json()) as { ok: boolean; error?: string };
     if (!data.ok) {
       setError(data.error || 'Failed to create product');
+      await Swal.fire({ icon: 'error', title: 'Error', text: data.error || 'Failed to save product' });
+      setSaving(false);
       return;
     }
     setProductForm({ name: '', imageUrls: '', badges: '', categoryNames: '', description: '', shortDescription: '' });
+    setEditingProductId(null);
     await refresh();
-    setSuccess('Product created');
+    setSaving(false);
+    setSuccess(editingProductId ? 'Product updated' : 'Product created');
+    await Swal.fire({ icon: 'success', title: 'Saved', text: editingProductId ? 'Product updated successfully' : 'Product created successfully' });
   };
 
   const removeCategory = async (id: string) => {
+    const confirm = await Swal.fire({
+      icon: 'warning',
+      title: 'Delete category?',
+      text: 'This action cannot be undone.',
+      showCancelButton: true,
+      confirmButtonText: 'Delete',
+      confirmButtonColor: '#dc2626',
+    });
+    if (!confirm.isConfirmed) return;
+
+    setBusyCategoryId(id);
     setError('');
     setSuccess('');
     const response = await fetch(`/api/admin/categories/${id}`, { method: 'DELETE' });
     const data = (await response.json()) as { ok: boolean; error?: string };
     if (!data.ok) {
       setError(data.error || 'Failed to delete category');
+      await Swal.fire({ icon: 'error', title: 'Error', text: data.error || 'Failed to delete category' });
+      setBusyCategoryId(null);
       return;
     }
     await refresh();
     setSuccess('Category deleted');
+    await Swal.fire({ icon: 'success', title: 'Deleted', text: 'Category deleted successfully' });
+    setBusyCategoryId(null);
   };
 
   const removeProduct = async (id: string) => {
+    const confirm = await Swal.fire({
+      icon: 'warning',
+      title: 'Delete product?',
+      text: 'This action cannot be undone.',
+      showCancelButton: true,
+      confirmButtonText: 'Delete',
+      confirmButtonColor: '#dc2626',
+    });
+    if (!confirm.isConfirmed) return;
+
+    setBusyProductId(id);
     setError('');
     setSuccess('');
     const response = await fetch(`/api/admin/products/${id}`, { method: 'DELETE' });
     const data = (await response.json()) as { ok: boolean; error?: string };
     if (!data.ok) {
       setError(data.error || 'Failed to delete product');
+      await Swal.fire({ icon: 'error', title: 'Error', text: data.error || 'Failed to delete product' });
+      setBusyProductId(null);
       return;
     }
     await refresh();
     setSuccess('Product deleted');
+    await Swal.fire({ icon: 'success', title: 'Deleted', text: 'Product deleted successfully' });
+    setBusyProductId(null);
+  };
+
+  const startEditCategory = (item: Category) => {
+    setEditingCategoryId(item.id);
+    setCategoryForm({
+      name: item.name,
+      imageUrl: item.image_url,
+      parentId: item.parent_id || '',
+      description: item.description,
+    });
+  };
+
+  const startEditProduct = (item: Product) => {
+    const categoryIds = (() => {
+      try {
+        const parsed = JSON.parse(item.category_id) as string[];
+        const categoryNameById = new Map(categories.map((cat) => [cat.id, cat.name]));
+        return (Array.isArray(parsed) ? parsed : [])
+          .map((id) => categoryNameById.get(id) || id)
+          .join(', ');
+      } catch {
+        return item.category_id;
+      }
+    })();
+    const imageUrls = (() => {
+      try {
+        const parsed = JSON.parse(item.image_url) as string[];
+        return Array.isArray(parsed) ? parsed.join('\n') : '';
+      } catch {
+        return '';
+      }
+    })();
+    const badges = (() => {
+      try {
+        const parsed = JSON.parse(item.badges) as string[];
+        return Array.isArray(parsed) ? parsed.join(', ') : '';
+      } catch {
+        return '';
+      }
+    })();
+
+    setEditingProductId(item.id);
+    setProductForm({
+      name: item.name,
+      imageUrls,
+      badges,
+      categoryNames: categoryIds,
+      description: item.description,
+      shortDescription: item.short_description,
+    });
   };
 
   const logout = async () => {
@@ -144,6 +246,13 @@ export default function AdminDashboard({ adminEmail }: Props) {
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-10">
+      {(loading || saving) && (
+        <div className="fixed inset-0 z-200 flex items-center justify-center bg-black/30">
+          <div className="rounded-xl bg-white px-6 py-4 text-sm font-semibold text-stone-700">
+            {saving ? 'Saving data...' : 'Loading data...'}
+          </div>
+        </div>
+      )}
       <div className="mb-8 rounded-2xl border border-stone-200 bg-gradient-to-r from-slate-900 to-cyan-900 p-6 text-white">
         <div className="flex items-center justify-between">
           <div>
@@ -180,7 +289,7 @@ export default function AdminDashboard({ adminEmail }: Props) {
       {activeTab === 'categories' ? (
         <section className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
           <form onSubmit={createCategory} className="space-y-3 rounded-2xl border border-stone-200 bg-white p-5">
-            <h2 className="text-xl font-bold">Create Category</h2>
+            <h2 className="text-xl font-bold">{editingCategoryId ? 'Update Category' : 'Create Category'}</h2>
             <input required value={categoryForm.name} onChange={(e) => setCategoryForm((s) => ({ ...s, name: e.target.value }))} placeholder="Name" className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm" />
             <input required value={categoryForm.imageUrl} onChange={(e) => setCategoryForm((s) => ({ ...s, imageUrl: e.target.value }))} placeholder="Image URL" className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm" />
             <select value={categoryForm.parentId} onChange={(e) => setCategoryForm((s) => ({ ...s, parentId: e.target.value }))} className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm">
@@ -197,7 +306,23 @@ export default function AdminDashboard({ adminEmail }: Props) {
               onChange={(value) => setCategoryForm((s) => ({ ...s, description: value }))}
               minRows={8}
             />
-            <button className="rounded-lg bg-stone-900 px-3 py-2 text-sm font-semibold text-white">Save Category</button>
+            <div className="flex gap-2">
+              <button className="rounded-lg bg-stone-900 px-3 py-2 text-sm font-semibold text-white">
+                {editingCategoryId ? 'Update Category' : 'Save Category'}
+              </button>
+              {editingCategoryId ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditingCategoryId(null);
+                    setCategoryForm({ name: '', imageUrl: '', parentId: '', description: '' });
+                  }}
+                  className="rounded-lg border border-stone-300 px-3 py-2 text-sm"
+                >
+                  Cancel
+                </button>
+              ) : null}
+            </div>
           </form>
           <div className="space-y-3 rounded-2xl border border-stone-200 bg-white p-5">
             <h2 className="text-xl font-bold">Categories ({categories.length})</h2>
@@ -208,9 +333,23 @@ export default function AdminDashboard({ adminEmail }: Props) {
                     <p className="font-semibold">{item.name}</p>
                     <p className="text-xs text-stone-500">{item.id}</p>
                   </div>
-                  <button onClick={() => void removeCategory(item.id)} className="rounded-md border border-red-300 px-2 py-1 text-xs text-red-700">
-                    Delete
-                  </button>
+                  <div className="flex items-center gap-2">
+                    {busyCategoryId === item.id ? <span className="text-xs text-stone-500">Working...</span> : null}
+                    <button
+                      disabled={busyCategoryId === item.id}
+                      onClick={() => void removeCategory(item.id)}
+                      className="rounded-md border border-red-300 px-2 py-1 text-xs text-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      Delete
+                    </button>
+                    <button
+                      disabled={busyCategoryId === item.id}
+                      onClick={() => startEditCategory(item)}
+                      className="rounded-md border border-cyan-300 px-2 py-1 text-xs text-cyan-700 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      Edit
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
@@ -219,7 +358,7 @@ export default function AdminDashboard({ adminEmail }: Props) {
       ) : (
         <section className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
           <form onSubmit={createProduct} className="space-y-3 rounded-2xl border border-stone-200 bg-white p-5">
-            <h2 className="text-xl font-bold">Create Product</h2>
+            <h2 className="text-xl font-bold">{editingProductId ? 'Update Product' : 'Create Product'}</h2>
             <input required value={productForm.name} onChange={(e) => setProductForm((s) => ({ ...s, name: e.target.value }))} placeholder="Name" className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm" />
             <input value={productForm.badges} onChange={(e) => setProductForm((s) => ({ ...s, badges: e.target.value }))} placeholder="Badges (comma separated)" className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm" />
             <input value={productForm.categoryNames} onChange={(e) => setProductForm((s) => ({ ...s, categoryNames: e.target.value }))} placeholder="Category names (comma separated)" className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm" />
@@ -237,7 +376,23 @@ export default function AdminDashboard({ adminEmail }: Props) {
               onChange={(value) => setProductForm((s) => ({ ...s, description: value }))}
               minRows={8}
             />
-            <button className="rounded-lg bg-stone-900 px-3 py-2 text-sm font-semibold text-white">Save Product</button>
+            <div className="flex gap-2">
+              <button className="rounded-lg bg-stone-900 px-3 py-2 text-sm font-semibold text-white">
+                {editingProductId ? 'Update Product' : 'Save Product'}
+              </button>
+              {editingProductId ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditingProductId(null);
+                    setProductForm({ name: '', imageUrls: '', badges: '', categoryNames: '', description: '', shortDescription: '' });
+                  }}
+                  className="rounded-lg border border-stone-300 px-3 py-2 text-sm"
+                >
+                  Cancel
+                </button>
+              ) : null}
+            </div>
           </form>
           <div className="space-y-3 rounded-2xl border border-stone-200 bg-white p-5">
             <h2 className="text-xl font-bold">Products ({products.length})</h2>
@@ -248,9 +403,23 @@ export default function AdminDashboard({ adminEmail }: Props) {
                     <p className="font-semibold">{item.name}</p>
                     <p className="text-xs text-stone-500">{item.id}</p>
                   </div>
-                  <button onClick={() => void removeProduct(item.id)} className="rounded-md border border-red-300 px-2 py-1 text-xs text-red-700">
-                    Delete
-                  </button>
+                  <div className="flex items-center gap-2">
+                    {busyProductId === item.id ? <span className="text-xs text-stone-500">Working...</span> : null}
+                    <button
+                      disabled={busyProductId === item.id}
+                      onClick={() => void removeProduct(item.id)}
+                      className="rounded-md border border-red-300 px-2 py-1 text-xs text-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      Delete
+                    </button>
+                    <button
+                      disabled={busyProductId === item.id}
+                      onClick={() => startEditProduct(item)}
+                      className="rounded-md border border-cyan-300 px-2 py-1 text-xs text-cyan-700 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      Edit
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
