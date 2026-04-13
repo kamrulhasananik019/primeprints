@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { getCategories, getCategoryById, getProductsByCategoryId } from '@/lib/d1';
 import InfiniteMarquee from '@/components/shared/infinite-marquee';
 import { getPrimaryImage } from '@/lib/product-media';
+import RichContent from '@/components/shared/rich-content';
+import { richContentToPlainText } from '@/lib/rich-content';
 
 export const revalidate = 300;
 
@@ -21,13 +23,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   return {
     title: category.name,
-    description: category.description,
+    description: richContentToPlainText(category.description),
     alternates: {
       canonical: `/categories/${category.id}`,
     },
     openGraph: {
       title: `${category.name} | Prime Prints`,
-      description: category.description,
+      description: richContentToPlainText(category.description),
       url: `/categories/${category.id}`,
       images: [{ url: category.imageUrl, alt: category.name }],
       type: 'website',
@@ -35,7 +37,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     twitter: {
       card: 'summary_large_image',
       title: `${category.name} | Prime Prints`,
-      description: category.description,
+      description: richContentToPlainText(category.description),
       images: [category.imageUrl],
     },
   };
@@ -67,7 +69,11 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
           <div className="grid items-center gap-10 lg:grid-cols-2">
             <div>
               <h1 className="mt-4 font-serif text-4xl font-bold leading-tight text-stone-900 sm:text-5xl lg:text-6xl">{category.name}</h1>
-              <p className="mt-4 max-w-xl text-base leading-relaxed text-stone-600">{category.description}</p>
+              <RichContent
+                content={category.description}
+                wrapperClassName="mt-4 max-w-xl"
+                textClassName="text-base leading-relaxed text-stone-600"
+              />
               <p className="mt-6 text-sm font-medium uppercase tracking-[0.16em] text-stone-500">{products.length} products available</p>
               <div className="mt-6">
                 <Link

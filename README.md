@@ -99,60 +99,63 @@ curl -X POST http://localhost:3000/api/r2/delete \
 	-d '{"key":"images/your-object-key.jpg"}'
 ```
 
-## Use D1 In Next.js
+## Admin Panel Setup
 
-1. Copy environment variables:
+The admin CMS is built into Payload and available at `/admin`.
+
+### Environment Setup
+
+1. Create `.env.local` with required variables:
 
 ```bash
-cp .env.example .env.local
+# Database connection
+DATABASE_URL=postgres://user:password@localhost:5432/primeprints
+
+# Payload CMS
+PAYLOAD_SECRET=your-long-random-secret-key-here
+
+# Admin credentials (used for initial seeding)
+PAYLOAD_ADMIN_EMAIL=admin@example.com
+PAYLOAD_ADMIN_PASSWORD=ChangeMe123!
+
+# Optional: Next.js site URL
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ```
 
-2. Fill in `CF_ACCOUNT_ID` and `CF_API_TOKEN` in `.env.local`.
-
-3. Start the app:
+2. Start the development server:
 
 ```bash
 pnpm dev
 ```
 
-4. Test D1 route:
+3. Access the admin panel at `http://localhost:3000/admin`
+
+4. Login with your admin credentials:
+   - Email: `admin@example.com` (or your PAYLOAD_ADMIN_EMAIL)
+   - Password: `ChangeMe123!` (or your PAYLOAD_ADMIN_PASSWORD)
+
+### Admin Features
+
+- **Collections**: Manage Categories and Products through the tabbed admin UI
+- **SEO Fields**: Edit SEO title, description, and image for each item
+- **Rich Text**: Description and shortDescription fields support Payload's rich text editor (Tiptap)
+- **Auto Slug**: Category and product slugs are auto-generated from names
+- **Relationships**: Categories support hierarchical parent-child relationships; Products link to multiple categories
+- **Image Management**: Products support multiple images with alt text and titles
+- **Badges**: Assign custom badges to products (e.g., "latest", "samedayprinting")
+
+### Database & Seeding
+
+The seeding function runs automatically on app initialization:
+- Creates a default admin user if none exists
+- Seeds demo categories and products on first run
+- Converts demo data to Payload's rich text format
+
+To manually trigger seeding (clears existing data first):
 
 ```bash
-curl http://localhost:3000/api/d1-health
+curl -X POST http://localhost:3000/api/seed-demo
 ```
-
-## Admin Panel Setup
-
-This project now includes a protected admin CMS at `/admin` with D1-backed login and CRUD APIs for categories and products.
-
-1. Add admin env values in `.env.local`:
-
-```bash
-ADMIN_SESSION_SECRET=replace-with-long-random-secret
-ADMIN_SESSION_TTL_SECONDS=28800
-```
-
-2. Apply admin migration:
-
-```bash
-pnpm cf:d1:migrate
-pnpm cf:d1:migrate:remote
-```
-
-3. Generate a password hash for the first admin user:
-
-```bash
-node -e "const {scryptSync,randomBytes}=require('crypto');const p='ChangeMe123!';const s=randomBytes(16).toString('hex');const h=scryptSync(p,s,64).toString('hex');console.log('scrypt$'+s+'$'+h)"
-```
-
-4. Insert admin in D1 (replace values):
-
-```sql
-INSERT INTO admins (id, email, password_hash)
-VALUES ('admin-1', 'admin@example.com', 'scrypt$<salt>$<hash>');
-```
-
-5. Start app and login at `/admin/login`.
 
 ## New Database Shape
 
@@ -160,18 +163,19 @@ Migration `0005_reset_schema_keep_admin.sql` resets all non-admin tables and kee
 
 Tables kept:
 
-- `admins`
-- `admin_login_audit`
+- `admins` (legacy, use `users` collection in Payload)
+- `admin_login_audit` (legacy)
 
-Tables recreated:
+Tables created by Payload:
 
-- `categories`
-- `products`
+- `users` (admin authentication)
+- `categories` (with SEO fields)
+- `products` (with SEO fields)
 
 Data model:
 
-- `Category`: id, slug, name, description, imageUrl, parentId
-- `Product`: id, slug, name, description, shortDescription, imageUrl[], badges[], categoryId[]
+- `Category`: id, slug, name, description (richText), imageUrl (group), parentId (self-relationship), seoTitle, seoDescription, seoImage
+- `Product`: id, slug, name, description (richText), shortDescription (richText), imageUrl[] (array of groups), badges[], categoryId[] (multi-relationship), seoTitle, seoDescription, seoImage
 
 ## Learn More
 

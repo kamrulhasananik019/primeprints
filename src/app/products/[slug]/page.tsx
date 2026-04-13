@@ -7,6 +7,8 @@ import InfiniteMarquee from '@/components/shared/infinite-marquee';
 import { getCategories, getCategoryById, getProductById, getProductsByCategoryId } from '@/lib/d1';
 import { siteUrl } from '@/lib/site';
 import { getPrimaryImage } from '@/lib/product-media';
+import { richContentToPlainText } from '@/lib/rich-content';
+import RichContent from '@/components/shared/rich-content';
 
 export const revalidate = 300;
 
@@ -26,13 +28,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   return {
     title: product.name,
-    description: product.shortDescription || product.description,
+    description: richContentToPlainText(product.shortDescription) || richContentToPlainText(product.description),
     alternates: {
       canonical: `/products/${product.id}`,
     },
     openGraph: {
       title: `${product.name} | Prime Prints`,
-      description: product.shortDescription || product.description,
+      description: richContentToPlainText(product.shortDescription) || richContentToPlainText(product.description),
       url: `/products/${product.id}`,
       images: [{ url: productImage, alt: product.name }],
       type: 'website',
@@ -40,7 +42,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     twitter: {
       card: 'summary_large_image',
       title: `${product.name} | Prime Prints`,
-      description: product.shortDescription || product.description,
+      description: richContentToPlainText(product.shortDescription) || richContentToPlainText(product.description),
       images: [productImage],
     },
   };
@@ -82,7 +84,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: product.name,
-    description: product.shortDescription || product.description,
+    description: richContentToPlainText(product.shortDescription) || richContentToPlainText(product.description),
     category: category.name,
     image: galleryImages.length > 0 ? galleryImages : [primaryImage],
     sku: product.id,
@@ -114,7 +116,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
             primaryImage={primaryImage}
             relatedImages={relatedImages}
             productTitle={product.name}
-            productShortDescription={product.shortDescription || product.description}
+            productShortDescription={richContentToPlainText(product.shortDescription) || richContentToPlainText(product.description)}
           />
         </div>
 
@@ -125,7 +127,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
         <div className="container mx-auto px-4 py-12 sm:px-6 lg:px-8 lg:py-14">
           <div className="mt-10 rounded-2xl border border-stone-200 bg-white p-6 md:p-8">
             <h2 className="serif mb-4 text-2xl font-black text-stone-900">More Details</h2>
-            <p className="sans text-base leading-relaxed text-stone-600">{product.description}</p>
+            <RichContent content={product.description} textClassName="sans text-base leading-relaxed text-stone-600" />
           </div>
 
           {related.length > 0 && (

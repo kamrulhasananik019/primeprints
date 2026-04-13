@@ -1,14 +1,10 @@
-import { cache } from 'react';
-
-import config from '@payload-config';
-import { getPayload } from 'payload';
-
-import { demoCategories, demoProducts } from '@/payload/demo-data';
+import { d1Query } from '@/lib/cloudflare-d1';
+import type { RichDescription } from '@/types/rich-content';
 
 export type CategoryRecord = {
 	id: string;
 	name: string;
-	description: string;
+	description: RichDescription;
 	imageUrl: string;
 	parentId: string | null;
 };
@@ -17,114 +13,109 @@ export type ProductRecord = {
 	id: string;
 	name: string;
 	imageUrl: string[];
-	description: string;
-	shortDescription: string;
+	description: RichDescription;
+	shortDescription: RichDescription;
 	badges: string[];
 	categoryId: string[];
 };
+type CategoryRow = {
+	id: string;
+	name: string;
+	description: string;
+	image_url: string;
+	parent_id: string | null;
+};
 
-const getPayloadClient = cache(async () => getPayload({ config }));
-const hasDatabaseUrl = Boolean(process.env.DATABASE_URL);
+type ProductRow = {
+	id: string;
+	name: string;
+	image_url: string;
+	description: string;
+	short_description: string;
+	badges: string;
+	category_id: string;
+};
 
-function parseStringArray(value: unknown): string[] {
-	if (!value) {
+function parseJsonArray(value: string | null | undefined): string[] {
+	if (!value) return [];
+	try {
+		const parsed = JSON.parse(value);
+		return Array.isArray(parsed) ? parsed.map((item) => String(item)).filter(Boolean) : [];
+	} catch {
 		return [];
 	}
+}
 
-	if (Array.isArray(value)) {
-		return value
-			.map((item) => {
-				if (typeof item === 'string') {
-					return item;
-				}
-
-				if (item && typeof item === 'object' && 'value' in item) {
-					return String((item as { value?: unknown }).value ?? '');
-				}
-
-				return '';
-			})
-			.filter(Boolean);
+function parseRichValue(value: string | null | undefined): RichDescription {
+	if (!value) return '';
+	try {
+		return JSON.parse(value) as RichDescription;
+	} catch {
+		return value;
 	}
-
-	return [];
-}
-
-function normalizeCategoryDoc(doc: Record<string, unknown>): CategoryRecord {
-	return {
-		id: String(doc.id ?? ''),
-		name: String(doc.name ?? ''),
-		description: String(doc.description ?? ''),
-		imageUrl: String(doc.imageUrl ?? ''),
-		parentId: (doc.parentId as string | null | undefined) ?? null,
-	};
-}
-
-function normalizeProductDoc(doc: Record<string, unknown>): ProductRecord {
-	return {
-		id: String(doc.id ?? ''),
-		name: String(doc.name ?? ''),
-		imageUrl: parseStringArray(doc.imageUrl),
-		description: String(doc.description ?? ''),
-		shortDescription: String(doc.shortDescription ?? ''),
-		badges: parseStringArray(doc.badges),
-		categoryId: parseStringArray(doc.categoryId),
-	};
-}
-
-function mapDemoProduct(product: (typeof demoProducts)[number]): ProductRecord {
-	return {
-		id: product.id,
-		name: product.name,
-		imageUrl: product.imageUrls,
-		description: product.description,
-		shortDescription: product.shortDescription,
-		badges: product.badges,
-		categoryId: product.categoryId,
-	};
 }
 
 export async function getCategories(): Promise<CategoryRecord[]> {
-	if (!hasDatabaseUrl) {
-		return demoCategories;
-	}
-
-	const payload = await getPayloadClient();
-	const response = await payload.find({ collection: 'categories', limit: 1000, sort: 'name' });
-	return response.docs.map((doc) => normalizeCategoryDoc(doc as Record<string, unknown>));
+	const rows = await d1Query<CategoryRow>(
+		'SELECT id, name, description, image_url, parent_id FROM categories ORDER BY name ASC'
+	);
+	return rows.map((row) => ({
+		id: row.id,
+		name: row.name,
+		description: parseRichValue(row.description),
+		imageUrl: row.image_url,
+		parentId: row.parent_id,
+	}));
 }
 
 export async function getCategoryById(id: string): Promise<CategoryRecord | null> {
-	if (!hasDatabaseUrl) {
-		return demoCategories.find((item) => item.id === id) ?? null;
-	}
-
-	const payload = await getPayloadClient();
-	const response = await payload.find({ collection: 'categories', limit: 1, where: { id: { equals: id } } });
-	const doc = response.docs[0] as Record<string, unknown> | undefined;
-	return doc ? normalizeCategoryDoc(doc) : null;
+	const rows = await d1Query<CategoryRow>(
+		'SELECT id, name, description, image_url, parent_id FROM categories WHERE id = ? OR LOWER(name) = LOWER(?) LIMIT 1',
+		[id, id]
+	);
+	const row = rows[0];
+	if (!row) return null;
+	return {
+		id: row.id,
+		name: row.name,
+		description: parseRichValue(row.description),
+		imageUrl: row.image_url,
+		parentId: row.parent_id,
+	};
 }
 
 export async function getProducts(limit = 100): Promise<ProductRecord[]> {
-	if (!hasDatabaseUrl) {
-		return demoProducts.slice(0, limit).map(mapDemoProduct);
-	}
-
-	const payload = await getPayloadClient();
-	const response = await payload.find({ collection: 'products', limit, sort: 'name' });
-	return response.docs.map((doc) => normalizeProductDoc(doc as Record<string, unknown>));
+	const rows = await d1Query<ProductRow>(
+		'SELECT id, name, image_url, description, short_description, badges, category_id FROM products ORDER BY name ASC LIMIT ?',
+		[limit]
+	);
+	return rows.map((row) => ({
+		id: row.id,
+		name: row.name,
+		imageUrl: parseJsonArray(row.image_url),
+		description: parseRichValue(row.description),
+		shortDescription: parseRichValue(row.short_description),
+		badges: parseJsonArray(row.badges),
+		categoryId: parseJsonArray(row.category_id),
+	}));
 }
 
 export async function getProductById(id: string): Promise<ProductRecord | null> {
-	if (!hasDatabaseUrl) {
-		const product = demoProducts.find((item) => item.id === id);
-		return product ? mapDemoProduct(product) : null;
-	}
-
-	const payload = await getPayloadClient();
-	const response = await payload.find({ collection: 'products', limit: 1, where: { id: { equals: id } } });
-	const doc = response.docs[0] as Record<string, unknown> | undefined;
-	return doc ? normalizeProductDoc(doc) : null;
+	const rows = await d1Query<ProductRow>(
+		'SELECT id, name, image_url, description, short_description, badges, category_id FROM products WHERE id = ? OR LOWER(name) = LOWER(?) LIMIT 1',
+		[id, id]
+	);
+	const row = rows[0];
+	if (!row) return null;
+	return {
+		id: row.id,
+		name: row.name,
+		imageUrl: parseJsonArray(row.image_url),
+		description: parseRichValue(row.description),
+		shortDescription: parseRichValue(row.short_description),
+		badges: parseJsonArray(row.badges),
+		categoryId: parseJsonArray(row.category_id),
+	};
 }
 
 export async function getProductsByCategoryId(categoryId: string, limit = 100): Promise<ProductRecord[]> {
