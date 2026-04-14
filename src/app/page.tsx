@@ -8,7 +8,7 @@ import LocationMap from "@/components/Home/locationmap";
 import PromoBar from "@/components/Home/promobar";
 import Reviews from "@/components/Home/reviews";
 import InfiniteMarquee from "@/components/shared/infinite-marquee";
-import { getCategories } from "@/lib/d1";
+import { getCategories } from "@/lib/mongo-catalog";
 import {
   getDeliveryMarketing,
   getLatestProducts,

@@ -1,193 +1,122 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Prime Prints
 
-## Getting Started
+Next.js app with MongoDB-backed catalog collections for a printing product website.
 
-First, run the development server:
+## Run
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+pnpm install
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Required Environment
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Set these in `.env.local`:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Cloudflare D1 Setup
-
-Wrangler is installed and configured with a D1 binding named `DB`.
-
-1. Login to Cloudflare:
-
-```bash
-pnpm cf:login
+```dotenv
+MONGODB_URI=mongodb+srv://<user>:<password>@<cluster>/<db>?appName=<app>
+ADMIN_SESSION_SECRET=<long-random-secret>
+ADMIN_SESSION_TTL_SECONDS=28800
 ```
 
-2. Create the remote D1 database:
+Optional:
 
-```bash
-pnpm cf:d1:create
-```
-
-3. Copy the `database_id` from command output into `wrangler.jsonc`.
-
-4. Apply local migration:
-
-```bash
-pnpm cf:d1:migrate
-```
-
-5. Apply remote migration:
-
-```bash
-pnpm cf:d1:migrate:remote
-```
-
-Useful command:
-
-```bash
-pnpm cf:d1:list
-```
-
-## Cloudflare R2 Setup (Images, Videos, Files)
-
-1. Create an R2 bucket:
-
-```bash
-pnpm cf:r2:create
-```
-
-2. Create an R2 API token in Cloudflare with bucket read/write access.
-
-3. Get your R2 S3 API credentials (`Access Key ID` and `Secret Access Key`).
-
-4. Update `.env.local`:
-
-```bash
-R2_ACCOUNT_ID=your_cloudflare_account_id
-R2_BUCKET=primeprints-assets
-R2_ACCESS_KEY_ID=your_r2_access_key_id
-R2_SECRET_ACCESS_KEY=your_r2_secret_access_key
-# Optional public delivery URL (recommended)
-R2_PUBLIC_URL=https://pub-xxxx.r2.dev
-# Optional size limit in bytes (default 100MB)
-R2_MAX_UPLOAD_BYTES=104857600
-```
-
-5. Use upload API (multipart form-data):
-
-```bash
-curl -X POST http://localhost:3000/api/r2/upload \
-	-F "file=@/path/to/your-file.jpg" \
-	-F "folder=images"
-```
-
-Response includes `key` and `url`.
-
-6. Delete an object by key:
-
-```bash
-curl -X POST http://localhost:3000/api/r2/delete \
-	-H "Content-Type: application/json" \
-	-d '{"key":"images/your-object-key.jpg"}'
-```
-
-## Admin Panel Setup
-
-The admin CMS is built into Payload and available at `/admin`.
-
-### Environment Setup
-
-1. Create `.env.local` with required variables:
-
-```bash
-# Database connection
-DATABASE_URL=postgres://user:password@localhost:5432/primeprints
-
-# Payload CMS
-PAYLOAD_SECRET=your-long-random-secret-key-here
-
-# Admin credentials (used for initial seeding)
-PAYLOAD_ADMIN_EMAIL=admin@example.com
-PAYLOAD_ADMIN_PASSWORD=ChangeMe123!
-
-# Optional: Next.js site URL
+```dotenv
+MONGODB_DB_NAME=primeprints
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
+# Dev-only TLS fallbacks (only if your machine has SSL cert issues)
+# MONGODB_TLS_INSECURE=true
+# MONGODB_TLS_ALLOW_INVALID_HOSTNAMES=true
 ```
 
-2. Start the development server:
+## MongoDB Collections
 
-```bash
-pnpm dev
+### categories
+
+```json
+{
+  "_id": "ObjectId",
+  "slug": "business-cards",
+  "name": "Business Cards",
+  "shortDescription": "Premium printed business cards.",
+  "description": { "type": "doc", "content": [] },
+  "image": {
+    "url": "https://img.yourdomain.com/categories/business-cards.webp",
+    "alt": "Business cards category image"
+  },
+  "parentId": null,
+  "seo": {
+    "title": "Business Cards Printing UK",
+    "description": "Order premium business cards in the UK.",
+    "keywords": ["business cards", "printing", "UK"],
+    "image": "https://img.yourdomain.com/seo/business-cards.webp"
+  },
+  "isActive": true,
+  "sortOrder": 1,
+  "createdAt": "2026-04-14T00:00:00.000Z",
+  "updatedAt": "2026-04-14T00:00:00.000Z"
+}
 ```
 
-3. Access the admin panel at `http://localhost:3000/admin`
+### products
 
-4. Login with your admin credentials:
-   - Email: `admin@example.com` (or your PAYLOAD_ADMIN_EMAIL)
-   - Password: `ChangeMe123!` (or your PAYLOAD_ADMIN_PASSWORD)
+```json
+{
+  "_id": "ObjectId",
+  "slug": "premium-matte-business-card",
+  "name": "Premium Matte Business Card",
+  "shortDescription": { "type": "doc", "content": [] },
+  "description": { "type": "doc", "content": [] },
+  "images": [
+    {
+      "url": "https://img.yourdomain.com/products/business-card-1.webp",
+      "alt": "Front view of premium matte business card"
+    },
+    {
+      "url": "https://img.yourdomain.com/products/business-card-2.webp",
+      "alt": "Back view of premium matte business card"
+    }
+  ],
+  "badges": ["Popular", "Best Seller"],
+  "categoryIds": ["ObjectId-category1", "ObjectId-category2"],
+  "seo": {
+    "title": "Premium Matte Business Card Printing",
+    "description": "High-quality matte business cards printed in the UK.",
+    "keywords": ["matte business cards", "business card printing"],
+    "image": "https://img.yourdomain.com/seo/premium-business-card.webp"
+  },
+  "isFeatured": true,
+  "isActive": true,
+  "sortOrder": 1,
+  "createdAt": "2026-04-14T00:00:00.000Z",
+  "updatedAt": "2026-04-14T00:00:00.000Z"
+}
+```
 
-### Admin Features
+## Indexes
 
-- **Collections**: Manage Categories and Products through the tabbed admin UI
-- **SEO Fields**: Edit SEO title, description, and image for each item
-- **Rich Text**: Description and shortDescription fields support Payload's rich text editor (Tiptap)
-- **Auto Slug**: Category and product slugs are auto-generated from names
-- **Relationships**: Categories support hierarchical parent-child relationships; Products link to multiple categories
-- **Image Management**: Products support multiple images with alt text and titles
-- **Badges**: Assign custom badges to products (e.g., "latest", "samedayprinting")
+```js
+products.createIndex({ slug: 1 }, { unique: true })
+products.createIndex({ categoryIds: 1 })
+products.createIndex({ isFeatured: 1 })
+products.createIndex({ isActive: 1 })
 
-### Database & Seeding
+categories.createIndex({ slug: 1 }, { unique: true })
+categories.createIndex({ parentId: 1 })
+```
 
-The seeding function runs automatically on app initialization:
-- Creates a default admin user if none exists
-- Seeds demo categories and products on first run
-- Converts demo data to Payload's rich text format
+## Seeding
 
-To manually trigger seeding (clears existing data first):
+Seed demo admin/category/product data:
 
 ```bash
 curl -X POST http://localhost:3000/api/seed-demo
 ```
 
-## New Database Shape
+## Health
 
-Migration `0005_reset_schema_keep_admin.sql` resets all non-admin tables and keeps admin auth tables.
+Check backend health:
 
-Tables kept:
-
-- `admins` (legacy, use `users` collection in Payload)
-- `admin_login_audit` (legacy)
-
-Tables created by Payload:
-
-- `users` (admin authentication)
-- `categories` (with SEO fields)
-- `products` (with SEO fields)
-
-Data model:
-
-- `Category`: id, slug, name, description (richText), imageUrl (group), parentId (self-relationship), seoTitle, seoDescription, seoImage
-- `Product`: id, slug, name, description (richText), shortDescription (richText), imageUrl[] (array of groups), badges[], categoryId[] (multi-relationship), seoTitle, seoDescription, seoImage
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+curl http://localhost:3000/api/admin-health
+```

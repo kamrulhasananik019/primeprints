@@ -1,5 +1,5 @@
 import type { MetadataRoute } from 'next';
-import { getCategories, getProducts } from '@/lib/d1';
+import { getCategories, getProducts } from '@/lib/mongo-catalog';
 import { siteUrl } from '@/lib/site';
 
 export const dynamic = 'force-dynamic';

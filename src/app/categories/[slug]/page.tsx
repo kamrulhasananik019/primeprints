@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { getCategories, getCategoryById, getProductsByCategoryId } from '@/lib/d1';
+import { getCategories, getCategoryById, getProductsByCategoryId } from '@/lib/mongo-catalog';
 import InfiniteMarquee from '@/components/shared/infinite-marquee';
 import { getPrimaryImage } from '@/lib/product-media';
 import RichContent from '@/components/shared/rich-content';
@@ -32,14 +32,14 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       title: `${category.name} | Prime Prints`,
       description: richContentToPlainText(category.description),
       url: getCategoryPath(category.id, category.name),
-      images: [{ url: category.imageUrl, alt: category.name }],
+      images: [{ url: category.image.url, alt: category.image.alt || category.name }],
       type: 'website',
     },
     twitter: {
       card: 'summary_large_image',
       title: `${category.name} | Prime Prints`,
       description: richContentToPlainText(category.description),
-      images: [category.imageUrl],
+      images: [category.image.url],
     },
   };
 }
@@ -86,7 +86,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
               </div>
             </div>
             <div className="aspect-16/11 overflow-hidden rounded-3xl bg-stone-200 shadow-2xl shadow-stone-300/40">
-              <Image src={category.imageUrl} alt={category.name} width={1200} height={825} priority className="h-full w-full object-cover" />
+              <Image src={category.image.url} alt={category.image.alt || category.name} width={1200} height={825} priority className="h-full w-full object-cover" />
             </div>
           </div>
         </div>
@@ -107,7 +107,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
                   <div className="group cursor-pointer rounded-3xl border border-stone-200 bg-white p-3 transition hover:border-stone-300 hover:shadow-md">
                     <div className="relative mb-4 aspect-4/5 overflow-hidden rounded-3xl bg-stone-200">
                       <Image
-                        src={getPrimaryImage(product) || category.imageUrl}
+                        src={getPrimaryImage(product) || category.image.url}
                         alt={product.name}
                         width={800}
                         height={1000}

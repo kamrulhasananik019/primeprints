@@ -2,8 +2,7 @@ import { NextResponse } from 'next/server';
 import { revalidateTag } from 'next/cache';
 
 import { requireAdminSession, toStoredRichText } from '@/lib/admin-api';
-import { d1Execute } from '@/lib/cloudflare-d1';
-import { toSlug } from '@/lib/slug';
+import { deleteAdminCategory, updateAdminCategory } from '@/lib/mongo-catalog';
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -17,7 +16,6 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     };
 
     const name = String(body.name || '').trim();
-    const slug = toSlug(name);
     const imageUrl = String(body.imageUrl || '').trim();
     const parentId = body.parentId ? String(body.parentId) : null;
     const description = toStoredRichText(body.description);
@@ -26,14 +24,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       return NextResponse.json({ ok: false, error: 'name, imageUrl, and description are required.' }, { status: 400 });
     }
 
-    await d1Execute('UPDATE categories SET slug = ?, name = ?, description = ?, image_url = ?, parent_id = ? WHERE id = ?', [
-      slug,
-      name,
-      description,
-      imageUrl,
-      parentId,
-      id,
-    ]);
+    await updateAdminCategory(id, { name, imageUrl, parentId, description });
     revalidateTag('catalog', 'max');
 
     return NextResponse.json({ ok: true });
@@ -48,7 +39,7 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
   try {
     await requireAdminSession();
     const { id } = await params;
-    await d1Execute('DELETE FROM categories WHERE id = ?', [id]);
+    await deleteAdminCategory(id);
     revalidateTag('catalog', 'max');
     return NextResponse.json({ ok: true });
   } catch (error) {

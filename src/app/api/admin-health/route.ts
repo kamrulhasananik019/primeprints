@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
-import { d1Query } from '@/lib/cloudflare-d1';
+import { countAdminItems } from '@/lib/mongo-catalog';
 
 /**
  * Health check endpoint for admin setup
- * Verifies Cloudflare D1 + admin tables + content tables
+ * Verifies MongoDB + admin collections + content collections
  */
 export async function GET() {
   try {
@@ -14,8 +14,8 @@ export async function GET() {
       collections: { ok: false, message: '' },
     };
 
-    if (!process.env.CF_ACCOUNT_ID || !process.env.CF_D1_DATABASE_ID || !process.env.CF_API_TOKEN) {
-      checks.environment.message = 'Missing CF_ACCOUNT_ID / CF_D1_DATABASE_ID / CF_API_TOKEN in .env.local';
+    if (!process.env.MONGODB_URI) {
+      checks.environment.message = 'Missing MONGODB_URI in .env.local';
     } else {
       checks.environment.ok = true;
       checks.environment.message = 'Environment variables configured';
@@ -34,26 +34,20 @@ export async function GET() {
     }
 
     try {
-      await d1Query('SELECT 1 AS ok');
+      const counts = await countAdminItems();
       checks.database.ok = true;
-      checks.database.message = 'Connected to Cloudflare D1';
+      checks.database.message = 'Connected to MongoDB';
 
-      const admins = await d1Query<{ email: string }>('SELECT email FROM admins LIMIT 1');
-      if (admins.length > 0) {
+      if (counts.admins > 0) {
         checks.admin.ok = true;
-        checks.admin.message = `Admin user exists: ${admins[0].email}`;
+        checks.admin.message = 'Admin user exists';
       } else {
         checks.admin.ok = false;
-        checks.admin.message = 'No admin user found in admins table.';
+        checks.admin.message = 'No admin user found in admins collection.';
       }
 
-      const [categories, products] = await Promise.all([
-        d1Query<{ count: number }>('SELECT COUNT(*) AS count FROM categories'),
-        d1Query<{ count: number }>('SELECT COUNT(*) AS count FROM products'),
-      ]);
-
       checks.collections.ok = true;
-      checks.collections.message = `Categories: ${Number(categories[0]?.count || 0)} docs, Products: ${Number(products[0]?.count || 0)} docs`;
+      checks.collections.message = `Categories: ${counts.categories} docs, Products: ${counts.products} docs`;
     } catch (dbError) {
       checks.database.ok = false;
       checks.database.message = dbError instanceof Error ? dbError.message : 'Database connection failed';
@@ -86,7 +80,7 @@ export async function GET() {
         ok: false,
         status: 'ERROR',
         error: errorMessage,
-        setupGuide: 'See ADMIN_SETUP.md for configuration instructions',
+        setupGuide: 'Set MONGODB_URI in .env.local',
       },
       { status: 500 }
     );

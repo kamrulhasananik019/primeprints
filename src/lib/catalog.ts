@@ -1,4 +1,4 @@
-import { getCategories, getProducts } from '@/lib/d1';
+import { getCategories, getProducts } from '@/lib/mongo-catalog';
 import { unstable_cache } from 'next/cache';
 
 export type CatalogCategory = Awaited<ReturnType<typeof getCategories>>[number];
@@ -30,7 +30,7 @@ export async function getCategoriesWithProducts(): Promise<CategoryWithProducts[
 
   return categories.map((category) => ({
       ...category,
-      products: products.filter((product) => product.categoryId.includes(category.id)),
+      products: products.filter((product) => product.categoryIds.includes(category.id)),
     }));
 }
 
@@ -38,7 +38,7 @@ export async function getNavCategories(): Promise<NavCategory[]> {
   const { categories, products } = await getCatalogSnapshot();
 
   return categories.map((category) => {
-      const categoryProducts = products.filter((product) => product.categoryId.includes(category.id)).slice(0, 6);
+      const categoryProducts = products.filter((product) => product.categoryIds.includes(category.id)).slice(0, 6);
       return {
         ...category,
         products: categoryProducts.map((product) => ({ id: product.id, name: product.name })),
@@ -52,7 +52,7 @@ export function getProductCategoryTitleMap(
 ): Record<string, string> {
   const categoryNameById = new Map(categories.map((category) => [category.id, category.name]));
   return Object.fromEntries(
-    products.map((product) => [product.id, categoryNameById.get(product.categoryId[0] ?? '') ?? ''])
+    products.map((product) => [product.id, categoryNameById.get(product.categoryIds[0] ?? '') ?? ''])
   );
 }
 
@@ -84,6 +84,6 @@ export async function getRelatedProducts(productId: string, limit = 3): Promise<
   }
 
   return products
-    .filter((product) => product.categoryId.some((id) => current.categoryId.includes(id)) && product.id !== productId)
+    .filter((product) => product.categoryIds.some((id) => current.categoryIds.includes(id)) && product.id !== productId)
     .slice(0, limit);
 }

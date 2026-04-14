@@ -7,7 +7,7 @@ function getSecret(): string {
   return process.env.ADMIN_SESSION_SECRET || 'change-me-admin-session-secret';
 }
 
-type SessionPayload = {
+type AdminSessionData = {
   email: string;
   exp: number;
 };
@@ -25,16 +25,16 @@ function sign(value: string): string {
 }
 
 export function createAdminSession(email: string): string {
-  const payload: SessionPayload = {
+  const sessionData: AdminSessionData = {
     email,
     exp: Math.floor(Date.now() / 1000) + SESSION_TTL_SECONDS,
   };
-  const encoded = toBase64Url(JSON.stringify(payload));
+  const encoded = toBase64Url(JSON.stringify(sessionData));
   const signature = sign(encoded);
   return `${encoded}.${signature}`;
 }
 
-export function verifyAdminSession(token: string | undefined | null): SessionPayload | null {
+export function verifyAdminSession(token: string | undefined | null): AdminSessionData | null {
   if (!token || !token.includes('.')) {
     return null;
   }
@@ -52,11 +52,11 @@ export function verifyAdminSession(token: string | undefined | null): SessionPay
   }
 
   try {
-    const payload = JSON.parse(fromBase64Url(encoded)) as SessionPayload;
-    if (!payload.email || !payload.exp || payload.exp < Math.floor(Date.now() / 1000)) {
+    const sessionData = JSON.parse(fromBase64Url(encoded)) as AdminSessionData;
+    if (!sessionData.email || !sessionData.exp || sessionData.exp < Math.floor(Date.now() / 1000)) {
       return null;
     }
-    return payload;
+    return sessionData;
   } catch {
     return null;
   }

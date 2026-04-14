@@ -31,8 +31,8 @@ export default function ProductHero({
   const [selectedImage, setSelectedImage] = useState(primaryImage);
 
   const galleryImages = useMemo(
-    () => Array.from(new Set([primaryImage, ...product.imageUrl, ...relatedImages])).filter(Boolean).slice(0, 8),
-    [primaryImage, product.imageUrl, relatedImages]
+    () => Array.from(new Set([primaryImage, ...product.images.map((item) => item.url), ...relatedImages])).filter(Boolean).slice(0, 8),
+    [primaryImage, product.images, relatedImages]
   );
   const activeImage = galleryImages.includes(selectedImage) ? selectedImage : primaryImage;
 

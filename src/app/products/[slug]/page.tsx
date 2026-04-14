@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import ProductHero from '@/components/product/product-hero';
 import InfiniteMarquee from '@/components/shared/infinite-marquee';
-import { getCategories, getCategoryById, getProductById, getProductsByCategoryId } from '@/lib/d1';
+import { getCategories, getCategoryById, getProductById, getProductsByCategoryId } from '@/lib/mongo-catalog';
 import { siteUrl } from '@/lib/site';
 import { getPrimaryImage } from '@/lib/product-media';
 import { richContentToPlainText } from '@/lib/rich-content';
@@ -24,8 +24,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     };
   }
 
-  const category = await getCategoryById(product.categoryId[0] ?? '');
-  const productImage = getPrimaryImage(product) || category?.imageUrl || '';
+  const category = await getCategoryById(product.categoryIds[0] ?? '');
+  const productImage = getPrimaryImage(product) || category?.image.url || '';
 
   return {
     title: product.name,
@@ -57,7 +57,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
     notFound();
   }
 
-  const category = await getCategoryById(product.categoryId[0] ?? '');
+  const category = await getCategoryById(product.categoryIds[0] ?? '');
   if (!category) {
     notFound();
   }
@@ -76,9 +76,9 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
   );
   const otherCategoryProducts = otherCategoryProductsNested.flat().slice(0, 6);
 
-  const primaryImage = getPrimaryImage(product) || category.imageUrl;
+  const primaryImage = getPrimaryImage(product) || category.image.url;
   const relatedImages = related.map((item) => getPrimaryImage(item)).filter(Boolean);
-  const galleryImages = Array.from(new Set([primaryImage, ...product.imageUrl, ...relatedImages])).filter(Boolean).slice(0, 6);
+  const galleryImages = Array.from(new Set([primaryImage, ...product.images.map((item) => item.url), ...relatedImages])).filter(Boolean).slice(0, 6);
   const categoryNames = allCategories.map((cat) => cat.name);
 
   const productJsonLd = {
@@ -113,7 +113,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
         <div className="container mx-auto px-4 py-12 sm:px-6 lg:px-8 lg:py-14">
           <ProductHero
             product={product}
-            category={{ id: category.id, name: category.name, imageUrl: category.imageUrl }}
+            category={{ id: category.id, name: category.name, imageUrl: category.image.url }}
             primaryImage={primaryImage}
             relatedImages={relatedImages}
             productTitle={product.name}
@@ -143,7 +143,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                     <div className="group cursor-pointer">
                       <div className="relative mb-4 aspect-square overflow-hidden rounded-3xl bg-stone-200">
                         <Image
-                          src={getPrimaryImage(rel) || category.imageUrl}
+                          src={getPrimaryImage(rel) || category.image.url}
                           alt={rel.name}
                           width={800}
                           height={800}
@@ -174,7 +174,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                     <div className="group cursor-pointer">
                       <div className="relative mb-4 aspect-square overflow-hidden rounded-3xl bg-stone-200">
                         <Image
-                          src={getPrimaryImage(item) || category.imageUrl}
+                          src={getPrimaryImage(item) || category.image.url}
                           alt={item.name}
                           width={800}
                           height={800}
