@@ -1,5 +1,5 @@
 import type { MetadataRoute } from 'next';
-import { getCategories, getProducts } from '@/lib/mongo-catalog';
+import { getCatalogCategories, getCatalogProducts } from '@/lib/catalog';
 import { siteUrl } from '@/lib/site';
 
 export const dynamic = 'force-dynamic';
@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = siteUrl;
 
-  const [categories, allProducts] = await Promise.all([getCategories(), getProducts(1000)]);
+  const [categories, allProducts] = await Promise.all([getCatalogCategories(), getCatalogProducts(1000)]);
 
   const staticRoutes: MetadataRoute.Sitemap = [
     {

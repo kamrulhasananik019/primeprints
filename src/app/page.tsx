@@ -8,8 +8,8 @@ import LocationMap from "@/components/Home/locationmap";
 import PromoBar from "@/components/Home/promobar";
 import Reviews from "@/components/Home/reviews";
 import InfiniteMarquee from "@/components/shared/infinite-marquee";
-import { getCategories } from "@/lib/mongo-catalog";
 import {
+  getCatalogCategories,
   getDeliveryMarketing,
   getLatestProducts,
   getProductCategoryTitleMap,
@@ -54,7 +54,7 @@ export const metadata: Metadata = {
 
 
 export default async function Home() {
-  const categories = await getCategories();
+  const categories = await getCatalogCategories();
   const latestProducts = await getLatestProducts();
   const sameDayPrinting = await getSameDayPrinting();
   const deliveryMarketingProducts = await getDeliveryMarketing();

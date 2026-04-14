@@ -80,6 +80,16 @@ export async function getLatestProducts(): Promise<CatalogProduct[]> {
   return products.filter((product) => product.badges.some((badge) => badge.toLowerCase() === 'latest'));
 }
 
+export async function getCatalogCategories(): Promise<CatalogCategory[]> {
+  const { categories } = await getSafeCatalogSnapshot();
+  return categories;
+}
+
+export async function getCatalogProducts(limit = 1000): Promise<CatalogProduct[]> {
+  const { products } = await getSafeCatalogSnapshot();
+  return products.slice(0, limit);
+}
+
 export async function getSameDayPrinting(): Promise<CatalogProduct[]> {
   const { products } = await getSafeCatalogSnapshot();
   return products.filter((product) => product.badges.some((badge) => badge.toLowerCase() === 'samedayprinting'));
