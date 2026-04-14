@@ -24,47 +24,8 @@ function tiptapToPlainText(nodes: TipTapNode[]): string {
 }
 
 export function richContentToPlainText(content?: RichDescription): string {
-  if (!content) {
-    return '';
-  }
-
-  if (typeof content === 'string') {
-    return content;
-  }
-
-  if (!Array.isArray(content) && content?.type === 'doc') {
-    return tiptapToPlainText(content.content ?? []);
-  }
-
-  const blocks = Array.isArray(content) ? content : [];
-
-  return blocks
-    .map((block) => {
-      if (block.type === 'text') {
-        return block.content;
-      }
-
-      if (block.type === 'header') {
-        return block.content;
-      }
-
-      if (block.type === 'faq') {
-        return `${block.question} ${block.answer}`;
-      }
-
-      if (block.type === 'markdown') {
-        return block.content;
-      }
-
-      if (block.type === 'tiptap') {
-        return tiptapToPlainText(block.content.content);
-      }
-
-      return block.items.join(', ');
-    })
-    .join(' ')
-    .replace(/\s+/g, ' ')
-    .trim();
+  if (!content) return '';
+  return tiptapToPlainText(content.content ?? []);
 }
 
 export function isSameRichContent(a?: RichDescription, b?: RichDescription): boolean {
@@ -72,44 +33,6 @@ export function isSameRichContent(a?: RichDescription, b?: RichDescription): boo
 }
 
 export function extractFAQsFromRichContent(content?: RichDescription): FAQItem[] {
-  if (!content || typeof content === 'string' || !Array.isArray(content)) {
-    return [];
-  }
-
-  const faqItems: FAQItem[] = [];
-
-  for (const block of content) {
-    if (block.type === 'faq') {
-      const question = block.question.replace(/\s+/g, ' ').trim();
-      const answer = block.answer.replace(/\s+/g, ' ').trim();
-      if (question && answer) {
-        faqItems.push({ question, answer });
-      }
-      continue;
-    }
-
-    if (block.type !== 'list') {
-      continue;
-    }
-
-    for (const item of block.items) {
-      const normalized = item.replace(/\s+/g, ' ').trim();
-      const qIndex = normalized.indexOf('?');
-
-      if (qIndex < 0) {
-        continue;
-      }
-
-      const question = normalized.slice(0, qIndex + 1).trim();
-      const answer = normalized.slice(qIndex + 1).trim();
-
-      if (!question || !answer) {
-        continue;
-      }
-
-      faqItems.push({ question, answer });
-    }
-  }
-
-  return faqItems;
+  if (!content) return [];
+  return [];
 }

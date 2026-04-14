@@ -1,7 +1,13 @@
+export type TipTapMark = {
+  type: string;
+  attrs?: Record<string, unknown>;
+};
+
 export type TipTapNode = {
   type: string;
   text?: string;
   attrs?: Record<string, unknown>;
+  marks?: TipTapMark[];
   content?: TipTapNode[];
 };
 
@@ -10,32 +16,4 @@ export type TipTapDoc = {
   content: TipTapNode[];
 };
 
-export type RichDescriptionBlock =
-  | {
-      type: 'text';
-      content: string;
-    }
-  | {
-      type: 'list';
-      items: string[];
-    }
-  | {
-      type: 'header';
-      content: string;
-      level?: 2 | 3 | 4;
-    }
-  | {
-      type: 'faq';
-      question: string;
-      answer: string;
-    }
-  | {
-      type: 'markdown';
-      content: string;
-    }
-  | {
-      type: 'tiptap';
-      content: TipTapDoc;
-    };
-
-export type RichDescription = string | RichDescriptionBlock[] | TipTapDoc;
+export type RichDescription = TipTapDoc;

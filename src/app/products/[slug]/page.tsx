@@ -117,7 +117,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
             primaryImage={primaryImage}
             relatedImages={relatedImages}
             productTitle={product.name}
-            productShortDescription={richContentToPlainText(product.shortDescription) || richContentToPlainText(product.description)}
+            productShortDescription={product.shortDescription || product.description}
           />
         </div>
 

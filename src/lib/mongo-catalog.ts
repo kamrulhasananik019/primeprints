@@ -3,7 +3,7 @@ import { unstable_cache } from 'next/cache';
 
 import { toSlug } from '@/lib/slug';
 import { getMongoDb } from '@/lib/mongodb';
-import type { RichDescription } from '@/types/rich-content';
+import type { RichDescription, TipTapDoc } from '@/types/rich-content';
 
 type RichTextDoc = {
   type: 'doc';
@@ -118,7 +118,7 @@ export type AdminProductRow = {
   created_at: string;
 };
 
-function defaultRichText(text = ''): RichTextDoc {
+function defaultRichText(text = ''): TipTapDoc {
   return {
     type: 'doc',
     content: text
@@ -132,36 +132,76 @@ function defaultRichText(text = ''): RichTextDoc {
   };
 }
 
+function isTipTapDoc(value: unknown): value is TipTapDoc {
+  return Boolean(value && typeof value === 'object' && (value as { type?: string }).type === 'doc');
+}
+
 function parseRichValue(value: string | null | undefined): RichDescription {
-  if (!value) return '';
+  if (!value) return defaultRichText();
   try {
-    return JSON.parse(value) as RichDescription;
+    const parsed = JSON.parse(value) as unknown;
+    if (isTipTapDoc(parsed)) return parsed;
+    return defaultRichText(value);
   } catch {
-    return value;
+    return defaultRichText(value);
   }
 }
 
 function normalizeRichContent(value: unknown): RichDescription {
-  if (!value) return '';
+  if (!value) return defaultRichText();
   if (typeof value === 'string') return parseRichValue(value);
-  if (typeof value === 'object') return value as RichDescription;
-  return '';
+  if (isTipTapDoc(value)) return value;
+  return defaultRichText();
 }
 
-function toStoredRich(value: string): RichTextDoc | RichDescription {
-  const normalized = normalizeRichContent(value);
-  if (typeof normalized === 'string') {
-    return defaultRichText(normalized);
-  }
-  return normalized;
+function toStoredRich(value: string): TipTapDoc {
+  return normalizeRichContent(value);
 }
 
 function toObjectId(value: string): ObjectId | null {
   return ObjectId.isValid(value) ? new ObjectId(value) : null;
 }
 
-function asIsoString(value: Date | undefined): string {
-  return (value || new Date()).toISOString();
+function idToString(value: unknown): string {
+  if (!value) return '';
+  if (typeof value === 'string') return value;
+  if (value instanceof ObjectId) return value.toHexString();
+
+  if (typeof value === 'object') {
+    const maybeObject = value as { toHexString?: () => string; $oid?: string; toString?: () => string };
+    if (typeof maybeObject.toHexString === 'function') {
+      return maybeObject.toHexString();
+    }
+    if (typeof maybeObject.$oid === 'string') {
+      return maybeObject.$oid;
+    }
+    if (typeof maybeObject.toString === 'function') {
+      const asString = maybeObject.toString();
+      if (asString && asString !== '[object Object]') return asString;
+    }
+  }
+
+  return '';
+}
+
+function asIsoString(value: unknown): string {
+  if (!value) return new Date().toISOString();
+  if (value instanceof Date) return value.toISOString();
+  if (typeof value === 'string') {
+    const parsed = new Date(value);
+    return Number.isNaN(parsed.getTime()) ? new Date().toISOString() : parsed.toISOString();
+  }
+  if (typeof value === 'number') {
+    const parsed = new Date(value);
+    return Number.isNaN(parsed.getTime()) ? new Date().toISOString() : parsed.toISOString();
+  }
+  if (typeof value === 'object') {
+    const maybeDate = value as { $date?: string | number | Date };
+    if (maybeDate.$date) {
+      return asIsoString(maybeDate.$date);
+    }
+  }
+  return new Date().toISOString();
 }
 
 function seoDefaults(title: string, description: string, image: string): SeoBlock {
@@ -195,14 +235,14 @@ function mapCategoryDoc(doc: CategoryDoc): CategoryRecord {
   const createdAt = asIsoString(doc.createdAt);
   const updatedAt = asIsoString(doc.updatedAt);
   return {
-    id: doc._id.toHexString(),
+    id: idToString(doc._id),
     slug: doc.slug,
     name: doc.name,
     shortDescription: normalizeRichContent(doc.shortDescription),
     description: normalizeRichContent(doc.description),
     image,
     imageUrl: image.url,
-    parentId: doc.parentId ? doc.parentId.toHexString() : null,
+    parentId: doc.parentId ? idToString(doc.parentId) : null,
     seo: doc.seo || seoDefaults(doc.name, doc.name, image.url),
     isActive: doc.isActive !== false,
     sortOrder: doc.sortOrder ?? 1,
@@ -213,11 +253,11 @@ function mapCategoryDoc(doc: CategoryDoc): CategoryRecord {
 
 function mapProductDoc(doc: ProductDoc): ProductRecord {
   const images = Array.isArray(doc.images) ? doc.images : [];
-  const categoryIds = Array.isArray(doc.categoryIds) ? doc.categoryIds.map((item) => item.toHexString()) : [];
+  const categoryIds = Array.isArray(doc.categoryIds) ? doc.categoryIds.map((item) => idToString(item)).filter(Boolean) : [];
   const createdAt = asIsoString(doc.createdAt);
   const updatedAt = asIsoString(doc.updatedAt);
   return {
-    id: doc._id.toHexString(),
+    id: idToString(doc._id),
     slug: doc.slug,
     name: doc.name,
     shortDescription: normalizeRichContent(doc.shortDescription),
@@ -275,7 +315,7 @@ export async function getCategoryById(id: string): Promise<CategoryRecord | null
   const rows = await getCachedCategories();
   const normalized = id.toLowerCase();
   const row = rows.find(
-    (item) => item._id.toHexString() === id || item.slug === normalized || item.name.toLowerCase() === normalized || toSlug(item.name) === normalized
+    (item) => idToString(item._id) === id || item.slug === normalized || item.name.toLowerCase() === normalized || toSlug(item.name) === normalized
   );
   return row ? mapCategoryDoc(row) : null;
 }
@@ -289,7 +329,7 @@ export async function getProductById(id: string): Promise<ProductRecord | null> 
   const rows = await getCachedProducts();
   const normalized = id.toLowerCase();
   const row = rows.find(
-    (item) => item._id.toHexString() === id || item.slug === normalized || item.name.toLowerCase() === normalized || toSlug(item.name) === normalized
+    (item) => idToString(item._id) === id || item.slug === normalized || item.name.toLowerCase() === normalized || toSlug(item.name) === normalized
   );
   return row ? mapProductDoc(row) : null;
 }
@@ -345,11 +385,11 @@ export async function getAdminCategories(): Promise<AdminCategoryRow[]> {
   const rows = await db.collection<CategoryDoc>('categories').find({}).sort({ createdAt: -1 }).toArray();
 
   return rows.map((row) => ({
-    id: row._id.toHexString(),
+    id: idToString(row._id),
     name: row.name,
     description: JSON.stringify(row.description || defaultRichText()),
     image_url: row.image?.url || '',
-    parent_id: row.parentId ? row.parentId.toHexString() : null,
+    parent_id: row.parentId ? idToString(row.parentId) : null,
     created_at: asIsoString(row.createdAt),
   }));
 }
@@ -426,7 +466,7 @@ export async function resolveCategoryIds(values: string[]): Promise<string[]> {
   const db = await getMongoDb();
   const asIds = values.map(toObjectId).filter((item): item is ObjectId => Boolean(item));
   const byIds = asIds.length ? await db.collection<CategoryDoc>('categories').find({ _id: { $in: asIds } }).toArray() : [];
-  const matchedIdSet = new Set(byIds.map((row) => row._id.toHexString()));
+  const matchedIdSet = new Set(byIds.map((row) => idToString(row._id)).filter(Boolean));
 
   const unresolved = values.filter((value) => !matchedIdSet.has(value));
   if (unresolved.length > 0) {
@@ -435,7 +475,7 @@ export async function resolveCategoryIds(values: string[]): Promise<string[]> {
       .find({ name: { $in: unresolved.map((item) => item.trim()) } })
       .toArray();
     for (const row of byName) {
-      matchedIdSet.add(row._id.toHexString());
+      matchedIdSet.add(idToString(row._id));
     }
   }
 
@@ -448,13 +488,13 @@ export async function getAdminProducts(): Promise<AdminProductRow[]> {
   const rows = await db.collection<ProductDoc>('products').find({}).sort({ createdAt: -1 }).toArray();
 
   return rows.map((row) => ({
-    id: row._id.toHexString(),
+    id: idToString(row._id),
     name: row.name,
     image_url: JSON.stringify((row.images || []).map((item) => item.url)),
     description: JSON.stringify(row.description || defaultRichText()),
     short_description: JSON.stringify(row.shortDescription || defaultRichText()),
     badges: JSON.stringify(row.badges || []),
-    category_id: JSON.stringify((row.categoryIds || []).map((item) => item.toHexString())),
+    category_id: JSON.stringify((row.categoryIds || []).map((item) => idToString(item)).filter(Boolean)),
     created_at: asIsoString(row.createdAt),
   }));
 }

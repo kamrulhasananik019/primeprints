@@ -1,6 +1,4 @@
-import ReactMarkdown from 'react-markdown';
-
-import type { RichDescription, TipTapNode } from '@/types/rich-content';
+import type { RichDescription, TipTapNode, TipTapMark } from '@/types/rich-content';
 
 type RichContentProps = {
   content: RichDescription;
@@ -17,20 +15,28 @@ export default function RichContent({
   listItemClassName,
   wrapperClassName,
 }: RichContentProps) {
-  const renderMarkdown = (value: string) => (
-    <ReactMarkdown
-      components={{
-        p: ({ children }) => <p className={textClassName}>{children}</p>,
-        ul: ({ children }) => <ul className={listClassName || 'list-disc pl-5'}>{children}</ul>,
-        li: ({ children }) => <li className={listItemClassName || textClassName}>{children}</li>,
-        h2: ({ children }) => <h2 className="sans text-2xl font-700 text-stone-900">{children}</h2>,
-        h3: ({ children }) => <h3 className="sans text-xl font-700 text-stone-900">{children}</h3>,
-        h4: ({ children }) => <h4 className="sans text-lg font-700 text-stone-900">{children}</h4>,
-      }}
-    >
-      {value}
-    </ReactMarkdown>
-  );
+  const applyMarks = (nodeText: React.ReactNode, marks: TipTapMark[] | undefined, key: string) => {
+    const safeMarks = Array.isArray(marks) ? marks : [];
+    return safeMarks.reduce<React.ReactNode>((acc, mark, index) => {
+      const markKey = `${key}-mark-${mark.type}-${index}`;
+      if (mark.type === 'bold') return <strong key={markKey}>{acc}</strong>;
+      if (mark.type === 'italic') return <em key={markKey}>{acc}</em>;
+      if (mark.type === 'underline') return <u key={markKey}>{acc}</u>;
+      if (mark.type === 'strike') return <s key={markKey}>{acc}</s>;
+      if (mark.type === 'code') return <code key={markKey}>{acc}</code>;
+      return <span key={markKey}>{acc}</span>;
+    }, nodeText);
+  };
+
+  const getNodeText = (nodes: TipTapNode[]): string =>
+    nodes
+      .map((node) => {
+        if (node.type === 'text') return node.text ?? '';
+        if (node.type === 'hardBreak') return '\n';
+        if (node.content?.length) return getNodeText(node.content);
+        return '';
+      })
+      .join('');
 
   const renderTipTapNodes = (nodes: TipTapNode[], keyPrefix: string): React.ReactNode => {
     return nodes.map((node, index) => {
@@ -65,7 +71,7 @@ export default function RichContent({
 
       if (node.type === 'paragraph') {
         return (
-          <p key={key} className={textClassName}>
+          <p key={key} className={`${textClassName} mb-4 last:mb-0`}>
             {renderTipTapNodes(node.content ?? [], `${key}-content`)}
           </p>
         );
@@ -73,9 +79,17 @@ export default function RichContent({
 
       if (node.type === 'bulletList') {
         return (
-          <ul key={key} className={listClassName || 'list-disc pl-5'}>
+          <ul key={key} className={`${listClassName || 'list-disc pl-5'} mb-4 last:mb-0`}>
             {renderTipTapNodes(node.content ?? [], `${key}-content`)}
           </ul>
+        );
+      }
+
+      if (node.type === 'orderedList') {
+        return (
+          <ol key={key} className={`${listClassName || 'list-decimal pl-5'} mb-4 last:mb-0`}>
+            {renderTipTapNodes(node.content ?? [], `${key}-content`)}
+          </ol>
         );
       }
 
@@ -87,8 +101,34 @@ export default function RichContent({
         );
       }
 
+      if (node.type === 'hardBreak') {
+        return <br key={key} />;
+      }
+
+      if (node.type === 'blockquote') {
+        return (
+          <blockquote key={key} className="mb-4 border-l-4 border-stone-300 pl-4 text-stone-700 last:mb-0">
+            {renderTipTapNodes(node.content ?? [], `${key}-content`)}
+          </blockquote>
+        );
+      }
+
+      if (node.type === 'codeBlock') {
+        const codeText = getNodeText(node.content ?? []);
+        return (
+          <pre key={key} className="mb-4 overflow-x-auto rounded-lg bg-slate-900 p-4 text-sm text-slate-100 last:mb-0">
+            <code>{codeText}</code>
+          </pre>
+        );
+      }
+
+      if (node.type === 'horizontalRule') {
+        return <hr key={key} className="my-6 border-stone-200" />;
+      }
+
       if (node.type === 'text') {
-        return <span key={key}>{node.text ?? ''}</span>;
+        const text = node.text ?? '';
+        return <span key={key}>{applyMarks(text, node.marks, key)}</span>;
       }
 
       if (node.content?.length) {
@@ -99,79 +139,5 @@ export default function RichContent({
     });
   };
 
-  if (typeof content === 'string') {
-    return <div className={wrapperClassName}>{renderMarkdown(content)}</div>;
-  }
-
-  if (!Array.isArray(content) && content?.type === 'doc') {
-    return <div className={wrapperClassName}>{renderTipTapNodes(content.content ?? [], 'tiptap-root')}</div>;
-  }
-
-  const blocks = Array.isArray(content) ? content : [];
-
-  return (
-    <div className={wrapperClassName}>
-      {blocks.map((block, index) => {
-        if (block.type === 'text') {
-          return (
-            <p key={`text-${index}`} className={textClassName}>
-              {block.content}
-            </p>
-          );
-        }
-
-        if (block.type === 'header') {
-          const HeaderTag = block.level === 3 ? 'h3' : block.level === 4 ? 'h4' : 'h2';
-          return (
-            <HeaderTag key={`header-${index}`} className="sans text-xl font-700 text-stone-900">
-              {block.content}
-            </HeaderTag>
-          );
-        }
-
-        if (block.type === 'faq') {
-          return (
-            <details key={`faq-${index}`} className="rounded-xl border border-stone-200 bg-stone-50 px-4 py-3">
-              <summary className="sans cursor-pointer list-none pr-6 text-sm font-700 text-stone-900">
-                {block.question}
-              </summary>
-              <p className="sans mt-3 text-sm leading-relaxed text-stone-600">{block.answer}</p>
-            </details>
-          );
-        }
-
-        if (block.type === 'markdown') {
-          return (
-            <ReactMarkdown
-              key={`markdown-${index}`}
-              components={{
-                p: ({ children }) => <p className={textClassName}>{children}</p>,
-                ul: ({ children }) => <ul className={listClassName || 'list-disc pl-5'}>{children}</ul>,
-                li: ({ children }) => <li className={listItemClassName || textClassName}>{children}</li>,
-                h2: ({ children }) => <h2 className="sans text-2xl font-700 text-stone-900">{children}</h2>,
-                h3: ({ children }) => <h3 className="sans text-xl font-700 text-stone-900">{children}</h3>,
-                h4: ({ children }) => <h4 className="sans text-lg font-700 text-stone-900">{children}</h4>,
-              }}
-            >
-              {block.content}
-            </ReactMarkdown>
-          );
-        }
-
-        if (block.type === 'tiptap') {
-          return <div key={`tiptap-${index}`}>{renderTipTapNodes(block.content.content, `tiptap-${index}`)}</div>;
-        }
-
-        return (
-          <ul key={`list-${index}`} className={listClassName || 'list-disc pl-5'}>
-            {block.items.map((item, itemIndex) => (
-              <li key={`${item}-${itemIndex}`} className={listItemClassName || textClassName}>
-                {item}
-              </li>
-            ))}
-          </ul>
-        );
-      })}
-    </div>
-  );
+  return <div className={wrapperClassName}>{renderTipTapNodes(content.content ?? [], 'tiptap-root')}</div>;
 }

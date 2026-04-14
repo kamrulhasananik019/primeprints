@@ -52,25 +52,3 @@ body {
   color: #fff;
   background: var(--pp-800);
 }
-
-.admin-tiptap .ProseMirror {
-  min-height: 180px;
-  outline: none;
-  line-height: 1.6;
-}
-
-.admin-tiptap .ProseMirror p {
-  margin: 0.5rem 0;
-}
-
-.admin-tiptap .ProseMirror h2 {
-  font-size: 1.125rem;
-  font-weight: 700;
-  margin: 0.75rem 0 0.5rem;
-}
-
-.admin-tiptap .ProseMirror ul,
-.admin-tiptap .ProseMirror ol {
-  padding-left: 1.25rem;
-  margin: 0.5rem 0;
-}

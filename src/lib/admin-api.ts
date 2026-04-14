@@ -1,6 +1,7 @@
 import { cookies } from 'next/headers';
 
 import { getAdminSessionCookieName, verifyAdminSession } from '@/lib/admin-auth';
+import type { TipTapDoc } from '@/types/rich-content';
 
 export async function requireAdminSession(): Promise<{ email: string }> {
   const cookieStore = await cookies();
@@ -12,23 +13,33 @@ export async function requireAdminSession(): Promise<{ email: string }> {
 }
 
 export function toStoredRichText(input: unknown): string {
+  const toDoc = (text: string): TipTapDoc => ({
+    type: 'doc',
+    content: text.trim()
+      ? [
+          {
+            type: 'paragraph',
+            content: [{ type: 'text', text: text.trim() }],
+          },
+        ]
+      : [],
+  });
+
   if (typeof input !== 'string') {
-    return '';
+    return JSON.stringify(toDoc(''));
   }
 
   const trimmed = input.trim();
-  if (!trimmed) {
-    return '';
-  }
+  if (!trimmed) return JSON.stringify(toDoc(''));
 
   try {
     const parsed = JSON.parse(trimmed);
-    if (parsed && typeof parsed === 'object') {
+    if (parsed && typeof parsed === 'object' && (parsed as { type?: string }).type === 'doc') {
       return JSON.stringify(parsed);
     }
   } catch {
-    // Keep raw markdown/plain text if JSON parse fails.
+    // fall through to plain-text to TipTap conversion
   }
 
-  return trimmed;
+  return JSON.stringify(toDoc(trimmed));
 }

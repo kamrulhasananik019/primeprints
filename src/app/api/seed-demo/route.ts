@@ -13,6 +13,20 @@ import {
   upsertAdmin,
 } from '@/lib/mongo-catalog';
 
+function tiptapDoc(text: string) {
+  return JSON.stringify({
+    type: 'doc',
+    content: text
+      ? [
+          {
+            type: 'paragraph',
+            content: [{ type: 'text', text }],
+          },
+        ]
+      : [],
+  });
+}
+
 function hashPassword(password: string): string {
   const salt = randomBytes(16).toString('hex');
   const hash = scryptSync(password, salt, 64).toString('hex');
@@ -32,17 +46,17 @@ export async function POST() {
     const categorySeed = [
       {
         name: 'Paper Products',
-        description: JSON.stringify([{ type: 'markdown', content: 'High-volume paper product printing for cards, flyers, and booklets.' }]),
+        description: tiptapDoc('High-volume paper product printing for cards, flyers, and booklets.'),
         imageUrl: 'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=1200&q=80',
       },
       {
         name: 'Large Format Printing',
-        description: JSON.stringify([{ type: 'markdown', content: 'Posters, banners, and display graphics for events and retail.' }]),
+        description: tiptapDoc('Posters, banners, and display graphics for events and retail.'),
         imageUrl: 'https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?w=1200&q=80',
       },
       {
         name: 'Garment Printing',
-        description: JSON.stringify([{ type: 'markdown', content: 'Custom t-shirt and hoodie printing for teams, events, and brands.' }]),
+        description: tiptapDoc('Custom t-shirt and hoodie printing for teams, events, and brands.'),
         imageUrl: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=1200&q=80',
       },
     ];
@@ -68,8 +82,8 @@ export async function POST() {
     const productSeed = [
       {
         name: 'Premium Business Cards',
-        shortDescription: JSON.stringify([{ type: 'markdown', content: 'A premium first impression for meetings, events, and sales teams.' }]),
-        description: JSON.stringify([{ type: 'markdown', content: 'Luxury cards with soft-touch and spot UV finishing.' }]),
+        shortDescription: tiptapDoc('A premium first impression for meetings, events, and sales teams.'),
+        description: tiptapDoc('Luxury cards with soft-touch and spot UV finishing.'),
         imageUrls: [
           'https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=1200&h=1200&fit=crop&q=80',
           'https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=1200&q=80',
@@ -79,8 +93,8 @@ export async function POST() {
       },
       {
         name: 'Event Poster A1',
-        shortDescription: JSON.stringify([{ type: 'markdown', content: 'High-impact large format color output with quick turnaround.' }]),
-        description: JSON.stringify([{ type: 'markdown', content: 'Bold A1 posters for retail windows and event promotion.' }]),
+        shortDescription: tiptapDoc('High-impact large format color output with quick turnaround.'),
+        description: tiptapDoc('Bold A1 posters for retail windows and event promotion.'),
         imageUrls: ['https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=1200&q=80'],
         badges: ['deliverymarketing'],
         categoryIds: largeFormatCategoryIds,

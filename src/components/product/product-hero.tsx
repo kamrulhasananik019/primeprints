@@ -6,6 +6,8 @@ import { useMemo, useState } from 'react';
 import { Star } from 'lucide-react';
 import type { CatalogProduct } from '@/lib/catalog';
 import { getCategoryPath } from '@/lib/slug';
+import type { RichDescription } from '@/types/rich-content';
+import RichContent from '@/components/shared/rich-content';
 
 type ProductHeroProps = {
   product: CatalogProduct;
@@ -17,7 +19,7 @@ type ProductHeroProps = {
   primaryImage: string;
   relatedImages: string[];
   productTitle: string;
-  productShortDescription: string;
+  productShortDescription: RichDescription;
 };
 
 export default function ProductHero({
@@ -93,7 +95,13 @@ export default function ProductHero({
         <p className="sans mb-3 text-xs font-700 uppercase tracking-[0.2em] text-cyan-600">{category.name}</p>
         <h1 className="serif mb-5 text-3xl leading-tight font-black text-stone-900 md:text-4xl">{productTitle}</h1>
 
-        <p className="mb-7 text-base leading-relaxed text-stone-600">{productShortDescription}</p>
+        <div className="mb-7">
+          <RichContent
+            content={productShortDescription}
+            wrapperClassName="space-y-3"
+            textClassName="text-base leading-relaxed text-stone-600"
+          />
+        </div>
 
         <div className="flex flex-wrap gap-3">
           <Link
