@@ -1,25 +1,7 @@
-import type { EditorStateSnapshot } from '@tiptap/react';
+import type { Editor, EditorStateSnapshot } from '@tiptap/react';
 
-type ChainLike = {
-  chain: () => ChainLike;
-  focus: () => ChainLike;
-  toggleBold: () => ChainLike;
-  toggleItalic: () => ChainLike;
-  toggleStrike: () => ChainLike;
-  toggleCode: () => ChainLike;
-  toggleUnderline: () => ChainLike;
-  undo: () => ChainLike;
-  redo: () => ChainLike;
-  run: () => boolean;
-};
-
-export type EditorLike = {
-  isActive: (name: string, attrs?: Record<string, unknown>) => boolean;
-  can: () => ChainLike;
-};
-
-export function menuBarStateSelector(ctx: EditorStateSnapshot<unknown>) {
-  const editor = ctx.editor as EditorLike | null;
+export function menuBarStateSelector(ctx: EditorStateSnapshot<Editor | null>) {
+  const editor = ctx.editor;
   if (!editor) {
     return {
       isBold: false,

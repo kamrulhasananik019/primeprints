@@ -1,12 +1,12 @@
 'use client';
 
-import { useEditorState } from '@tiptap/react';
+import { useEditorState, type Editor } from '@tiptap/react';
 
-import { menuBarStateSelector, type EditorLike } from '@/components/editor/menu-bar-state';
+import { menuBarStateSelector } from '@/components/editor/menu-bar-state';
 import styles from '@/components/editor/tiptap-editor.module.css';
 
 type Props = {
-  editor: EditorLike | null;
+  editor: Editor | null;
 };
 
 type ButtonConfig = {
@@ -35,7 +35,7 @@ export function MenuBar({ editor }: Props) {
     selector: menuBarStateSelector,
   });
 
-  if (!editor) return null;
+  if (!editor || !state) return null;
 
   return (
     <div className={styles.controlGroup}>
