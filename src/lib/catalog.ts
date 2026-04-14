@@ -25,8 +25,27 @@ const getCatalogSnapshot = unstable_cache(
   { revalidate: 300, tags: ['catalog'] }
 );
 
+function isMissingMongoUriError(error: unknown): boolean {
+  return error instanceof Error && error.message.includes('Missing MONGODB_URI');
+}
+
+async function getSafeCatalogSnapshot() {
+  if (!process.env.MONGODB_URI) {
+    return { categories: [], products: [] };
+  }
+
+  try {
+    return await getCatalogSnapshot();
+  } catch (error) {
+    if (isMissingMongoUriError(error)) {
+      return { categories: [], products: [] };
+    }
+    throw error;
+  }
+}
+
 export async function getCategoriesWithProducts(): Promise<CategoryWithProducts[]> {
-  const { categories, products } = await getCatalogSnapshot();
+  const { categories, products } = await getSafeCatalogSnapshot();
 
   return categories.map((category) => ({
       ...category,
@@ -35,7 +54,7 @@ export async function getCategoriesWithProducts(): Promise<CategoryWithProducts[
 }
 
 export async function getNavCategories(): Promise<NavCategory[]> {
-  const { categories, products } = await getCatalogSnapshot();
+  const { categories, products } = await getSafeCatalogSnapshot();
 
   return categories.map((category) => {
       const categoryProducts = products.filter((product) => product.categoryIds.includes(category.id)).slice(0, 6);
@@ -57,27 +76,27 @@ export function getProductCategoryTitleMap(
 }
 
 export async function getLatestProducts(): Promise<CatalogProduct[]> {
-  const { products } = await getCatalogSnapshot();
+  const { products } = await getSafeCatalogSnapshot();
   return products.filter((product) => product.badges.some((badge) => badge.toLowerCase() === 'latest'));
 }
 
 export async function getSameDayPrinting(): Promise<CatalogProduct[]> {
-  const { products } = await getCatalogSnapshot();
+  const { products } = await getSafeCatalogSnapshot();
   return products.filter((product) => product.badges.some((badge) => badge.toLowerCase() === 'samedayprinting'));
 }
 
 export async function getSeasonalFavorites(): Promise<CatalogProduct[]> {
-  const { products } = await getCatalogSnapshot();
+  const { products } = await getSafeCatalogSnapshot();
   return products.filter((product) => product.badges.some((badge) => badge.toLowerCase() === 'seasonal'));
 }
 
 export async function getDeliveryMarketing(): Promise<CatalogProduct[]> {
-  const { products } = await getCatalogSnapshot();
+  const { products } = await getSafeCatalogSnapshot();
   return products.filter((product) => product.badges.some((badge) => badge.toLowerCase() === 'deliverymarketing'));
 }
 
 export async function getRelatedProducts(productId: string, limit = 3): Promise<CatalogProduct[]> {
-  const { products } = await getCatalogSnapshot();
+  const { products } = await getSafeCatalogSnapshot();
   const current = products.find((product) => product.id === productId);
   if (!current) {
     return [];
