@@ -66,7 +66,7 @@ const emptyProductForm = {
   name: '',
   imageUrls: '',
   badges: '',
-  categoryNames: '',
+  categoryIds: [] as string[],
   description: '',
   shortDescription: '',
 };
@@ -227,10 +227,7 @@ export default function AdminDashboard({ adminEmail }: Props) {
           .split(',')
           .map((item) => item.trim())
           .filter(Boolean),
-        categoryIds: productForm.categoryNames
-          .split(',')
-          .map((item) => item.trim())
-          .filter(Boolean),
+        categoryIds: productForm.categoryIds,
         description: productForm.description,
         shortDescription: productForm.shortDescription,
       }),
@@ -330,9 +327,7 @@ export default function AdminDashboard({ adminEmail }: Props) {
   };
 
   const startEditProduct = (item: Product) => {
-    const categoryNames = parseJsonArray(item.category_id)
-      .map((id) => categoryNameById.get(id) || id)
-      .join(', ');
+    const categoryIds = parseJsonArray(item.category_id);
 
     const imageUrls = parseJsonArray(item.image_url).join('\n');
     const badges = parseJsonArray(item.badges).join(', ');
@@ -342,7 +337,7 @@ export default function AdminDashboard({ adminEmail }: Props) {
       name: item.name,
       imageUrls,
       badges,
-      categoryNames,
+      categoryIds,
       description: item.description,
       shortDescription: item.short_description,
     });
@@ -760,13 +755,31 @@ export default function AdminDashboard({ adminEmail }: Props) {
                   placeholder="Badges (comma separated)"
                   className="w-full rounded-xl border border-[#d2c1b6] px-3 py-2 text-sm outline-none focus:border-[#234c6a]"
                 />
-                <input
-                  value={productForm.categoryNames}
-                  onChange={(event) => setProductForm((state) => ({ ...state, categoryNames: event.target.value }))}
-                  placeholder="Category names or IDs (comma separated)"
-                  className="w-full rounded-xl border border-[#d2c1b6] px-3 py-2 text-sm outline-none focus:border-[#234c6a]"
-                />
-                <p className="text-xs text-[#456882]">Available categories: {categoryOptions.map((item) => item.name).join(', ') || 'None'}</p>
+                <div className="space-y-2 rounded-xl border border-[#d2c1b6] p-3">
+                  <p className="text-xs font-semibold text-[#1b3c53]">Select Categories:</p>
+                  <div className="space-y-2">
+                    {categoryOptions.length > 0 ? (
+                      categoryOptions.map((category) => (
+                        <label key={category.id} className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={productForm.categoryIds.includes(category.id)}
+                            onChange={(e) => {
+                              const newIds = e.target.checked
+                                ? [...productForm.categoryIds, category.id]
+                                : productForm.categoryIds.filter((id) => id !== category.id);
+                              setProductForm((state) => ({ ...state, categoryIds: newIds }));
+                            }}
+                            className="rounded cursor-pointer"
+                          />
+                          <span className="text-sm text-[#234c6a]">{category.name}</span>
+                        </label>
+                      ))
+                    ) : (
+                      <p className="text-xs text-[#456882]">No categories available</p>
+                    )}
+                  </div>
+                </div>
                 <textarea
                   rows={4}
                   value={productForm.imageUrls}

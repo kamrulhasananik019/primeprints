@@ -83,7 +83,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
   ]);
   const related = categoryProducts.filter((item) => item.id !== product.id).slice(0, 3);
 
-    const otherCategoryProductsNested = await Promise.all(
+  const otherCategoryProductsNested = await Promise.all(
     allCategories
       .filter((cat) => cat.id !== category.id)
       .map(async (cat) => {
@@ -91,13 +91,10 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
         return products.map((item) => ({ ...item, categoryName: cat.name }));
       })
   );
-    const otherCategoryProducts = Array.from(
-      new Map(otherCategoryProductsNested.flat().map((item) => [item.id, item])).values()
-    ).slice(0, 6);
+  const otherCategoryProducts = Array.from(new Map(otherCategoryProductsNested.flat().map((item) => [item.id, item])).values()).slice(0, 6);
 
   const primaryImage = getPrimaryImage(product) || category.image.url;
-  const relatedImages = related.map((item) => getPrimaryImage(item)).filter(Boolean);
-  const galleryImages = Array.from(new Set([primaryImage, ...product.images.map((item) => item.url), ...relatedImages])).filter(Boolean).slice(0, 6);
+  const galleryImages = Array.from(new Set([primaryImage, ...product.images.map((item) => item.url)])).filter(Boolean).slice(0, 6);
   const categoryNames = allCategories.map((cat) => cat.name);
 
   const productJsonLd = {
@@ -160,7 +157,6 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
             product={product}
             category={{ id: category.id, name: category.name, imageUrl: category.image.url }}
             primaryImage={primaryImage}
-            relatedImages={relatedImages}
             productTitle={product.name}
             productShortDescription={product.shortDescription || product.description}
           />

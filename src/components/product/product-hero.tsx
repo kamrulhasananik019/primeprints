@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Star } from 'lucide-react';
 import type { CatalogProduct } from '@/lib/catalog';
 import { getCategoryPath } from '@/lib/slug';
@@ -17,7 +17,6 @@ type ProductHeroProps = {
     imageUrl: string;
   };
   primaryImage: string;
-  relatedImages: string[];
   productTitle: string;
   productShortDescription: RichDescription;
 };
@@ -26,16 +25,12 @@ export default function ProductHero({
   product,
   category,
   primaryImage,
-  relatedImages,
   productTitle,
   productShortDescription,
 }: ProductHeroProps) {
   const [selectedImage, setSelectedImage] = useState(primaryImage);
 
-  const galleryImages = useMemo(
-    () => Array.from(new Set([primaryImage, ...product.images.map((item) => item.url), ...relatedImages])).filter(Boolean).slice(0, 8),
-    [primaryImage, product.images, relatedImages]
-  );
+  const galleryImages = Array.from(new Set([primaryImage, ...product.images.map((item) => item.url)])).filter(Boolean).slice(0, 8);
   const activeImage = galleryImages.includes(selectedImage) ? selectedImage : primaryImage;
 
   return (

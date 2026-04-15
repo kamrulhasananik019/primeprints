@@ -283,7 +283,7 @@ async function ensureIndexes() {
 }
 
 function mapCategoryDoc(doc: CategoryDoc): CategoryRecord {
-  const image = doc.image || { url: '', alt: '' };
+  const image = doc.image ? { ...doc.image, url: doc.image.url || '', alt: doc.image.alt || '' } : { url: '', alt: '' };
   const createdAt = asIsoString(doc.createdAt);
   const updatedAt = asIsoString(doc.updatedAt);
   return {
@@ -304,7 +304,7 @@ function mapCategoryDoc(doc: CategoryDoc): CategoryRecord {
 }
 
 function mapProductDoc(doc: ProductDoc): ProductRecord {
-  const images = Array.isArray(doc.images) ? doc.images : [];
+  const images = Array.isArray(doc.images) ? doc.images.map((img) => ({ ...img, url: img.url || '', alt: img.alt || '' })) : [];
   const categoryIds = Array.isArray(doc.categoryIds) ? doc.categoryIds.map((item) => idToString(item)).filter(Boolean) : [];
   const createdAt = asIsoString(doc.createdAt);
   const updatedAt = asIsoString(doc.updatedAt);
@@ -322,7 +322,7 @@ function mapProductDoc(doc: ProductDoc): ProductRecord {
     sortOrder: doc.sortOrder ?? 1,
     createdAt,
     updatedAt,
-    imageUrl: images.map((item) => item.url).filter(Boolean),
+    imageUrl: images.map((img) => img.url || '').filter(Boolean),
     badges: Array.isArray(doc.badges) ? doc.badges : [],
     categoryId: categoryIds,
   };
