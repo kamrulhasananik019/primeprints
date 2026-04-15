@@ -83,9 +83,8 @@ export default function DiscountsAndPackages() {
 
                     <button
                       type="button"
-                      className="mt-8 inline-flex border border-white/70 px-8 py-3 text-sm font-semibold uppercase tracking-[0.08em] text-white transition duration-300 hover:bg-white hover:text-slate-900"
-                    >
-                      Shop Now
+                      className="mt-8 inline-flex border border-white/70 px-8 py-3 text-sm font-semibold uppercase tracking-[0.08em] text-white transition duration-300 hover:bg-white hover:text-slate-900">
+                        Order Now
                     </button>
                   </div>
                 </article>
