@@ -92,6 +92,7 @@ async function main() {
   const categories = db.collection('categories');
   const products = db.collection('products');
   const admins = db.collection('admins');
+  const review = db.collection('review');
 
   await Promise.all([
     categories.createIndexes([
@@ -105,6 +106,10 @@ async function main() {
       { key: { isActive: 1 } },
     ]),
     admins.createIndexes([{ key: { email: 1 }, unique: true }]),
+    review.createIndexes([
+      { key: { status: 1, createdAt: -1 } },
+      { key: { email: 1 } },
+    ]),
   ]);
 
   const now = new Date();
@@ -323,6 +328,55 @@ async function main() {
           isFeatured: item.isFeatured,
           isActive: true,
           sortOrder: item.sortOrder || 99,
+          updatedAt: now,
+        },
+      },
+      { upsert: true }
+    );
+  }
+
+  const reviewSeed = [
+    {
+      name: 'Olivia Martin',
+      email: 'olivia.martin@gmail.com',
+      rating: 5,
+      text: 'PrimePrints delivered stunning packaging and flyers for our launch campaign. The quality was exceptional and the service was fast. Highly recommend!',
+    },
+    {
+      name: 'Noah Patel',
+      email: 'noah.patel@gmail.com',
+      rating: 5,
+      text: 'Amazing results from start to finish. The team understood our needs, provided great advice, and the final prints looked premium.',
+    },
+    {
+      name: 'Emma Johnson',
+      email: 'emma.johnson@gmail.com',
+      rating: 5,
+      text: 'We ordered banners, posters, and brochures. Everything arrived on time and looked better than expected. Great customer care too.',
+    },
+    {
+      name: 'Liam Brooks',
+      email: 'liam.brooks@gmail.com',
+      rating: 5,
+      text: 'A trustworthy print partner for our brand. The colours, paper, and finish were all top class. Will order again for our next project.',
+    },
+  ];
+
+  for (const item of reviewSeed) {
+    await review.updateOne(
+      { email: item.email.toLowerCase(), text: item.text },
+      {
+        $setOnInsert: {
+          _id: new ObjectId(),
+          createdAt: now,
+          source: 'admin',
+        },
+        $set: {
+          name: item.name,
+          email: item.email.toLowerCase(),
+          rating: item.rating,
+          text: item.text,
+          status: 'approved',
           updatedAt: now,
         },
       },

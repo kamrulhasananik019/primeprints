@@ -10,6 +10,7 @@ import {
   Loader2,
   LogOut,
   Menu,
+  MessageSquare,
   Package,
   Plus,
   RefreshCcw,
@@ -20,6 +21,7 @@ import {
 import Swal from 'sweetalert2';
 
 import RichEditorField from '@/components/admin/rich-editor-field';
+import ReviewManager, { type AdminReviewItem } from '@/components/admin/review-manager';
 
 type Category = {
   id: string;
@@ -43,12 +45,13 @@ type Props = {
   adminEmail: string;
 };
 
-type SectionKey = 'overview' | 'categories' | 'products';
+type SectionKey = 'overview' | 'categories' | 'products' | 'reviews';
 
 type DashboardResponse = {
   ok: boolean;
   categories?: Category[];
   products?: Product[];
+  reviews?: AdminReviewItem[];
   error?: string;
 };
 
@@ -125,6 +128,7 @@ export default function AdminDashboard({ adminEmail }: Props) {
 
   const categories = useMemo(() => dashboardQuery.data?.categories || [], [dashboardQuery.data?.categories]);
   const products = useMemo(() => dashboardQuery.data?.products || [], [dashboardQuery.data?.products]);
+  const reviews = useMemo(() => dashboardQuery.data?.reviews || [], [dashboardQuery.data?.reviews]);
   const isLoading = dashboardQuery.isLoading || dashboardQuery.isFetching;
   const queryError = dashboardQuery.data && !dashboardQuery.data.ok ? dashboardQuery.data.error || 'Failed to load data.' : '';
 
@@ -151,6 +155,14 @@ export default function AdminDashboard({ adminEmail }: Props) {
       return item.name.toLowerCase().includes(term) || item.id.toLowerCase().includes(term);
     });
   }, [products, searchTerm]);
+
+  const filteredReviews = useMemo(() => {
+    const term = searchTerm.trim().toLowerCase();
+    if (!term) return reviews;
+    return reviews.filter((item) => {
+      return item.name.toLowerCase().includes(term) || item.email.toLowerCase().includes(term) || item.id.toLowerCase().includes(term);
+    });
+  }, [reviews, searchTerm]);
 
   const createCategory = async (event: FormEvent) => {
     event.preventDefault();
@@ -358,6 +370,7 @@ export default function AdminDashboard({ adminEmail }: Props) {
     { key: 'overview' as const, label: 'Dashboard', icon: LayoutDashboard },
     { key: 'categories' as const, label: 'Category CRUD', icon: Boxes },
     { key: 'products' as const, label: 'Product CRUD', icon: Package },
+    { key: 'reviews' as const, label: 'Review CRUD', icon: MessageSquare },
   ];
 
   const kpiCards = [
@@ -375,7 +388,14 @@ export default function AdminDashboard({ adminEmail }: Props) {
     },
     {
       title: 'Active Panel',
-      value: activeSection === 'overview' ? 'Dashboard' : activeSection === 'categories' ? 'Categories' : 'Products',
+      value:
+        activeSection === 'overview'
+          ? 'Dashboard'
+          : activeSection === 'categories'
+            ? 'Categories'
+            : activeSection === 'products'
+              ? 'Products'
+              : 'Reviews',
       hint: 'Current workspace',
       color: 'from-[#2e5d78] to-[#1f435c]',
     },
@@ -574,6 +594,29 @@ export default function AdminDashboard({ adminEmail }: Props) {
                   </div>
                 ))}
                 {!filteredProducts.length ? <p className="text-sm text-[#456882]">No products yet.</p> : null}
+              </div>
+            </section>
+
+            <section className="rounded-3xl border border-[#1b3c53]/10 bg-white p-5 shadow-sm xl:col-span-2">
+              <div className="mb-4 flex items-center justify-between">
+                <h3 className="text-lg font-bold text-[#1b3c53]">Recent Reviews</h3>
+                <button
+                  type="button"
+                  onClick={() => setActiveSection('reviews')}
+                  className="rounded-lg border border-[#d2c1b6] px-3 py-1.5 text-xs font-semibold text-[#234c6a]"
+                >
+                  Manage
+                </button>
+              </div>
+              <div className="space-y-2">
+                {filteredReviews.slice(0, 5).map((item) => (
+                  <div key={item.id} className="rounded-xl border border-[#d2c1b6]/60 bg-[#f4efeb]/50 px-3 py-2">
+                    <p className="font-semibold text-[#1b3c53]">{item.name}</p>
+                    <p className="text-xs text-[#456882]">{item.email}</p>
+                    <p className="text-xs text-[#234c6a]">Status: {item.status}</p>
+                  </div>
+                ))}
+                {!filteredReviews.length ? <p className="text-sm text-[#456882]">No reviews yet.</p> : null}
               </div>
             </section>
           </div>
@@ -815,6 +858,17 @@ export default function AdminDashboard({ adminEmail }: Props) {
               </div>
             </section>
           </div>
+        ) : null}
+
+        {activeSection === 'reviews' ? (
+          <ReviewManager
+            reviews={reviews}
+            searchTerm={searchTerm}
+            onRefresh={refresh}
+            setError={setError}
+            setSuccess={setSuccess}
+            setSaving={setSaving}
+          />
         ) : null}
       </section>
     </main>

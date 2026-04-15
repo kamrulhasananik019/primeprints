@@ -5,10 +5,12 @@ import { revalidateTag } from 'next/cache';
 import {
   createAdminCategory,
   createAdminProduct,
+  createAdminReview,
   countAdminItems,
   getAdminByEmail,
   getAdminCategories,
   getAdminProducts,
+  getAdminReviews,
   resolveCategoryIds,
   upsertAdmin,
 } from '@/lib/mongo-catalog';
@@ -111,6 +113,48 @@ export async function POST() {
         continue;
       }
       await createAdminProduct(item);
+    }
+
+    const reviewSeed = [
+      {
+        name: 'Olivia Martin',
+        email: 'olivia.martin@gmail.com',
+        rating: 5,
+        text: 'PrimePrints delivered stunning packaging and flyers for our launch campaign. The quality was exceptional and the service was fast. Highly recommend!',
+      },
+      {
+        name: 'Noah Patel',
+        email: 'noah.patel@gmail.com',
+        rating: 5,
+        text: 'Amazing results from start to finish. The team understood our needs, provided great advice, and the final prints looked premium.',
+      },
+      {
+        name: 'Emma Johnson',
+        email: 'emma.johnson@gmail.com',
+        rating: 5,
+        text: 'We ordered banners, posters, and brochures. Everything arrived on time and looked better than expected. Great customer care too.',
+      },
+      {
+        name: 'Liam Brooks',
+        email: 'liam.brooks@gmail.com',
+        rating: 5,
+        text: 'A trustworthy print partner for our brand. The colours, paper, and finish were all top class. Will order again for our next project.',
+      },
+    ];
+
+    const existingReviews = await getAdminReviews();
+    const existingReviewKeys = new Set(existingReviews.map((item) => `${item.name.toLowerCase()}::${item.email.toLowerCase()}::${item.text.toLowerCase()}`));
+
+    for (const item of reviewSeed) {
+      const key = `${item.name.toLowerCase()}::${item.email.toLowerCase()}::${item.text.toLowerCase()}`;
+      if (existingReviewKeys.has(key)) {
+        continue;
+      }
+
+      await createAdminReview({
+        ...item,
+        status: 'approved',
+      });
     }
 
     const counts = await countAdminItems();

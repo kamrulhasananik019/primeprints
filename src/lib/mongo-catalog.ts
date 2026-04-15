@@ -62,6 +62,20 @@ type AdminDoc = {
   updatedAt: Date;
 };
 
+export type ReviewStatus = 'pending' | 'approved' | 'declined';
+
+type ReviewDoc = {
+  _id: ObjectId;
+  name: string;
+  email: string;
+  rating: number;
+  text: string;
+  status: ReviewStatus;
+  source: 'public' | 'admin';
+  createdAt: Date;
+  updatedAt: Date;
+};
+
 declare global {
   // Cache index creation so repeated reads do not re-run createIndexes on every request.
   var __primeprintsIndexesPromise: Promise<void> | undefined;
@@ -120,6 +134,29 @@ export type AdminProductRow = {
   short_description: string;
   badges: string;
   category_id: string;
+  created_at: string;
+};
+
+export type ReviewRecord = {
+  id: string;
+  name: string;
+  email: string;
+  rating: number;
+  text: string;
+  status: ReviewStatus;
+  source: 'public' | 'admin';
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type AdminReviewRow = {
+  id: string;
+  name: string;
+  email: string;
+  rating: number;
+  text: string;
+  status: ReviewStatus;
+  source: 'public' | 'admin';
   created_at: string;
 };
 
@@ -234,6 +271,10 @@ async function ensureIndexes() {
           { key: { isActive: 1 } },
         ]),
         db.collection<AdminDoc>('admins').createIndexes([{ key: { email: 1 }, unique: true }]),
+        db.collection<ReviewDoc>('review').createIndexes([
+          { key: { status: 1, createdAt: -1 } },
+          { key: { email: 1 } },
+        ]),
       ]);
     })();
   }
@@ -417,15 +458,202 @@ export async function upsertAdmin(email: string, passwordHash: string): Promise<
   );
 }
 
-export async function countAdminItems(): Promise<{ categories: number; products: number; admins: number }> {
+export async function countAdminItems(): Promise<{ categories: number; products: number; admins: number; reviews: number }> {
   await ensureIndexes();
   const db = await getMongoDb();
-  const [categories, products, admins] = await Promise.all([
+  const [categories, products, admins, reviews] = await Promise.all([
     db.collection<CategoryDoc>('categories').countDocuments(),
     db.collection<ProductDoc>('products').countDocuments(),
     db.collection<AdminDoc>('admins').countDocuments(),
+    db.collection<ReviewDoc>('review').countDocuments(),
   ]);
-  return { categories, products, admins };
+  return { categories, products, admins, reviews };
+}
+
+function mapReviewDoc(row: ReviewDoc): ReviewRecord {
+  return {
+    id: idToString(row._id),
+    name: row.name,
+    email: row.email,
+    rating: row.rating,
+    text: row.text,
+    status: row.status,
+    source: row.source,
+    createdAt: asIsoString(row.createdAt),
+    updatedAt: asIsoString(row.updatedAt),
+  };
+}
+
+const getCachedApprovedReviews = unstable_cache(
+  async () => {
+    await ensureIndexes();
+    const db = await getMongoDb();
+    return db
+      .collection<ReviewDoc>('review')
+      .find(
+        { status: 'approved' },
+        {
+          projection: {
+            _id: 1,
+            name: 1,
+            email: 1,
+            rating: 1,
+            text: 1,
+            status: 1,
+            source: 1,
+            createdAt: 1,
+            updatedAt: 1,
+          },
+        }
+      )
+      .sort({ createdAt: -1 })
+      .toArray();
+  },
+  ['approved-reviews'],
+  { revalidate: 300, tags: ['reviews'] }
+);
+
+export async function getApprovedReviews(limit = 50): Promise<ReviewRecord[]> {
+  const rows = await getCachedApprovedReviews();
+  return rows.slice(0, limit).map(mapReviewDoc);
+}
+
+export async function getAdminReviews(): Promise<AdminReviewRow[]> {
+  await ensureIndexes();
+  const db = await getMongoDb();
+  const rows = await db
+    .collection<ReviewDoc>('review')
+    .find(
+      {},
+      {
+        projection: {
+          _id: 1,
+          name: 1,
+          email: 1,
+          rating: 1,
+          text: 1,
+          status: 1,
+          source: 1,
+          createdAt: 1,
+        },
+      }
+    )
+    .sort({ createdAt: -1 })
+    .toArray();
+
+  return rows.map((row) => ({
+    id: idToString(row._id),
+    name: row.name,
+    email: row.email,
+    rating: row.rating,
+    text: row.text,
+    status: row.status,
+    source: row.source,
+    created_at: asIsoString(row.createdAt),
+  }));
+}
+
+export async function createPublicReview(input: {
+  name: string;
+  email: string;
+  rating: number;
+  text: string;
+}): Promise<void> {
+  await ensureIndexes();
+  const db = await getMongoDb();
+  const now = new Date();
+
+  await db.collection<ReviewDoc>('review').insertOne({
+    _id: new ObjectId(),
+    name: input.name,
+    email: input.email.toLowerCase(),
+    rating: input.rating,
+    text: input.text,
+    status: 'pending',
+    source: 'public',
+    createdAt: now,
+    updatedAt: now,
+  });
+}
+
+export async function createAdminReview(input: {
+  name: string;
+  email: string;
+  rating: number;
+  text: string;
+  status: ReviewStatus;
+}): Promise<void> {
+  await ensureIndexes();
+  const db = await getMongoDb();
+  const now = new Date();
+
+  await db.collection<ReviewDoc>('review').insertOne({
+    _id: new ObjectId(),
+    name: input.name,
+    email: input.email.toLowerCase(),
+    rating: input.rating,
+    text: input.text,
+    status: input.status,
+    source: 'admin',
+    createdAt: now,
+    updatedAt: now,
+  });
+}
+
+export async function updateAdminReview(
+  id: string,
+  input: {
+    name: string;
+    email: string;
+    rating: number;
+    text: string;
+    status: ReviewStatus;
+  }
+): Promise<void> {
+  const objectId = toObjectId(id);
+  if (!objectId) throw new Error('Invalid review id');
+
+  await ensureIndexes();
+  const db = await getMongoDb();
+  await db.collection<ReviewDoc>('review').updateOne(
+    { _id: objectId },
+    {
+      $set: {
+        name: input.name,
+        email: input.email.toLowerCase(),
+        rating: input.rating,
+        text: input.text,
+        status: input.status,
+        updatedAt: new Date(),
+      },
+    }
+  );
+}
+
+export async function setAdminReviewStatus(id: string, status: ReviewStatus): Promise<void> {
+  const objectId = toObjectId(id);
+  if (!objectId) throw new Error('Invalid review id');
+
+  await ensureIndexes();
+  const db = await getMongoDb();
+  await db.collection<ReviewDoc>('review').updateOne(
+    { _id: objectId },
+    {
+      $set: {
+        status,
+        updatedAt: new Date(),
+      },
+    }
+  );
+}
+
+export async function deleteAdminReview(id: string): Promise<void> {
+  const objectId = toObjectId(id);
+  if (!objectId) throw new Error('Invalid review id');
+
+  await ensureIndexes();
+  const db = await getMongoDb();
+  await db.collection<ReviewDoc>('review').deleteOne({ _id: objectId });
 }
 
 export async function getAdminCategories(): Promise<AdminCategoryRow[]> {
