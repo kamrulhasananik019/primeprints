@@ -92,7 +92,23 @@ export async function getCatalogProducts(limit = 1000): Promise<CatalogProduct[]
 
 export async function getSameDayPrinting(): Promise<CatalogProduct[]> {
   const { products } = await getSafeCatalogSnapshot();
-  return products.filter((product) => product.badges.some((badge) => badge.toLowerCase() === 'samedayprinting'));
+  const normalizeBadge = (value: string) => value.toLowerCase().replace(/[^a-z0-9]/g, '');
+  const sameDayBadgeKeys = new Set(['samedayprinting', 'sameday', '24hourdelivery']);
+
+  const sameDayProducts = products.filter((product) =>
+    product.badges.some((badge) => sameDayBadgeKeys.has(normalizeBadge(badge)))
+  );
+
+  if (sameDayProducts.length > 0) {
+    return sameDayProducts;
+  }
+
+  const featured = products.filter((product) => product.isFeatured);
+  if (featured.length > 0) {
+    return featured.slice(0, 8);
+  }
+
+  return products.slice(0, 8);
 }
 
 export async function getSeasonalFavorites(): Promise<CatalogProduct[]> {

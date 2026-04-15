@@ -21,6 +21,7 @@ export default function SameDayPrinting({
   productCategoryTitles,
 }: SameDayPrintingProps) {
   const canLoop = products.length >= 5;
+  const hasProducts = products.length > 0;
 
   return (
     <section className="relative overflow-hidden bg-stone-50 py-16 lg:py-20">
@@ -60,87 +61,94 @@ export default function SameDayPrinting({
           </div>
         </div>
 
-        <Swiper
-          modules={[Navigation, Autoplay]}
-          navigation={{
-            prevEl: '.arrivals-prev',
-            nextEl: '.arrivals-next',
-          }}
-          autoplay={{
-            delay: 3200,
-            disableOnInteraction: false,
-            pauseOnMouseEnter: true,
-          }}
-          loop={canLoop}
-          spaceBetween={20}
-          breakpoints={{
-            0: {
-              slidesPerView: 1.1,
-            },
-            480: {
-              slidesPerView: 1.5,
-            },
-            640: {
-              slidesPerView: 2,
-            },
-            768: {
-              slidesPerView: 2.4,
-            },
-            1024: {
-              slidesPerView: 3,
-            },
-            1280: {
-              slidesPerView: 4,
-            },
-          }}
-          className="overflow-visible!"
-        >
-          {products.map((product) => (
-            <SwiperSlide
-              key={product.id}
-              className="flex! h-auto justify-center"
-            >
-              <Link
-                href={getProductPath(product.id, product.name)}
-                className="block w-full max-w-87.5"
+        {hasProducts ? (
+          <Swiper
+            modules={[Navigation, Autoplay]}
+            navigation={{
+              prevEl: '.arrivals-prev',
+              nextEl: '.arrivals-next',
+            }}
+            autoplay={{
+              delay: 3200,
+              disableOnInteraction: false,
+              pauseOnMouseEnter: true,
+            }}
+            loop={canLoop}
+            spaceBetween={20}
+            breakpoints={{
+              0: {
+                slidesPerView: 1.1,
+              },
+              480: {
+                slidesPerView: 1.5,
+              },
+              640: {
+                slidesPerView: 2,
+              },
+              768: {
+                slidesPerView: 2.4,
+              },
+              1024: {
+                slidesPerView: 3,
+              },
+              1280: {
+                slidesPerView: 4,
+              },
+            }}
+            className="overflow-visible!"
+          >
+            {products.map((product) => (
+              <SwiperSlide
+                key={product.id}
+                className="flex! h-auto justify-center"
               >
-                <div className="group flex h-full flex-col">
-                  <div className="relative mb-4 h-90 overflow-hidden rounded-3xl bg-stone-200 sm:h-95 lg:h-100">
-                    <Image
-                      src={getPrimaryImage(product)}
-                      alt={product.name}
-                      fill
-                      sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 280px"
-                      className="object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
+                <Link
+                  href={getProductPath(product.id, product.name)}
+                  className="block w-full max-w-87.5"
+                >
+                  <div className="group flex h-full flex-col">
+                    <div className="relative mb-4 h-90 overflow-hidden rounded-3xl bg-stone-200 sm:h-95 lg:h-100">
+                      <Image
+                        src={getPrimaryImage(product)}
+                        alt={product.name}
+                        fill
+                        sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 280px"
+                        className="object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
 
-                    <div className="absolute left-4 top-4 rounded-full bg-emerald-500 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-white shadow-sm">
-                      Same Day
+                      <div className="absolute left-4 top-4 rounded-full bg-emerald-500 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-white shadow-sm">
+                        Same Day
+                      </div>
+
+                      <div className="absolute inset-0 flex items-end bg-linear-to-t from-stone-900/60 via-stone-900/10 to-transparent p-6 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                        <span className="text-xs font-medium uppercase tracking-[0.2em] text-white">
+                          View Details
+                        </span>
+                      </div>
                     </div>
 
-                    <div className="absolute inset-0 flex items-end bg-linear-to-t from-stone-900/60 via-stone-900/10 to-transparent p-6 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                      <span className="text-xs font-medium uppercase tracking-[0.2em] text-white">
-                        View Details
-                      </span>
+                    <div className="flex flex-1 flex-col">
+                      <h3 className="line-clamp-2 font-serif text-lg font-semibold leading-snug text-stone-900">
+                        {product.name}
+                      </h3>
+
+                      {productCategoryTitles[product.id] && (
+                        <p className="mt-2 text-xs uppercase tracking-[0.14em] text-stone-500">
+                          {productCategoryTitles[product.id]}
+                        </p>
+                      )}
                     </div>
                   </div>
-
-                  <div className="flex flex-1 flex-col">
-                    <h3 className="line-clamp-2 font-serif text-lg font-semibold leading-snug text-stone-900">
-                      {product.name}
-                    </h3>
-
-                    {productCategoryTitles[product.id] && (
-                      <p className="mt-2 text-xs uppercase tracking-[0.14em] text-stone-500">
-                        {productCategoryTitles[product.id]}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </Link>
-            </SwiperSlide>
-          ))}
-        </Swiper>
+                </Link>
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        ) : (
+          <div className="rounded-3xl border border-stone-200 bg-white p-8 text-center sm:p-12">
+            <p className="text-sm font-medium uppercase tracking-[0.14em] text-stone-500">Same Day Delivery</p>
+            <p className="mt-3 text-lg text-stone-700">Products will appear here once your catalog is available.</p>
+          </div>
+        )}
       </div>
     </section>
   );
