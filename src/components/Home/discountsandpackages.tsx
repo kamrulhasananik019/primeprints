@@ -1,15 +1,47 @@
-import Link from 'next/link';
-import Image from 'next/image';
-import type { CatalogProduct } from '@/lib/catalog';
-import { getPrimaryImage } from '@/lib/product-media';
-import { getProductPath } from '@/lib/slug';
-
-type DiscountsAndPackagesProps = {
-  products: CatalogProduct[];
-  productCategoryTitles: Record<string, string>;
+type DiscountCard = {
+  id: string;
+  label: string;
+  title: string;
+  description: string;
+  gradientClass: string;
 };
 
-export default function DiscountsAndPackages({ products, productCategoryTitles }: DiscountsAndPackagesProps) {
+const discountCards: DiscountCard[] = [
+  {
+    id: 'student-discount',
+    label: 'Latest Design',
+    title: 'Student Discount',
+    description: 'Save more with valid student ID on selected print products and stationery.',
+    gradientClass:
+      'bg-[radial-gradient(circle_at_80%_20%,rgba(255,255,255,0.22),transparent_38%),linear-gradient(130deg,#4f46e5_0%,#2563eb_100%)]',
+  },
+  {
+    id: 'bulk-order-discount',
+    label: 'Latest Design',
+    title: 'Bulk Order Discount',
+    description: 'Order in larger quantities and unlock tiered pricing for business campaigns.',
+    gradientClass:
+      'bg-[radial-gradient(circle_at_20%_18%,rgba(255,255,255,0.18),transparent_32%),linear-gradient(130deg,#1d4ed8_0%,#0891b2_100%)]',
+  },
+  {
+    id: 'review-discount',
+    label: 'Latest Design',
+    title: 'Drop a Review Discount',
+    description: 'Leave a verified review after your order and receive a discount on your next print.',
+    gradientClass:
+      'bg-[radial-gradient(circle_at_84%_20%,rgba(255,255,255,0.2),transparent_35%),linear-gradient(130deg,#6d28d9_0%,#7c3aed_100%)]',
+  },
+  {
+    id: 'tshirt-printing-discount',
+    label: 'Latest Design',
+    title: 'T-Shirt Printing Discount',
+    description: 'Get reduced rates on custom t-shirt printing for events, teams, and promotions.',
+    gradientClass:
+      'bg-[radial-gradient(circle_at_16%_18%,rgba(255,255,255,0.18),transparent_34%),linear-gradient(130deg,#0f766e_0%,#0ea5e9_100%)]',
+  },
+];
+
+export default function DiscountsAndPackages() {
   return (
     <section className="bg-stone-50 py-16 font-sans lg:py-20">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -26,52 +58,40 @@ export default function DiscountsAndPackages({ products, productCategoryTitles }
         </div>
 
         <div>
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {products.map((product) => {
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            {discountCards.map((card) => {
               return (
-                <Link key={product.id} href={getProductPath(product.id, product.name)} prefetch={false}>
-                  <div className="group cursor-pointer">
-                    <div className="relative mb-4 aspect-3/3 overflow-hidden rounded-3xl bg-stone-200">
-                      <Image
-                        src={getPrimaryImage(product)}
-                        alt={product.name}
-                        fill
-                        sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 25vw"
-                        className="h-full w-full object-cover transition duration-500 group-hover:scale-110"
-                      />
+                <article
+                  key={card.id}
+                  className={`group relative isolate min-h-70 overflow-hidden rounded-3xl p-8 text-white shadow-lg transition duration-300 hover:-translate-y-1 hover:shadow-2xl sm:min-h-80 sm:p-10 ${card.gradientClass}`}
+                >
+                  <div className="absolute -right-16 -top-16 h-56 w-56 rounded-full border border-white/20" aria-hidden="true" />
+                  <div className="absolute -bottom-24 -left-8 h-52 w-52 rounded-full border border-white/15" aria-hidden="true" />
 
-                      <div className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-[10px] font-medium uppercase tracking-[0.14em] text-stone-700 backdrop-blur">
-                        Package Deal
-                      </div>
-
-                      <div className="absolute inset-0 flex items-end bg-linear-to-t from-stone-900/40 to-transparent p-6 opacity-0 transition duration-300 group-hover:opacity-100">
-                        <span className="text-xs font-medium uppercase tracking-widest text-white">
-                          View Details
-                        </span>
-                      </div>
+                  <div className="relative flex h-full flex-col items-start justify-between">
+                    <div>
+                      <p className="mb-5 text-xs font-semibold uppercase tracking-[0.16em] text-white/85">
+                        {card.label}
+                      </p>
+                      <h3 className="max-w-[12ch] font-serif text-4xl font-bold leading-[1.06] sm:text-5xl">
+                        {card.title}
+                      </h3>
+                      <p className="mt-4 max-w-[34ch] text-sm leading-relaxed text-white/85 sm:text-base">
+                        {card.description}
+                      </p>
                     </div>
 
-                    <h3 className="font-serif text-lg font-semibold text-stone-900">
-                      {product.name}
-                    </h3>
-
-                    {productCategoryTitles[product.id] && (
-                      <p className="mt-1 text-xs uppercase tracking-[0.14em] text-stone-500">
-                        {productCategoryTitles[product.id]}
-                      </p>
-                    )}
+                    <button
+                      type="button"
+                      className="mt-8 inline-flex border border-white/70 px-8 py-3 text-sm font-semibold uppercase tracking-[0.08em] text-white transition duration-300 hover:bg-white hover:text-slate-900"
+                    >
+                      Shop Now
+                    </button>
                   </div>
-                </Link>
+                </article>
               );
             })}
           </div>
-
-          {products.length === 0 && (
-            <div className="py-24 text-center">
-              <p className="mb-4 text-4xl">🖨️</p>
-              <p className="text-lg text-slate-400">No discounts or packages available yet.</p>
-            </div>
-          )}
         </div>
       </div>
     </section>

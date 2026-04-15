@@ -11,7 +11,6 @@ import InfiniteMarquee from "@/components/shared/infinite-marquee";
 import {
   getCatalogCategories,
   getDeliveryMarketing,
-  getLatestProducts,
   getProductCategoryTitleMap,
   getSameDayPrinting,
 } from "@/lib/catalog";
@@ -65,10 +64,8 @@ export const metadata: Metadata = {
 
 export default async function Home() {
   const categories = await getCatalogCategories();
-  const latestProducts = await getLatestProducts();
   const sameDayPrinting = await getSameDayPrinting();
   const deliveryMarketingProducts = await getDeliveryMarketing();
-  const latestCategoryTitles = getProductCategoryTitleMap(latestProducts, categories);
   const sameDayCategoryTitles = getProductCategoryTitleMap(sameDayPrinting, categories);
   const deliveryMarketingCategoryTitles = getProductCategoryTitleMap(deliveryMarketingProducts, categories);
   const categoryTitles = categories.map((cat) => cat.name);
@@ -84,7 +81,7 @@ export default async function Home() {
       <PromoBar />
       <CategorySlider categories={categories} />
       <SameDayPrinting products={sameDayPrinting} productCategoryTitles={sameDayCategoryTitles} />
-      <DiscountsAndPackages products={latestProducts} productCategoryTitles={latestCategoryTitles} />
+      <DiscountsAndPackages />
       <DeliveryMarketing products={deliveryMarketingProducts} productCategoryTitles={deliveryMarketingCategoryTitles} />
       <Faq />
       <Reviews />
