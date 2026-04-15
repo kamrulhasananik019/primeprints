@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState, type FormEvent } from 'react';
-import { Ban, CheckCircle2, FilePenLine, MessageSquare, Plus, Trash2 } from 'lucide-react';
+import { BadgeCheck, FilePenLine, MessageSquare, Plus, Trash2, XCircle } from 'lucide-react';
 import Swal from 'sweetalert2';
 
 export type AdminReviewItem = {
@@ -54,7 +54,7 @@ export default function ReviewManager({
 }: ReviewManagerProps) {
   const [editingReviewId, setEditingReviewId] = useState<string | null>(null);
   const [busyReviewId, setBusyReviewId] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'all' | 'pending' | 'approved' | 'deleted'>('all');
+  const [activeTab, setActiveTab] = useState<'all' | 'pending' | 'approved' | 'declined'>('all');
   const [reviewForm, setReviewForm] = useState(emptyReviewForm);
 
   const filteredReviews = useMemo(() => {
@@ -78,17 +78,17 @@ export default function ReviewManager({
     () => filteredReviews.filter((item) => item.status === 'approved'),
     [filteredReviews]
   );
-  const deletedReviews = useMemo(
-    () => filteredReviews.filter((item) => item.status === 'deleted'),
+  const declinedReviews = useMemo(
+    () => filteredReviews.filter((item) => item.status === 'declined'),
     [filteredReviews]
   );
 
   const visibleReviews = useMemo(() => {
     if (activeTab === 'pending') return pendingReviews;
     if (activeTab === 'approved') return approvedReviews;
-    if (activeTab === 'deleted') return deletedReviews;
+    if (activeTab === 'declined') return declinedReviews;
     return filteredReviews;
-  }, [activeTab, approvedReviews, deletedReviews, filteredReviews, pendingReviews]);
+  }, [activeTab, approvedReviews, declinedReviews, filteredReviews, pendingReviews]);
 
   const activeTabLabel =
     activeTab === 'all'
@@ -97,13 +97,13 @@ export default function ReviewManager({
         ? 'Pending Reviews'
         : activeTab === 'approved'
           ? 'Approved Reviews'
-          : 'Deleted Reviews';
+          : 'Declined Reviews';
 
   const reviewTabs = [
     { key: 'all' as const, label: `All Review: ${filteredReviews.length}`, tone: 'border-[#d2c1b6] bg-white text-[#234c6a]' },
     { key: 'pending' as const, label: `Pending: ${pendingReviews.length}`, tone: 'border-amber-200 bg-amber-50 text-amber-800' },
     { key: 'approved' as const, label: `Approved: ${approvedReviews.length}`, tone: 'border-emerald-200 bg-emerald-50 text-emerald-800' },
-    { key: 'deleted' as const, label: `Deleted: ${deletedReviews.length}`, tone: 'border-rose-200 bg-rose-50 text-rose-800' },
+    { key: 'declined' as const, label: `Declined: ${declinedReviews.length}`, tone: 'border-rose-200 bg-rose-50 text-rose-800' },
   ];
 
   const createOrUpdateReview = async (event: FormEvent) => {
@@ -199,6 +199,7 @@ export default function ReviewManager({
     const data = (await response.json()) as { ok: boolean; error?: string };
     if (!data.ok) {
       setError(data.error || 'Failed to update review status');
+      await Swal.fire({ icon: 'error', title: 'Error', text: data.error || 'Failed to update review status' });
       setBusyReviewId(null);
       return;
     }
@@ -206,6 +207,7 @@ export default function ReviewManager({
     await onRefresh();
     setBusyReviewId(null);
     setSuccess(`Review marked as ${status}.`);
+    await Swal.fire({ icon: 'success', title: 'Updated', text: `Review marked as ${status}.` });
   };
 
   const startEditReview = (item: AdminReviewItem) => {
@@ -264,13 +266,12 @@ export default function ReviewManager({
           </select>
           <select
             value={reviewForm.status}
-            onChange={(event) => setReviewForm((state) => ({ ...state, status: event.target.value as 'pending' | 'approved' | 'declined' | 'deleted' }))}
+            onChange={(event) => setReviewForm((state) => ({ ...state, status: event.target.value as 'pending' | 'approved' | 'declined' }))}
             className="w-full rounded-xl border border-[#d2c1b6] px-3 py-2 text-sm outline-none focus:border-[#234c6a]"
           >
             <option value="approved">Approved</option>
             <option value="pending">Pending</option>
             <option value="declined">Declined</option>
-            <option value="deleted">Deleted</option>
           </select>
           <textarea
             rows={5}
@@ -360,7 +361,7 @@ export default function ReviewManager({
                       className="rounded-lg border border-emerald-300 p-2 text-emerald-700 disabled:opacity-50"
                       aria-label={`Approve ${item.name}`}
                     >
-                      <CheckCircle2 className="h-4 w-4" />
+                      <BadgeCheck className="h-4 w-4" />
                     </button>
                     <button
                       type="button"
@@ -369,7 +370,7 @@ export default function ReviewManager({
                       className="rounded-lg border border-amber-300 p-2 text-amber-700 disabled:opacity-50"
                       aria-label={`Decline ${item.name}`}
                     >
-                      <Ban className="h-4 w-4" />
+                      <XCircle className="h-4 w-4" />
                     </button>
                     <button
                       type="button"
