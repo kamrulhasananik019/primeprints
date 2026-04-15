@@ -3,16 +3,17 @@ import { revalidateTag } from 'next/cache';
 
 import { requireAdminSession, toStoredRichText } from '@/lib/admin-api';
 import { createAdminProduct, getAdminProducts, resolveCategoryIds } from '@/lib/mongo-catalog';
+export const runtime = 'nodejs';
 
 export async function GET() {
   try {
     await requireAdminSession();
     const rows = await getAdminProducts();
-    return NextResponse.json({ ok: true, rows });
+    return NextResponse.json({ ok: true, rows }, { headers: { 'Cache-Control': 'no-store, private, max-age=0' } });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
     const status = message === 'UNAUTHORIZED' ? 401 : 500;
-    return NextResponse.json({ ok: false, error: message }, { status });
+    return NextResponse.json({ ok: false, error: message }, { status, headers: { 'Cache-Control': 'no-store, private, max-age=0' } });
   }
 }
 
@@ -43,10 +44,10 @@ export async function POST(request: Request) {
     await createAdminProduct({ name, imageUrls, badges, categoryIds, description, shortDescription });
     revalidateTag('catalog', 'max');
 
-    return NextResponse.json({ ok: true });
+    return NextResponse.json({ ok: true }, { headers: { 'Cache-Control': 'no-store, private, max-age=0' } });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
     const status = message === 'UNAUTHORIZED' ? 401 : 500;
-    return NextResponse.json({ ok: false, error: message }, { status });
+    return NextResponse.json({ ok: false, error: message }, { status, headers: { 'Cache-Control': 'no-store, private, max-age=0' } });
   }
 }

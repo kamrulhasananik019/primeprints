@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { countAdminItems } from '@/lib/mongo-catalog';
 
+export const runtime = 'nodejs';
+
 /**
  * Health check endpoint for admin setup
  * Verifies MongoDB + admin collections + content collections
@@ -29,7 +31,7 @@ export async function GET() {
           checks,
           setupGuide: 'See ADMIN_SETUP.md for configuration instructions',
         },
-        { status: 503 }
+        { status: 503, headers: { 'Cache-Control': 'no-store, private, max-age=0' } }
       );
     }
 
@@ -71,7 +73,7 @@ export async function GET() {
             ]
           : ['Visit /admin/login to access the custom admin panel'],
       },
-      { status: allOk ? 200 : 503 }
+      { status: allOk ? 200 : 503, headers: { 'Cache-Control': 'no-store, private, max-age=0' } }
     );
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -82,7 +84,7 @@ export async function GET() {
         error: errorMessage,
         setupGuide: 'Set MONGODB_URI in .env.local',
       },
-      { status: 500 }
+      { status: 500, headers: { 'Cache-Control': 'no-store, private, max-age=0' } }
     );
   }
 }

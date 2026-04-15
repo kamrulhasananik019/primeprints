@@ -13,6 +13,8 @@ type CategorySliderProps = {
 };
 
 export default function CategorySlider({ categories }: CategorySliderProps) {
+  const canLoop = categories.length >= 7;
+
   return (
     <section className="relative overflow-hidden bg-white py-16 lg:py-20">
       <div className="absolute h-105 w-105 rounded-full bg-linear-to-br from-stone-200/70 to-transparent blur-3xl" />
@@ -62,7 +64,7 @@ export default function CategorySlider({ categories }: CategorySliderProps) {
             delay: 3500,
             disableOnInteraction: false,
           }}
-          loop={categories.length > 5}
+          loop={canLoop}
           spaceBetween={18}
           breakpoints={{
             0: { slidesPerView: 1.3 },

@@ -26,24 +26,33 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   const category = await getCategoryById(product.categoryIds[0] ?? '');
   const productImage = getPrimaryImage(product) || category?.image.url || '';
+  const productDescription = richContentToPlainText(product.shortDescription) || richContentToPlainText(product.description);
+  const canonicalPath = getProductPath(product.id, product.name);
 
   return {
-    title: product.name,
-    description: richContentToPlainText(product.shortDescription) || richContentToPlainText(product.description),
+    title: `${product.name} Printing in London`,
+    description: `${productDescription} Request a quote for ${product.name.toLowerCase()} printing with Prime Prints.`,
     alternates: {
-      canonical: getProductPath(product.id, product.name),
+      canonical: canonicalPath,
     },
+    keywords: [
+      product.name.toLowerCase(),
+      `${product.name.toLowerCase()} printing`,
+      'printing london',
+      'same day printing',
+    ],
     openGraph: {
-      title: `${product.name} | Prime Prints`,
-      description: richContentToPlainText(product.shortDescription) || richContentToPlainText(product.description),
-      url: getProductPath(product.id, product.name),
+      title: `${product.name} Printing in London | Prime Prints`,
+      description: productDescription,
+      url: canonicalPath,
+      siteName: 'Prime Prints',
       images: [{ url: productImage, alt: product.name }],
       type: 'website',
     },
     twitter: {
       card: 'summary_large_image',
-      title: `${product.name} | Prime Prints`,
-      description: richContentToPlainText(product.shortDescription) || richContentToPlainText(product.description),
+      title: `${product.name} Printing in London | Prime Prints`,
+      description: productDescription,
       images: [productImage],
     },
   };
@@ -96,8 +105,34 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
     url: `${siteUrl}${getProductPath(product.id, product.name)}`,
   };
 
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: siteUrl,
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: category.name,
+        item: `${siteUrl}${getCategoryPath(category.id, category.name)}`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: product.name,
+        item: `${siteUrl}${getProductPath(product.id, product.name)}`,
+      },
+    ],
+  };
+
   return (
     <div className="min-h-screen bg-stone-50">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }} />
 
       <div className="sticky top-0 z-20 border-b border-stone-200 bg-white/95 backdrop-blur">

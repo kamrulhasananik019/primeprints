@@ -2,7 +2,7 @@ import type { MetadataRoute } from 'next';
 import { getCatalogCategories, getCatalogProducts } from '@/lib/catalog';
 import { siteUrl } from '@/lib/site';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 86400;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = siteUrl;
@@ -26,14 +26,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const categoryRoutes: MetadataRoute.Sitemap = categories.map((category) => ({
     url: `${baseUrl}/categories/${category.id}`,
-    lastModified: new Date(),
+    lastModified: new Date(category.updatedAt),
     changeFrequency: 'weekly',
     priority: 0.8,
   }));
 
   const productRoutes: MetadataRoute.Sitemap = allProducts.map((product) => ({
     url: `${baseUrl}/products/${product.id}`,
-    lastModified: new Date(),
+    lastModified: new Date(product.updatedAt),
     changeFrequency: 'weekly',
     priority: 0.7,
   }));

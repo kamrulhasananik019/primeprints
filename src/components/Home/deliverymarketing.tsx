@@ -19,6 +19,8 @@ export default function DeliveryMarketing({
   products,
   productCategoryTitles,
 }: DeliveryMarketingProps) {
+  const canLoop = products.length >= 5;
+
   return (
     <section className="relative overflow-hidden bg-stone-50 py-16 lg:py-20">
       <div className="absolute -left-40 -bottom-20 h-105 w-105 rounded-full bg-linear-to-br from-emerald-200/40 to-transparent blur-3xl" />
@@ -67,7 +69,7 @@ export default function DeliveryMarketing({
             disableOnInteraction: false,
             pauseOnMouseEnter: true,
           }}
-          loop
+          loop={canLoop}
           spaceBetween={20}
           breakpoints={{
             0: {

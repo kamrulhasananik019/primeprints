@@ -13,6 +13,8 @@ import {
   upsertAdmin,
 } from '@/lib/mongo-catalog';
 
+export const runtime = 'nodejs';
+
 function tiptapDoc(text: string) {
   return JSON.stringify({
     type: 'doc',

@@ -10,14 +10,15 @@
     "seed:mongodb": "node scripts/seed-mongodb.mjs"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.99.0",
     "@tiptap/extension-text-align": "^3.22.3",
     "@tiptap/extension-underline": "^3.22.3",
     "@tiptap/react": "^3.22.3",
     "@tiptap/starter-kit": "^3.22.3",
     "aws4fetch": "^1.0.20",
     "lucide-react": "^1.7.0",
-    "next": "16.2.2",
     "mongodb": "^6.20.0",
+    "next": "16.2.2",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "sweetalert2": "^11.26.24",

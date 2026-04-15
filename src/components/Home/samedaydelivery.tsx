@@ -20,6 +20,8 @@ export default function SameDayPrinting({
   products,
   productCategoryTitles,
 }: SameDayPrintingProps) {
+  const canLoop = products.length >= 5;
+
   return (
     <section className="relative overflow-hidden bg-stone-50 py-16 lg:py-20">
       <div className="absolute -right-40 -top-20 h-105 w-105 rounded-full bg-linear-to-br from-cyan-200/30 to-transparent blur-3xl" />
@@ -69,7 +71,7 @@ export default function SameDayPrinting({
             disableOnInteraction: false,
             pauseOnMouseEnter: true,
           }}
-          loop
+          loop={canLoop}
           spaceBetween={20}
           breakpoints={{
             0: {

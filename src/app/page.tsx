@@ -43,12 +43,22 @@ export const metadata: Metadata = {
       "Fast, premium printing with same day delivery in London and 24-hour UK delivery options.",
     url: "/",
     type: "website",
+    siteName: "Prime Prints",
+    images: [
+      {
+        url: "https://images.unsplash.com/photo-1586075010923-2dd4570fb338?w=1600&q=80",
+        width: 1600,
+        height: 900,
+        alt: "Prime Prints same day printing and delivery",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Prime Prints | Same Day Delivery in London & UK",
     description:
       "Fast, premium printing with same day delivery in London and 24-hour UK delivery options.",
+    images: ["https://images.unsplash.com/photo-1586075010923-2dd4570fb338?w=1600&q=80"],
   },
 };
 

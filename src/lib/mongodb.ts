@@ -44,3 +44,7 @@ export async function getMongoDb() {
   const client = await getClientPromise();
   return client.db(getDbNameFromUri(uri));
 }
+
+const clientPromise = getClientPromise();
+
+export default clientPromise;

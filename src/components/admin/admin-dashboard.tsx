@@ -1,6 +1,8 @@
 'use client';
 
-import { useEffect, useMemo, useState, type FormEvent } from 'react';
+import { useMemo, useState, type FormEvent } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
 import {
   Boxes,
   FilePenLine,
@@ -43,6 +45,13 @@ type Props = {
 
 type SectionKey = 'overview' | 'categories' | 'products';
 
+type DashboardResponse = {
+  ok: boolean;
+  categories?: Category[];
+  products?: Product[];
+  error?: string;
+};
+
 const emptyCategoryForm = {
   name: '',
   imageUrl: '',
@@ -82,10 +91,9 @@ function getTextFromTiptapJson(raw: string): string {
 }
 
 export default function AdminDashboard({ adminEmail }: Props) {
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [products, setProducts] = useState<Product[]>([]);
+  const router = useRouter();
+  const queryClient = useQueryClient();
   const [activeSection, setActiveSection] = useState<SectionKey>('overview');
-  const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -100,31 +108,25 @@ export default function AdminDashboard({ adminEmail }: Props) {
   const [categoryForm, setCategoryForm] = useState(emptyCategoryForm);
   const [productForm, setProductForm] = useState(emptyProductForm);
 
+  const dashboardQuery = useQuery<DashboardResponse>({
+    queryKey: ['admin-dashboard'],
+    queryFn: async () => {
+      const response = await fetch('/api/admin/dashboard', {
+        credentials: 'include',
+        cache: 'no-store',
+      });
+      return (await response.json()) as DashboardResponse;
+    },
+  });
+
   const refresh = async () => {
-    setLoading(true);
-    setError('');
-
-    const [catsRes, prodRes] = await Promise.all([
-      fetch('/api/admin/categories', { cache: 'no-store' }),
-      fetch('/api/admin/products', { cache: 'no-store' }),
-    ]);
-
-    const cats = (await catsRes.json()) as { ok: boolean; rows?: Category[]; error?: string };
-    const prods = (await prodRes.json()) as { ok: boolean; rows?: Product[]; error?: string };
-
-    if (cats.ok) setCategories(cats.rows || []);
-    if (prods.ok) setProducts(prods.rows || []);
-    if (!cats.ok || !prods.ok) setError(cats.error || prods.error || 'Failed to load data.');
-
-    setLoading(false);
+    await queryClient.invalidateQueries({ queryKey: ['admin-dashboard'] });
   };
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      void refresh();
-    }, 0);
-    return () => clearTimeout(timer);
-  }, []);
+  const categories = useMemo(() => dashboardQuery.data?.categories || [], [dashboardQuery.data?.categories]);
+  const products = useMemo(() => dashboardQuery.data?.products || [], [dashboardQuery.data?.products]);
+  const isLoading = dashboardQuery.isLoading || dashboardQuery.isFetching;
+  const queryError = dashboardQuery.data && !dashboardQuery.data.ok ? dashboardQuery.data.error || 'Failed to load data.' : '';
 
   const categoryNameById = useMemo(() => {
     return new Map(categories.map((item) => [item.id, item.name]));
@@ -162,6 +164,8 @@ export default function AdminDashboard({ adminEmail }: Props) {
     const response = await fetch(endpoint, {
       method,
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      cache: 'no-store',
       body: JSON.stringify({
         name: categoryForm.name,
         imageUrl: categoryForm.imageUrl,
@@ -199,6 +203,8 @@ export default function AdminDashboard({ adminEmail }: Props) {
     const response = await fetch(endpoint, {
       method,
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      cache: 'no-store',
       body: JSON.stringify({
         name: productForm.name,
         imageUrls: productForm.imageUrls
@@ -251,7 +257,7 @@ export default function AdminDashboard({ adminEmail }: Props) {
     setError('');
     setSuccess('');
 
-    const response = await fetch(`/api/admin/categories/${id}`, { method: 'DELETE' });
+    const response = await fetch(`/api/admin/categories/${id}`, { method: 'DELETE', credentials: 'include', cache: 'no-store' });
     const data = (await response.json()) as { ok: boolean; error?: string };
 
     if (!data.ok) {
@@ -283,7 +289,7 @@ export default function AdminDashboard({ adminEmail }: Props) {
     setError('');
     setSuccess('');
 
-    const response = await fetch(`/api/admin/products/${id}`, { method: 'DELETE' });
+    const response = await fetch(`/api/admin/products/${id}`, { method: 'DELETE', credentials: 'include', cache: 'no-store' });
     const data = (await response.json()) as { ok: boolean; error?: string };
 
     if (!data.ok) {
@@ -343,8 +349,9 @@ export default function AdminDashboard({ adminEmail }: Props) {
   };
 
   const logout = async () => {
-    await fetch('/api/admin/logout', { method: 'POST' });
-    window.location.href = '/admin/login';
+    await fetch('/api/admin/logout', { method: 'POST', credentials: 'include', cache: 'no-store' });
+    router.replace('/admin/login');
+    router.refresh();
   };
 
   const menuItems = [
@@ -378,7 +385,7 @@ export default function AdminDashboard({ adminEmail }: Props) {
     <main className="relative min-h-screen overflow-hidden bg-(--pp-bg) pt-44 text-(--pp-text) md:pt-48 lg:pt-52">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(70,104,130,0.2),transparent_35%),radial-gradient(circle_at_bottom_left,rgba(210,193,182,0.35),transparent_40%)]" />
 
-      {(loading || saving) && (
+      {(isLoading || saving) && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1b3c53]/20 backdrop-blur-[2px]">
           <div className="flex items-center gap-2 rounded-xl border border-[#1b3c53]/20 bg-white px-5 py-3 text-sm font-semibold text-[#1b3c53] shadow-xl">
             <Loader2 className="h-4 w-4 animate-spin" />
@@ -388,7 +395,7 @@ export default function AdminDashboard({ adminEmail }: Props) {
       )}
 
       <aside
-        className={`fixed bottom-0 left-0 top-44 z-40 flex w-72 flex-col border-r border-[#1b3c53]/10 bg-white/95 p-4 shadow-xl backdrop-blur transition-transform duration-300 md:top-48 lg:top-52 lg:translate-x-0 ${
+        className={`fixed bottom-0 left-0 top-44 z-40 flex w-72 flex-col border-r border-[#1b3c53]/10 bg-white/95 p-4 shadow-xl backdrop-blur transition-transform duration-300  lg:translate-x-0 ${
           drawerOpen ? 'translate-x-0' : '-translate-x-full'
         } ${drawerCollapsed ? 'lg:w-24' : ''}`}
       >
@@ -448,7 +455,7 @@ export default function AdminDashboard({ adminEmail }: Props) {
               drawerCollapsed ? 'lg:justify-center' : ''
             }`}
           >
-            <RefreshCcw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+            <RefreshCcw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
             <span className={`${drawerCollapsed ? 'lg:hidden' : ''}`}>Refresh Data</span>
           </button>
         </div>
@@ -508,6 +515,7 @@ export default function AdminDashboard({ adminEmail }: Props) {
         </header>
 
         {error ? <p className="mb-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p> : null}
+        {queryError ? <p className="mb-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{queryError}</p> : null}
         {success ? <p className="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">{success}</p> : null}
 
         <div className="grid gap-4 md:grid-cols-3">

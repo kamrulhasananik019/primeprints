@@ -1,5 +1,6 @@
 'use client';
 
+import type { FormEvent } from 'react';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
@@ -10,7 +11,7 @@ export default function AdminLoginPage() {
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  const handleLogin = async (event: React.FormEvent) => {
+  const handleLogin = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setSubmitting(true);
     setError('');
@@ -19,6 +20,8 @@ export default function AdminLoginPage() {
       const response = await fetch('/api/admin/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        cache: 'no-store',
         body: JSON.stringify({ email, password }),
       });
       const data = (await response.json()) as { ok: boolean; error?: string };
@@ -26,7 +29,18 @@ export default function AdminLoginPage() {
         setError(data.error || 'Login failed');
         return;
       }
-      router.push('/admin');
+
+      const sessionCheck = await fetch('/api/admin/me', {
+        credentials: 'include',
+        cache: 'no-store',
+      });
+
+      if (!sessionCheck.ok) {
+        setError('Session did not initialize. Please try again.');
+        return;
+      }
+
+      router.replace('/admin');
       router.refresh();
     } finally {
       setSubmitting(false);

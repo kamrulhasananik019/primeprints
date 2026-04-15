@@ -3,6 +3,7 @@ import { Playfair_Display, DM_Sans } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/layout/navbar";
 import Footer from "@/components/layout/footer";
+import AppQueryProvider from "@/components/providers/query-provider";
 import { getNavCategories } from "@/lib/catalog";
 import { siteUrl } from "@/lib/site";
 
@@ -32,6 +33,7 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
+  applicationName: "Prime Prints",
   title: {
     default: "Prime Prints | Same Day Printing in London",
     template: "%s | Prime Prints",
@@ -57,12 +59,21 @@ export const metadata: Metadata = {
     siteName: "Prime Prints",
     locale: "en_GB",
     type: "website",
+    images: [
+      {
+        url: "https://images.unsplash.com/photo-1562654501-a0ccc0fc3fb1?w=1600&q=80",
+        width: 1600,
+        height: 900,
+        alt: "Prime Prints same day printing hero image",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Prime Prints | Same Day Printing in London",
     description:
       "Premium print quality with fast turnaround for business and personal projects.",
+    images: ["https://images.unsplash.com/photo-1562654501-a0ccc0fc3fb1?w=1600&q=80"],
   },
   robots: {
     index: true,
@@ -102,9 +113,11 @@ export default async function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
         />
-        <Navbar categories={categories} />
-        {children}
-        <Footer />
+        <AppQueryProvider>
+          <Navbar categories={categories} />
+          {children}
+          <Footer />
+        </AppQueryProvider>
       </body>
     </html>
   );

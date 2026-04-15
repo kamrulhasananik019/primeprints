@@ -8,6 +8,7 @@ import { getPrimaryImage } from '@/lib/product-media';
 import RichContent from '@/components/shared/rich-content';
 import { richContentToPlainText } from '@/lib/rich-content';
 import { getCategoryPath, getProductPath } from '@/lib/slug';
+import { siteUrl } from '@/lib/site';
 
 export const revalidate = 300;
 
@@ -22,23 +23,33 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     };
   }
 
+  const categoryDescription = richContentToPlainText(category.description);
+  const canonicalPath = getCategoryPath(category.id, category.name);
+
   return {
-    title: category.name,
-    description: richContentToPlainText(category.description),
+    title: `${category.name} Printing in London`,
+    description: `${categoryDescription} Explore products and request a quote for ${category.name.toLowerCase()} printing in London.`,
     alternates: {
-      canonical: getCategoryPath(category.id, category.name),
+      canonical: canonicalPath,
     },
+    keywords: [
+      `${category.name.toLowerCase()} printing`,
+      'printing london',
+      'same day printing',
+      category.name.toLowerCase(),
+    ],
     openGraph: {
-      title: `${category.name} | Prime Prints`,
-      description: richContentToPlainText(category.description),
-      url: getCategoryPath(category.id, category.name),
+      title: `${category.name} Printing in London | Prime Prints`,
+      description: categoryDescription,
+      url: canonicalPath,
+      siteName: 'Prime Prints',
       images: [{ url: category.image.url, alt: category.image.alt || category.name }],
       type: 'website',
     },
     twitter: {
       card: 'summary_large_image',
-      title: `${category.name} | Prime Prints`,
-      description: richContentToPlainText(category.description),
+      title: `${category.name} Printing in London | Prime Prints`,
+      description: categoryDescription,
       images: [category.image.url],
     },
   };
@@ -55,8 +66,30 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
   const products = await getProductsByCategoryId(category.id, 200);
   const categories = await getCategories();
 
+  const categoryJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: `${category.name} Printing in London`,
+    description: richContentToPlainText(category.description),
+    url: `${siteUrl}${getCategoryPath(category.id, category.name)}`,
+    about: {
+      '@type': 'Thing',
+      name: category.name,
+    },
+    mainEntity: {
+      '@type': 'ItemList',
+      itemListElement: products.map((product, index) => ({
+        '@type': 'ListItem',
+        position: index + 1,
+        url: `${siteUrl}${getProductPath(product.id, product.name)}`,
+        name: product.name,
+      })),
+    },
+  };
+
   return (
     <div className="min-h-screen bg-stone-50">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(categoryJsonLd) }} />
       <div className="sticky top-0 z-20 border-b border-stone-200 bg-white/90 backdrop-blur">
         <div className="container mx-auto flex items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
           <Link href="/" className="inline-flex items-center gap-2 text-sm font-medium text-stone-600 transition hover:text-stone-900">

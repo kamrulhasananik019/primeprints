@@ -3,6 +3,7 @@ import { revalidateTag } from 'next/cache';
 
 import { requireAdminSession, toStoredRichText } from '@/lib/admin-api';
 import { deleteAdminProduct, resolveCategoryIds, updateAdminProduct } from '@/lib/mongo-catalog';
+export const runtime = 'nodejs';
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -36,7 +37,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
     const status = message === 'UNAUTHORIZED' ? 401 : 500;
-    return NextResponse.json({ ok: false, error: message }, { status });
+    return NextResponse.json({ ok: false, error: message }, { status, headers: { 'Cache-Control': 'no-store, private, max-age=0' } });
   }
 }
 

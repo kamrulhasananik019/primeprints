@@ -179,6 +179,8 @@ function ArrowIcon() {
 }
 
 export default function Banner() {
+  const canLoop = slides.length > 1;
+
   return (
     <>
       <style>{animStyles}</style>
@@ -190,7 +192,7 @@ export default function Banner() {
           effect="fade"
           autoplay={{ delay: 5000, disableOnInteraction: false }}
           speed={900}
-          loop
+          loop={canLoop}
           className="w-full h-full"
         >
           {slides.map((slide, i) => (

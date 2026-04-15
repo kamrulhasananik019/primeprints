@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import ContactPageContent from "@/components/contact/contact-page";
 import { getCategoriesWithProducts } from "@/lib/catalog";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: "Contact | Prime Prints",
@@ -18,12 +18,22 @@ export const metadata: Metadata = {
       "Request a quote, discuss turnaround times, and get expert support for your print projects.",
     url: "/contact",
     type: "website",
+    siteName: "Prime Prints",
+    images: [
+      {
+        url: "https://images.unsplash.com/photo-1527844097890-83b05e6f24ab?w=1600&q=80",
+        width: 1600,
+        height: 900,
+        alt: "Prime Prints contact and quote request",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Contact Prime Prints",
     description:
       "Request a quote and get support for custom, same-day, and large-format printing.",
+    images: ["https://images.unsplash.com/photo-1527844097890-83b05e6f24ab?w=1600&q=80"],
   },
 };
 

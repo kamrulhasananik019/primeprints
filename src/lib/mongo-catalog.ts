@@ -62,6 +62,11 @@ type AdminDoc = {
   updatedAt: Date;
 };
 
+declare global {
+  // Cache index creation so repeated reads do not re-run createIndexes on every request.
+  var __primeprintsIndexesPromise: Promise<void> | undefined;
+}
+
 export type CategoryRecord = {
   id: string;
   slug: string;
@@ -214,20 +219,26 @@ function seoDefaults(title: string, description: string, image: string): SeoBloc
 }
 
 async function ensureIndexes() {
-  const db = await getMongoDb();
-  await Promise.all([
-    db.collection<CategoryDoc>('categories').createIndexes([
-      { key: { slug: 1 }, unique: true },
-      { key: { parentId: 1 } },
-    ]),
-    db.collection<ProductDoc>('products').createIndexes([
-      { key: { slug: 1 }, unique: true },
-      { key: { categoryIds: 1 } },
-      { key: { isFeatured: 1 } },
-      { key: { isActive: 1 } },
-    ]),
-    db.collection<AdminDoc>('admins').createIndexes([{ key: { email: 1 }, unique: true }]),
-  ]);
+  if (!globalThis.__primeprintsIndexesPromise) {
+    globalThis.__primeprintsIndexesPromise = (async () => {
+      const db = await getMongoDb();
+      await Promise.all([
+        db.collection<CategoryDoc>('categories').createIndexes([
+          { key: { slug: 1 }, unique: true },
+          { key: { parentId: 1 } },
+        ]),
+        db.collection<ProductDoc>('products').createIndexes([
+          { key: { slug: 1 }, unique: true },
+          { key: { categoryIds: 1 } },
+          { key: { isFeatured: 1 } },
+          { key: { isActive: 1 } },
+        ]),
+        db.collection<AdminDoc>('admins').createIndexes([{ key: { email: 1 }, unique: true }]),
+      ]);
+    })();
+  }
+
+  await globalThis.__primeprintsIndexesPromise;
 }
 
 function mapCategoryDoc(doc: CategoryDoc): CategoryRecord {
@@ -282,7 +293,25 @@ const getCachedCategories = unstable_cache(
     const db = await getMongoDb();
     const rows = await db
       .collection<CategoryDoc>('categories')
-      .find({ isActive: { $ne: false } })
+      .find(
+        { isActive: { $ne: false } },
+        {
+          projection: {
+            _id: 1,
+            slug: 1,
+            name: 1,
+            shortDescription: 1,
+            description: 1,
+            image: 1,
+            parentId: 1,
+            seo: 1,
+            isActive: 1,
+            sortOrder: 1,
+            createdAt: 1,
+            updatedAt: 1,
+          },
+        }
+      )
       .sort({ sortOrder: 1, name: 1 })
       .toArray();
     return rows;
@@ -297,7 +326,27 @@ const getCachedProducts = unstable_cache(
     const db = await getMongoDb();
     const rows = await db
       .collection<ProductDoc>('products')
-      .find({ isActive: { $ne: false } })
+      .find(
+        { isActive: { $ne: false } },
+        {
+          projection: {
+            _id: 1,
+            slug: 1,
+            name: 1,
+            shortDescription: 1,
+            description: 1,
+            images: 1,
+            badges: 1,
+            categoryIds: 1,
+            seo: 1,
+            isFeatured: 1,
+            isActive: 1,
+            sortOrder: 1,
+            createdAt: 1,
+            updatedAt: 1,
+          },
+        }
+      )
       .sort({ sortOrder: 1, name: 1 })
       .toArray();
     return rows;
@@ -382,7 +431,23 @@ export async function countAdminItems(): Promise<{ categories: number; products:
 export async function getAdminCategories(): Promise<AdminCategoryRow[]> {
   await ensureIndexes();
   const db = await getMongoDb();
-  const rows = await db.collection<CategoryDoc>('categories').find({}).sort({ createdAt: -1 }).toArray();
+  const rows = await db
+    .collection<CategoryDoc>('categories')
+    .find(
+      {},
+      {
+        projection: {
+          _id: 1,
+          name: 1,
+          description: 1,
+          image: 1,
+          parentId: 1,
+          createdAt: 1,
+        },
+      }
+    )
+    .sort({ createdAt: -1 })
+    .toArray();
 
   return rows.map((row) => ({
     id: idToString(row._id),
@@ -485,7 +550,25 @@ export async function resolveCategoryIds(values: string[]): Promise<string[]> {
 export async function getAdminProducts(): Promise<AdminProductRow[]> {
   await ensureIndexes();
   const db = await getMongoDb();
-  const rows = await db.collection<ProductDoc>('products').find({}).sort({ createdAt: -1 }).toArray();
+  const rows = await db
+    .collection<ProductDoc>('products')
+    .find(
+      {},
+      {
+        projection: {
+          _id: 1,
+          name: 1,
+          images: 1,
+          description: 1,
+          shortDescription: 1,
+          badges: 1,
+          categoryIds: 1,
+          createdAt: 1,
+        },
+      }
+    )
+    .sort({ createdAt: -1 })
+    .toArray();
 
   return rows.map((row) => ({
     id: idToString(row._id),

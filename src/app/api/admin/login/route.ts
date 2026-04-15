@@ -1,8 +1,9 @@
-import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
 import { createAdminSession, getAdminSessionCookieName, verifyPasswordAgainstHash } from '@/lib/admin-auth';
 import { getAdminByEmail } from '@/lib/mongo-catalog';
+
+export const runtime = 'nodejs';
 
 export async function POST(request: Request) {
   const body = (await request.json().catch(() => ({}))) as { email?: string; password?: string };
@@ -15,8 +16,8 @@ export async function POST(request: Request) {
   }
 
   const token = createAdminSession(admin.email);
-  const cookieStore = await cookies();
-  cookieStore.set(getAdminSessionCookieName(), token, {
+  const response = NextResponse.json({ ok: true, email: admin.email }, { headers: { 'Cache-Control': 'no-store, private, max-age=0' } });
+  response.cookies.set(getAdminSessionCookieName(), token, {
     httpOnly: true,
     sameSite: 'lax',
     secure: process.env.NODE_ENV === 'production',
@@ -24,5 +25,5 @@ export async function POST(request: Request) {
     maxAge: 60 * 60 * 12,
   });
 
-  return NextResponse.json({ ok: true, email: admin.email });
+  return response;
 }
