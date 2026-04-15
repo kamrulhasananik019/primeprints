@@ -14,7 +14,7 @@ export default function AppQueryProvider({ children }: Props) {
         defaultOptions: {
           queries: {
             staleTime: 1000 * 60 * 5,
-            gcTime: 1000 * 60 * 30,
+            gcTime: 1000 * 60 * 10,
             refetchOnWindowFocus: false,
             refetchOnReconnect: false,
             retry: 1,

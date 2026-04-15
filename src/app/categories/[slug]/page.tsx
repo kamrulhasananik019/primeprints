@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import { cache } from 'react';
 import { getCategories, getCategoryById, getProductsByCategoryId } from '@/lib/mongo-catalog';
 import InfiniteMarquee from '@/components/shared/infinite-marquee';
 import { getPrimaryImage } from '@/lib/product-media';
@@ -12,9 +13,13 @@ import { siteUrl } from '@/lib/site';
 
 export const revalidate = 300;
 
+const getCategoryBySlugCached = cache(async (slug: string) => getCategoryById(slug));
+const getCategoriesCached = cache(async () => getCategories());
+const getProductsByCategoryCached = cache(async (categoryId: string) => getProductsByCategoryId(categoryId, 200));
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const category = await getCategoryById(slug);
+  const category = await getCategoryBySlugCached(slug);
 
   if (!category) {
     return {
@@ -57,14 +62,16 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const category = await getCategoryById(slug);
+  const category = await getCategoryBySlugCached(slug);
 
   if (!category) {
     notFound();
   }
 
-  const products = await getProductsByCategoryId(category.id, 200);
-  const categories = await getCategories();
+  const [products, categories] = await Promise.all([
+    getProductsByCategoryCached(category.id),
+    getCategoriesCached(),
+  ]);
 
   const categoryJsonLd = {
     '@context': 'https://schema.org',

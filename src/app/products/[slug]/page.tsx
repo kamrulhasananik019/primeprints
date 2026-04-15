@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { cache } from 'react';
 import ProductHero from '@/components/product/product-hero';
 import InfiniteMarquee from '@/components/shared/infinite-marquee';
 import { getCategories, getCategoryById, getProductById, getProductsByCategoryId } from '@/lib/mongo-catalog';
@@ -13,9 +14,14 @@ import { getCategoryPath, getProductPath } from '@/lib/slug';
 
 export const revalidate = 300;
 
+const getProductBySlugCached = cache(async (slug: string) => getProductById(slug));
+const getCategoryByIdCached = cache(async (id: string) => getCategoryById(id));
+const getCategoriesCached = cache(async () => getCategories());
+const getProductsByCategoryCached = cache(async (categoryId: string, limit: number) => getProductsByCategoryId(categoryId, limit));
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const product = await getProductById(slug);
+  const product = await getProductBySlugCached(slug);
 
   if (!product) {
     return {
@@ -24,7 +30,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     };
   }
 
-  const category = await getCategoryById(product.categoryIds[0] ?? '');
+  const category = await getCategoryByIdCached(product.categoryIds[0] ?? '');
   const productImage = getPrimaryImage(product) || category?.image.url || '';
   const productDescription = richContentToPlainText(product.shortDescription) || richContentToPlainText(product.description);
   const canonicalPath = getProductPath(product.id, product.name);
@@ -61,25 +67,27 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function ProductDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
 
-  const product = await getProductById(slug);
+  const product = await getProductBySlugCached(slug);
   if (!product) {
     notFound();
   }
 
-  const category = await getCategoryById(product.categoryIds[0] ?? '');
+  const category = await getCategoryByIdCached(product.categoryIds[0] ?? '');
   if (!category) {
     notFound();
   }
 
-  const categoryProducts = await getProductsByCategoryId(category.id, 24);
+  const [categoryProducts, allCategories] = await Promise.all([
+    getProductsByCategoryCached(category.id, 24),
+    getCategoriesCached(),
+  ]);
   const related = categoryProducts.filter((item) => item.id !== product.id).slice(0, 3);
-  const allCategories = await getCategories();
 
   const otherCategoryProductsNested = await Promise.all(
     allCategories
       .filter((cat) => cat.id !== category.id)
       .map(async (cat) => {
-        const products = await getProductsByCategoryId(cat.id, 2);
+        const products = await getProductsByCategoryCached(cat.id, 2);
         return products.map((item) => ({ ...item, categoryName: cat.name }));
       })
   );

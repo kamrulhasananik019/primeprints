@@ -41,7 +41,6 @@ export default function AdminLoginPage() {
       }
 
       router.replace('/admin');
-      router.refresh();
     } finally {
       setSubmitting(false);
     }

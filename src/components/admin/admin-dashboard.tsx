@@ -363,7 +363,6 @@ export default function AdminDashboard({ adminEmail }: Props) {
   const logout = async () => {
     await fetch('/api/admin/logout', { method: 'POST', credentials: 'include', cache: 'no-store' });
     router.replace('/admin/login');
-    router.refresh();
   };
 
   const menuItems = [
