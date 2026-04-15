@@ -83,7 +83,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
   ]);
   const related = categoryProducts.filter((item) => item.id !== product.id).slice(0, 3);
 
-  const otherCategoryProductsNested = await Promise.all(
+    const otherCategoryProductsNested = await Promise.all(
     allCategories
       .filter((cat) => cat.id !== category.id)
       .map(async (cat) => {
@@ -91,7 +91,9 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
         return products.map((item) => ({ ...item, categoryName: cat.name }));
       })
   );
-  const otherCategoryProducts = otherCategoryProductsNested.flat().slice(0, 6);
+    const otherCategoryProducts = Array.from(
+      new Map(otherCategoryProductsNested.flat().map((item) => [item.id, item])).values()
+    ).slice(0, 6);
 
   const primaryImage = getPrimaryImage(product) || category.image.url;
   const relatedImages = related.map((item) => getPrimaryImage(item)).filter(Boolean);

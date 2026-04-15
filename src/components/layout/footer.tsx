@@ -18,10 +18,10 @@ export default function Footer() {
           <div>
             <p className="mb-3 text-xs uppercase tracking-[0.22em] text-[#D2C1B6]/70">Quick Links</p>
             <div className="flex flex-col gap-2 font-[var(--font-dm-sans)]">
-              <Link href="/" className="text-sm text-[#E7DBD3] transition-colors hover:text-white">
+              <Link href="/" prefetch={false} className="text-sm text-[#E7DBD3] transition-colors hover:text-white">
                 Home
               </Link>
-              <Link href="/#contact" className="text-sm text-[#E7DBD3] transition-colors hover:text-white">
+              <Link href="/#contact" prefetch={false} className="text-sm text-[#E7DBD3] transition-colors hover:text-white">
                 Contact
               </Link>
             </div>
@@ -34,6 +34,7 @@ export default function Footer() {
             </p>
             <Link
               href="/#contact"
+              prefetch={false}
               className="inline-flex items-center justify-center rounded-lg bg-[#D2C1B6] px-5 py-2.5 text-sm font-700 text-[#1B3C53] transition-colors hover:bg-[#E7DBD3] font-[var(--font-dm-sans)]"
             >
               Contact Us

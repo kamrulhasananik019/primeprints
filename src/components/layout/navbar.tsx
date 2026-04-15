@@ -148,7 +148,7 @@ export default function Navbar({ categories }: NavbarProps) {
             <button className="p-2 text-stone-700 lg:hidden" onClick={() => setIsMobileMenuOpen(true)} aria-label="Open menu">
               <Menu className="h-6 w-6" />
             </button>
-            <Link href="/" className="flex items-center gap-2">
+            <Link href="/" prefetch={false} className="flex items-center gap-2">
               <div className="flex h-10 w-10 -rotate-12 items-center justify-center rounded-lg bg-[#234C6A] text-white shadow-lg shadow-[#456882]/40">
                 <span className="text-xl font-black italic">P</span>
               </div>
@@ -207,13 +207,14 @@ export default function Navbar({ categories }: NavbarProps) {
           <div className="flex items-center gap-1 text-stone-800 sm:gap-2">
             <Link
               href="/"
+              prefetch={false}
               className={`hidden rounded-lg px-3 py-2 text-sm font-bold transition sm:block hover:bg-stone-100 ${
                 pathname === '/' ? 'text-[#1B3C53]' : 'text-stone-800'
               }`}
             >
               Home
             </Link>
-            <Link href="/contact" className="rounded-full bg-[#1B3C53] px-5 py-2.5 text-sm font-bold text-white transition hover:bg-[#234C6A]">
+            <Link href="/contact" prefetch={false} className="rounded-full bg-[#1B3C53] px-5 py-2.5 text-sm font-bold text-white transition hover:bg-[#234C6A]">
               Contact Us
             </Link>
           </div>
@@ -404,11 +405,12 @@ export default function Navbar({ categories }: NavbarProps) {
                 </li>
               ))}
               <li className="mt-4 border-t border-stone-100 px-4 pt-4">
-                <Link href="/" onClick={() => setIsMobileMenuOpen(false)} className="mb-3 block rounded-xl border border-stone-200 p-3 text-center font-bold text-stone-700">
+                <Link href="/" prefetch={false} onClick={() => setIsMobileMenuOpen(false)} className="mb-3 block rounded-xl border border-stone-200 p-3 text-center font-bold text-stone-700">
                   Home
                 </Link>
                 <Link
                   href="/contact"
+                  prefetch={false}
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="flex items-center justify-center gap-2 rounded-xl bg-[#1B3C53] p-4 text-center font-bold text-white shadow-lg"
                 >
