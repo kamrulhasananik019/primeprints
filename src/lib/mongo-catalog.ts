@@ -62,7 +62,7 @@ type AdminDoc = {
   updatedAt: Date;
 };
 
-export type ReviewStatus = 'pending' | 'approved' | 'declined';
+export type ReviewStatus = 'pending' | 'approved' | 'declined' | 'deleted';
 
 type ReviewDoc = {
   _id: ObjectId;

@@ -2,7 +2,7 @@ import { revalidateTag } from 'next/cache';
 import { NextResponse } from 'next/server';
 
 import { requireAdminSession } from '@/lib/admin-api';
-import { deleteAdminReview, setAdminReviewStatus, updateAdminReview, type ReviewStatus } from '@/lib/mongo-catalog';
+import { setAdminReviewStatus, updateAdminReview, type ReviewStatus } from '@/lib/mongo-catalog';
 
 export const runtime = 'nodejs';
 
@@ -11,7 +11,7 @@ function isValidGmail(email: string): boolean {
 }
 
 function isValidStatus(status: string): status is ReviewStatus {
-  return status === 'pending' || status === 'approved' || status === 'declined';
+  return status === 'pending' || status === 'approved' || status === 'declined' || status === 'deleted';
 }
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -72,7 +72,7 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
   try {
     await requireAdminSession();
     const { id } = await params;
-    await deleteAdminReview(id);
+    await setAdminReviewStatus(id, 'deleted');
     revalidateTag('reviews', 'max');
 
     return NextResponse.json({ ok: true }, { headers: { 'Cache-Control': 'no-store, private, max-age=0' } });

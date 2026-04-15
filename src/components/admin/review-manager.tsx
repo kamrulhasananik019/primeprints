@@ -10,7 +10,7 @@ export type AdminReviewItem = {
   email: string;
   rating: number;
   text: string;
-  status: 'pending' | 'approved' | 'declined';
+  status: 'pending' | 'approved' | 'declined' | 'deleted';
   source: 'public' | 'admin';
   created_at: string;
 };
@@ -29,7 +29,7 @@ type ReviewFormState = {
   email: string;
   rating: number;
   text: string;
-  status: 'pending' | 'approved' | 'declined';
+  status: 'pending' | 'approved' | 'declined' | 'deleted';
 };
 
 const emptyReviewForm: ReviewFormState = {
@@ -54,6 +54,7 @@ export default function ReviewManager({
 }: ReviewManagerProps) {
   const [editingReviewId, setEditingReviewId] = useState<string | null>(null);
   const [busyReviewId, setBusyReviewId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'all' | 'pending' | 'approved' | 'deleted'>('all');
   const [reviewForm, setReviewForm] = useState(emptyReviewForm);
 
   const filteredReviews = useMemo(() => {
@@ -68,6 +69,42 @@ export default function ReviewManager({
       );
     });
   }, [reviews, searchTerm]);
+
+  const pendingReviews = useMemo(
+    () => filteredReviews.filter((item) => item.status === 'pending'),
+    [filteredReviews]
+  );
+  const approvedReviews = useMemo(
+    () => filteredReviews.filter((item) => item.status === 'approved'),
+    [filteredReviews]
+  );
+  const deletedReviews = useMemo(
+    () => filteredReviews.filter((item) => item.status === 'deleted'),
+    [filteredReviews]
+  );
+
+  const visibleReviews = useMemo(() => {
+    if (activeTab === 'pending') return pendingReviews;
+    if (activeTab === 'approved') return approvedReviews;
+    if (activeTab === 'deleted') return deletedReviews;
+    return filteredReviews;
+  }, [activeTab, approvedReviews, deletedReviews, filteredReviews, pendingReviews]);
+
+  const activeTabLabel =
+    activeTab === 'all'
+      ? 'All Reviews'
+      : activeTab === 'pending'
+        ? 'Pending Reviews'
+        : activeTab === 'approved'
+          ? 'Approved Reviews'
+          : 'Deleted Reviews';
+
+  const reviewTabs = [
+    { key: 'all' as const, label: `All Review: ${filteredReviews.length}`, tone: 'border-[#d2c1b6] bg-white text-[#234c6a]' },
+    { key: 'pending' as const, label: `Pending: ${pendingReviews.length}`, tone: 'border-amber-200 bg-amber-50 text-amber-800' },
+    { key: 'approved' as const, label: `Approved: ${approvedReviews.length}`, tone: 'border-emerald-200 bg-emerald-50 text-emerald-800' },
+    { key: 'deleted' as const, label: `Deleted: ${deletedReviews.length}`, tone: 'border-rose-200 bg-rose-50 text-rose-800' },
+  ];
 
   const createOrUpdateReview = async (event: FormEvent) => {
     event.preventDefault();
@@ -146,7 +183,7 @@ export default function ReviewManager({
     await Swal.fire({ icon: 'success', title: 'Deleted', text: 'Review deleted successfully.' });
   };
 
-  const updateStatus = async (id: string, status: 'pending' | 'approved' | 'declined') => {
+  const updateStatus = async (id: string, status: 'pending' | 'approved' | 'declined' | 'deleted') => {
     setBusyReviewId(id);
     setError('');
     setSuccess('');
@@ -227,12 +264,13 @@ export default function ReviewManager({
           </select>
           <select
             value={reviewForm.status}
-            onChange={(event) => setReviewForm((state) => ({ ...state, status: event.target.value as 'pending' | 'approved' | 'declined' }))}
+            onChange={(event) => setReviewForm((state) => ({ ...state, status: event.target.value as 'pending' | 'approved' | 'declined' | 'deleted' }))}
             className="w-full rounded-xl border border-[#d2c1b6] px-3 py-2 text-sm outline-none focus:border-[#234c6a]"
           >
             <option value="approved">Approved</option>
             <option value="pending">Pending</option>
             <option value="declined">Declined</option>
+            <option value="deleted">Deleted</option>
           </select>
           <textarea
             rows={5}
@@ -265,66 +303,95 @@ export default function ReviewManager({
       </form>
 
       <section className="rounded-3xl border border-[#1b3c53]/10 bg-white p-5 shadow-sm">
-        <h3 className="mb-4 text-lg font-bold text-[#1b3c53]">Review List ({filteredReviews.length})</h3>
-        <div className="space-y-3">
-          {filteredReviews.map((item) => (
-            <article key={item.id} className="rounded-2xl border border-[#d2c1b6]/70 bg-[#f4efeb]/50 p-3">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="font-semibold text-[#1b3c53]">{item.name}</p>
-                  <p className="text-xs text-[#456882]">{item.email}</p>
-                  <p className="mt-1 text-xs text-[#234c6a]">Rating: {item.rating}/5</p>
-                  <p className="mt-1 text-xs text-[#234c6a]">Status: {item.status}</p>
-                  <p className="mt-1 text-xs text-[#234c6a]">Source: {item.source}</p>
-                  <p className="mt-2 text-xs text-[#456882]">{item.text}</p>
-                </div>
-
-                <div className="flex items-center gap-1">
-                  <button
-                    type="button"
-                    disabled={busyReviewId === item.id}
-                    onClick={() => startEditReview(item)}
-                    className="rounded-lg border border-[#234c6a]/30 p-2 text-[#234c6a] disabled:opacity-50"
-                    aria-label={`Edit ${item.name}`}
-                  >
-                    <FilePenLine className="h-4 w-4" />
-                  </button>
-                  <button
-                    type="button"
-                    disabled={busyReviewId === item.id}
-                    onClick={() => void updateStatus(item.id, 'approved')}
-                    className="rounded-lg border border-emerald-300 p-2 text-emerald-700 disabled:opacity-50"
-                    aria-label={`Approve ${item.name}`}
-                  >
-                    <CheckCircle2 className="h-4 w-4" />
-                  </button>
-                  <button
-                    type="button"
-                    disabled={busyReviewId === item.id}
-                    onClick={() => void updateStatus(item.id, 'declined')}
-                    className="rounded-lg border border-amber-300 p-2 text-amber-700 disabled:opacity-50"
-                    aria-label={`Decline ${item.name}`}
-                  >
-                    <Ban className="h-4 w-4" />
-                  </button>
-                  <button
-                    type="button"
-                    disabled={busyReviewId === item.id}
-                    onClick={() => void removeReview(item.id)}
-                    className="rounded-lg border border-red-300 p-2 text-red-700 disabled:opacity-50"
-                    aria-label={`Delete ${item.name}`}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
-
-              {busyReviewId === item.id ? <p className="mt-1 text-xs text-[#456882]">Working...</p> : null}
-            </article>
-          ))}
-
-          {!filteredReviews.length ? <p className="text-sm text-[#456882]">No reviews match your search.</p> : null}
+        <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h3 className="text-lg font-bold text-[#1b3c53]">Review Sections</h3>
+            <p className="text-sm text-[#456882]">Click a tab to show only that review group.</p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {reviewTabs.map((tab) => {
+              const isActive = activeTab === tab.key;
+              return (
+                <button
+                  key={tab.key}
+                  type="button"
+                  onClick={() => setActiveTab(tab.key)}
+                  className={`rounded-xl border px-3 py-2 text-sm font-semibold transition ${tab.tone} ${isActive ? 'ring-2 ring-[#1b3c53]/15' : 'opacity-80 hover:opacity-100'}`}
+                >
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
         </div>
+
+        <div className="mb-4 rounded-2xl border border-[#d2c1b6]/70 bg-[#f4efeb]/35 p-3">
+          <h4 className="text-sm font-semibold text-[#1b3c53]">{activeTabLabel} ({visibleReviews.length})</h4>
+        </div>
+
+        {visibleReviews.length > 0 ? (
+          <div className="space-y-3">
+            {visibleReviews.map((item) => (
+              <article key={item.id} className="rounded-2xl border border-[#d2c1b6]/70 bg-[#f4efeb]/50 p-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="font-semibold text-[#1b3c53]">{item.name}</p>
+                    <p className="text-xs text-[#456882]">{item.email}</p>
+                    <p className="mt-1 text-xs text-[#234c6a]">Rating: {item.rating}/5</p>
+                    <p className="mt-1 text-xs text-[#234c6a]">Status: {item.status}</p>
+                    <p className="mt-1 text-xs text-[#234c6a]">Source: {item.source}</p>
+                    <p className="mt-2 text-xs text-[#456882]">{item.text}</p>
+                  </div>
+
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      disabled={busyReviewId === item.id}
+                      onClick={() => startEditReview(item)}
+                      className="rounded-lg border border-[#234c6a]/30 p-2 text-[#234c6a] disabled:opacity-50"
+                      aria-label={`Edit ${item.name}`}
+                    >
+                      <FilePenLine className="h-4 w-4" />
+                    </button>
+                    <button
+                      type="button"
+                      disabled={busyReviewId === item.id}
+                      onClick={() => void updateStatus(item.id, 'approved')}
+                      className="rounded-lg border border-emerald-300 p-2 text-emerald-700 disabled:opacity-50"
+                      aria-label={`Approve ${item.name}`}
+                    >
+                      <CheckCircle2 className="h-4 w-4" />
+                    </button>
+                    <button
+                      type="button"
+                      disabled={busyReviewId === item.id}
+                      onClick={() => void updateStatus(item.id, 'declined')}
+                      className="rounded-lg border border-amber-300 p-2 text-amber-700 disabled:opacity-50"
+                      aria-label={`Decline ${item.name}`}
+                    >
+                      <Ban className="h-4 w-4" />
+                    </button>
+                    <button
+                      type="button"
+                      disabled={busyReviewId === item.id}
+                      onClick={() => void removeReview(item.id)}
+                      className="rounded-lg border border-red-300 p-2 text-red-700 disabled:opacity-50"
+                      aria-label={`Delete ${item.name}`}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+
+                {busyReviewId === item.id ? <p className="mt-1 text-xs text-[#456882]">Working...</p> : null}
+              </article>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-[#456882]">No reviews in this section.</p>
+        )}
+
+        {!filteredReviews.length ? <p className="mt-4 text-sm text-[#456882]">No reviews match your search.</p> : null}
       </section>
     </div>
   );

@@ -11,7 +11,7 @@ function isValidGmail(email: string): boolean {
 }
 
 function isValidStatus(status: string): status is ReviewStatus {
-  return status === 'pending' || status === 'approved' || status === 'declined';
+  return status === 'pending' || status === 'approved' || status === 'declined' || status === 'deleted';
 }
 
 export async function GET() {
