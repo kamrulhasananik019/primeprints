@@ -82,29 +82,45 @@ export default async function Home() {
             <div className="bg-linear-to-r from-[#1B3C53] via-[#234C6A] to-[#2A5B7D] p-8 text-white md:p-10">
               <p className="mb-3 text-xs font-bold uppercase tracking-[0.22em] text-cyan-100">Need Printing Fast?</p>
               <h2 className="max-w-3xl font-serif text-3xl font-black leading-tight md:text-4xl">
-                Get expert support and place your print order in minutes.
+                Choose a quick quote or fast delivery path in seconds.
               </h2>
               <p className="mt-4 max-w-2xl text-sm leading-relaxed text-cyan-50 md:text-base">
-                From business cards to large format prints, we help you choose the right product, finish, and delivery option for your deadline.
+                From business cards to large format prints, we help you choose the right product, finish, and turnaround for your deadline.
               </p>
             </div>
 
-            <div className="flex flex-col items-start gap-3 p-6 sm:flex-row sm:items-center sm:justify-between md:p-8">
-              <p className="text-sm font-medium text-stone-600">Ready to start your next print project?</p>
-              <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
+            <div className="grid gap-4 p-6 md:grid-cols-2 md:p-8">
+              <div className="flex h-full flex-col justify-between rounded-2xl border border-stone-200 bg-stone-50 p-6">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#1B3C53]">Quote</p>
+                  <h3 className="mt-3 text-2xl font-black text-stone-900">Request a fast print quote</h3>
+                  <p className="mt-3 text-sm leading-relaxed text-stone-600">
+                    Tell us what you need and get practical guidance on pricing, materials, and production timing.
+                  </p>
+                </div>
                 <Link
                   href="/contact"
                   prefetch={false}
-                  className="inline-flex items-center justify-center rounded-xl border border-[#1B3C53] px-6 py-3 text-sm font-bold text-[#1B3C53] transition hover:bg-[#1B3C53] hover:text-white"
+                  className="mt-6 inline-flex w-fit items-center justify-center rounded-xl bg-[#1B3C53] px-6 py-3 text-sm font-bold text-white transition hover:bg-[#234C6A]"
                 >
                   Get a Quote
                 </Link>
+              </div>
+
+              <div className="flex h-full flex-col justify-between rounded-2xl border border-[#C9D6DF] bg-[#EAF2F7] p-6">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#1B3C53]">Delivery</p>
+                  <h3 className="mt-3 text-2xl font-black text-stone-900">Arrange same day delivery</h3>
+                  <p className="mt-3 text-sm leading-relaxed text-stone-600">
+                    Perfect for urgent jobs that need fast turnaround and dependable delivery across London and the UK.
+                  </p>
+                </div>
                 <Link
                   href="/contact?intent=order"
                   prefetch={false}
-                  className="inline-flex items-center justify-center rounded-xl bg-[#1B3C53] px-6 py-3 text-sm font-bold text-white transition hover:bg-[#234C6A]"
+                  className="mt-6 inline-flex w-fit items-center justify-center rounded-xl border border-[#1B3C53] px-6 py-3 text-sm font-bold text-[#1B3C53] transition hover:bg-[#1B3C53] hover:text-white"
                 >
-                  Order Now
+                  Delivery Help
                 </Link>
               </div>
             </div>
