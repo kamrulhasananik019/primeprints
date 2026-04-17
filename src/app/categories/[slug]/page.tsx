@@ -143,6 +143,16 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
         <InfiniteMarquee bottomItems={categories.map((cat) => cat.name)} />
       </div>
 
+      <div className="border-b border-stone-200 bg-white">
+        <div className="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
+          <RichContent
+            content={category.description}
+            wrapperClassName=""
+            textClassName="text-base leading-relaxed text-stone-600"
+          />
+        </div>
+      </div>
+
       <div className="container mx-auto px-4 py-14 sm:px-6 lg:px-8">
         {products.length > 0 && (
           <div>

@@ -98,6 +98,10 @@ export default function Navbar({ categories }: NavbarProps) {
     [activeSlug, categories]
   );
 
+  const activeCategoryDescription = activeCategory
+    ? activeCategory.seo?.description?.trim() || richContentToPlainText(activeCategory.description)
+    : '';
+
   const searchResults = useMemo(() => {
     const text = query.trim().toLowerCase();
     if (!text) return [];
@@ -319,9 +323,7 @@ export default function Navbar({ categories }: NavbarProps) {
                   </div>
                   <div className="mt-6">
                     <h4 className="text-lg font-black text-stone-900">{activeCategory?.name}</h4>
-                    <p className="mt-2 text-sm leading-relaxed text-stone-500">
-                      {activeCategory ? richContentToPlainText(activeCategory.description) : ''}
-                    </p>
+                    <p className="mt-2 text-sm leading-relaxed text-stone-500">{activeCategoryDescription}</p>
                     <div className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-stone-50 py-3 text-sm font-bold text-stone-900 transition group-hover:bg-[#234C6A] group-hover:text-white">
                       Explore All <ArrowRight className="h-4 w-4" />
                     </div>
