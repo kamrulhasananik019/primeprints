@@ -78,6 +78,7 @@ export async function POST() {
         name: category.name,
         imageUrl: category.imageUrl,
         parentId: null,
+        shortDescription: category.description,
         description: category.description,
       });
     }

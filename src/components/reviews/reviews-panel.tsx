@@ -1,6 +1,8 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Autoplay, Pagination } from 'swiper/modules';
 
 import ReviewCard from '@/components/reviews/review-card';
 import ReviewSubmitForm from '@/components/reviews/review-submit-form';
@@ -21,6 +23,7 @@ type ReviewsPanelProps = {
 export default function ReviewsPanel({ initialReviews }: ReviewsPanelProps) {
   const [showForm, setShowForm] = useState(false);
   const reviews = useMemo(() => initialReviews, [initialReviews]);
+  const canLoop = reviews.length >= 4;
 
   return (
     <section className="overflow-hidden bg-slate-50 py-20">
@@ -49,10 +52,31 @@ export default function ReviewsPanel({ initialReviews }: ReviewsPanelProps) {
         {showForm ? <ReviewSubmitForm onSubmitted={() => setShowForm(false)} /> : null}
 
         {reviews.length > 0 ? (
-          <div className="mt-6 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {reviews.map((review) => (
-              <ReviewCard key={review.id} name={review.name} rating={review.rating} text={review.text} createdAt={review.createdAt} />
-            ))}
+          <div className="mt-6">
+            <Swiper
+              modules={[Autoplay, Pagination]}
+              autoplay={{
+                delay: 3200,
+                disableOnInteraction: false,
+                pauseOnMouseEnter: true,
+              }}
+              pagination={{ clickable: true }}
+              loop={canLoop}
+              spaceBetween={20}
+              breakpoints={{
+                0: { slidesPerView: 1.05 },
+                640: { slidesPerView: 1.5 },
+                768: { slidesPerView: 2 },
+                1200: { slidesPerView: 3 },
+              }}
+              className="pb-10"
+            >
+              {reviews.map((review) => (
+                <SwiperSlide key={review.id} className="h-auto">
+                  <ReviewCard name={review.name} rating={review.rating} text={review.text} createdAt={review.createdAt} />
+                </SwiperSlide>
+              ))}
+            </Swiper>
           </div>
         ) : (
           <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center text-slate-600">

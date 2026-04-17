@@ -58,6 +58,20 @@
   padding: 0.75rem;
 }
 
+.textareaLike {
+  border: 1px solid #cbd5e1;
+  border-radius: 0.5rem;
+  background: #fff;
+  padding: 0.55rem 0.7rem;
+  resize: vertical;
+  overflow: auto;
+}
+
+.textareaLike:focus-within {
+  border-color: #0891b2;
+  box-shadow: 0 0 0 2px rgba(8, 145, 178, 0.14);
+}
+
 .tiptap :first-child {
   margin-top: 0;
 }
@@ -145,7 +159,20 @@
 }
 
 .proseMirror {
-  min-height: 180px;
+  min-height: inherit;
+}
+
+.proseMirror :global(.ProseMirror) {
+  min-height: inherit;
   outline: none;
   line-height: 1.6;
+  font-size: 0.98rem;
+}
+
+.proseMirror :global(.ProseMirror p.is-editor-empty:first-child::before) {
+  color: #64748b;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
 }

@@ -45,6 +45,7 @@ export function TipTapEditor({ value, onChange, minHeight = 180 }: Props) {
     extensions: [
       StarterKit.configure({
         heading: { levels: [1, 2, 3, 4, 5, 6] },
+        underline: false,
       }),
       Underline,
       TextAlign.configure({
@@ -74,11 +75,12 @@ export function TipTapEditor({ value, onChange, minHeight = 180 }: Props) {
     <div className={styles.wrapper}>
       <MenuBar editor={editor} />
       <div className={styles.editorContainer}>
-        <EditorContent
-          editor={editor}
-          className={`${styles.tiptap} ${styles.proseMirror}`}
-          style={{ minHeight }}
-        />
+        <div className={styles.textareaLike} style={{ minHeight }}>
+          <EditorContent
+            editor={editor}
+            className={`${styles.tiptap} ${styles.proseMirror}`}
+          />
+        </div>
       </div>
     </div>
   );
