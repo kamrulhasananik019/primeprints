@@ -16,6 +16,12 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       categoryIds?: string[];
       description?: string;
       shortDescription?: string;
+      seo?: {
+        title?: string;
+        description?: string;
+        keywords?: string[];
+        image?: string;
+      };
     };
 
     const name = String(body.name || '').trim();
@@ -25,12 +31,18 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     const categoryIds = await resolveCategoryIds(categoryInputs);
     const description = toStoredRichText(body.description);
     const shortDescription = toStoredRichText(body.shortDescription);
+    const seo = {
+      title: String(body.seo?.title || '').trim(),
+      description: String(body.seo?.description || '').trim(),
+      keywords: Array.isArray(body.seo?.keywords) ? body.seo!.keywords.map((item) => String(item).trim()).filter(Boolean) : [],
+      image: String(body.seo?.image || '').trim(),
+    };
 
     if (!name || !description || !shortDescription) {
       return NextResponse.json({ ok: false, error: 'name, description, and shortDescription are required.' }, { status: 400 });
     }
 
-    await updateAdminProduct(id, { name, imageUrls, badges, categoryIds, description, shortDescription });
+    await updateAdminProduct(id, { name, imageUrls, badges, categoryIds, description, shortDescription, seo });
     revalidateTag('catalog', 'max');
 
     return NextResponse.json({ ok: true });

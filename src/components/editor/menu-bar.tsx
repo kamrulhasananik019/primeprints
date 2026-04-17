@@ -22,7 +22,9 @@ function ToolbarButton({ label, onClick, isActive, disabled }: ButtonConfig) {
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={`${styles.toolbarButton} ${isActive ? styles.active : ''}`}
+      aria-pressed={Boolean(isActive)}
+      data-active={isActive ? 'true' : 'false'}
+      className={`${styles.toolbarButton} ${isActive ? styles.active : styles.inactive}`}
     >
       {label}
     </button>

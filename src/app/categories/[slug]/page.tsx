@@ -28,34 +28,38 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     };
   }
 
+  const categoryShortDescription = richContentToPlainText(category.shortDescription);
   const categoryDescription = richContentToPlainText(category.description);
+  const categorySummary = categoryShortDescription || categoryDescription;
   const canonicalPath = getCategoryPath(category.id, category.name);
+  const seoTitle = category.seo?.title || `${category.name} Printing in London`;
+  const seoDescription =
+    category.seo?.description || `${categorySummary} Explore products and request a quote for ${category.name.toLowerCase()} printing in London.`;
+  const seoKeywords = category.seo?.keywords?.length
+    ? category.seo.keywords
+    : [`${category.name.toLowerCase()} printing`, 'printing london', 'same day printing', category.name.toLowerCase()];
+  const seoImage = category.seo?.image || category.image.url;
 
   return {
-    title: `${category.name} Printing in London`,
-    description: `${categoryDescription} Explore products and request a quote for ${category.name.toLowerCase()} printing in London.`,
+    title: seoTitle,
+    description: seoDescription,
     alternates: {
       canonical: canonicalPath,
     },
-    keywords: [
-      `${category.name.toLowerCase()} printing`,
-      'printing london',
-      'same day printing',
-      category.name.toLowerCase(),
-    ],
+    keywords: seoKeywords,
     openGraph: {
-      title: `${category.name} Printing in London | Prime Prints`,
-      description: categoryDescription,
+      title: seoTitle,
+      description: seoDescription,
       url: canonicalPath,
       siteName: 'Prime Prints',
-      images: [{ url: category.image.url, alt: category.image.alt || category.name }],
+      images: [{ url: seoImage, alt: category.image.alt || category.name }],
       type: 'website',
     },
     twitter: {
       card: 'summary_large_image',
-      title: `${category.name} Printing in London | Prime Prints`,
-      description: categoryDescription,
-      images: [category.image.url],
+      title: seoTitle,
+      description: seoDescription,
+      images: [seoImage],
     },
   };
 }
@@ -73,11 +77,14 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
     getCategoriesCached(),
   ]);
 
+  const categorySummary = category.shortDescription?.content?.length ? category.shortDescription : category.description;
+  const categorySummaryText = richContentToPlainText(categorySummary);
+
   const categoryJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
     name: `${category.name} Printing in London`,
-    description: richContentToPlainText(category.description),
+    description: categorySummaryText,
     url: `${siteUrl}${getCategoryPath(category.id, category.name)}`,
     about: {
       '@type': 'Thing',
@@ -111,7 +118,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
             <div>
               <h1 className="mt-4 font-serif text-4xl font-bold leading-tight text-stone-900 sm:text-5xl lg:text-6xl">{category.name}</h1>
               <RichContent
-                content={category.description}
+                content={categorySummary}
                 wrapperClassName="mt-4 max-w-xl"
                 textClassName="text-base leading-relaxed text-stone-600"
               />

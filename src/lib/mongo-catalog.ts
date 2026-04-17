@@ -17,6 +17,13 @@ type SeoBlock = {
   image: string;
 };
 
+type SeoInput = {
+  title?: string;
+  description?: string;
+  keywords?: string[];
+  image?: string;
+};
+
 type ImageBlock = {
   url: string;
   alt: string;
@@ -130,9 +137,14 @@ export type ProductRecord = {
 export type AdminCategoryRow = {
   id: string;
   name: string;
+  short_description: string;
   description: string;
   image_url: string;
   parent_id: string | null;
+  seo_title: string;
+  seo_description: string;
+  seo_keywords: string;
+  seo_image: string;
   created_at: string;
 };
 
@@ -144,6 +156,10 @@ export type AdminProductRow = {
   short_description: string;
   badges: string;
   category_id: string;
+  seo_title: string;
+  seo_description: string;
+  seo_keywords: string;
+  seo_image: string;
   created_at: string;
 };
 
@@ -230,6 +246,26 @@ function toStoredRich(value: string): TipTapDoc {
   return normalizeRichContent(value);
 }
 
+function serializeRichForAdmin(value: unknown): string {
+  if (typeof value === 'string') {
+    try {
+      const parsed = JSON.parse(value) as unknown;
+      if (isTipTapDoc(parsed)) {
+        return JSON.stringify(parsed);
+      }
+    } catch {
+      // value is plain text; convert to TipTap doc
+    }
+    return JSON.stringify(defaultRichText(value));
+  }
+
+  if (isTipTapDoc(value)) {
+    return JSON.stringify(value);
+  }
+
+  return JSON.stringify(defaultRichText());
+}
+
 function toObjectId(value: string): ObjectId | null {
   return ObjectId.isValid(value) ? new ObjectId(value) : null;
 }
@@ -282,6 +318,15 @@ function seoDefaults(title: string, description: string, image: string): SeoBloc
     description,
     keywords: [],
     image,
+  };
+}
+
+function buildSeo(input: SeoInput | undefined, fallbackTitle: string, fallbackDescription: string, fallbackImage: string): SeoBlock {
+  return {
+    title: input?.title?.trim() || fallbackTitle,
+    description: input?.description?.trim() || fallbackDescription,
+    keywords: Array.isArray(input?.keywords) ? input!.keywords.map((item) => item.trim()).filter(Boolean) : [],
+    image: input?.image?.trim() || fallbackImage,
   };
 }
 
@@ -830,9 +875,11 @@ export async function getAdminCategories(): Promise<AdminCategoryRow[]> {
         projection: {
           _id: 1,
           name: 1,
+          shortDescription: 1,
           description: 1,
           image: 1,
           parentId: 1,
+          seo: 1,
           createdAt: 1,
         },
       }
@@ -843,9 +890,14 @@ export async function getAdminCategories(): Promise<AdminCategoryRow[]> {
   return rows.map((row) => ({
     id: idToString(row._id),
     name: row.name,
-    description: JSON.stringify(row.description || defaultRichText()),
+    short_description: serializeRichForAdmin(row.shortDescription),
+    description: serializeRichForAdmin(row.description),
     image_url: row.image?.url || '',
     parent_id: row.parentId ? idToString(row.parentId) : null,
+    seo_title: row.seo?.title || '',
+    seo_description: row.seo?.description || '',
+    seo_keywords: JSON.stringify(Array.isArray(row.seo?.keywords) ? row.seo.keywords : []),
+    seo_image: row.seo?.image || '',
     created_at: asIsoString(row.createdAt),
   }));
 }
@@ -854,7 +906,9 @@ export async function createAdminCategory(input: {
   name: string;
   imageUrl: string;
   parentId: string | null;
+  shortDescription: string;
   description: string;
+  seo?: SeoInput;
 }): Promise<void> {
   await ensureIndexes();
   const db = await getMongoDb();
@@ -864,11 +918,11 @@ export async function createAdminCategory(input: {
     _id: new ObjectId(),
     slug: toSlug(input.name),
     name: input.name,
-    shortDescription: defaultRichText(),
+    shortDescription: toStoredRich(input.shortDescription),
     description: toStoredRich(input.description),
     image: { url: input.imageUrl, alt: `${input.name} image` },
     parentId: input.parentId ? toObjectId(input.parentId) : null,
-    seo: seoDefaults(`${input.name} Printing`, input.name, input.imageUrl),
+    seo: buildSeo(input.seo, `${input.name} Printing`, input.name, input.imageUrl),
     isActive: true,
     sortOrder: 1,
     createdAt: now,
@@ -882,7 +936,9 @@ export async function updateAdminCategory(
     name: string;
     imageUrl: string;
     parentId: string | null;
+    shortDescription: string;
     description: string;
+    seo?: SeoInput;
   }
 ): Promise<void> {
   const objectId = toObjectId(id);
@@ -896,10 +952,11 @@ export async function updateAdminCategory(
       $set: {
         slug: toSlug(input.name),
         name: input.name,
+        shortDescription: toStoredRich(input.shortDescription),
         description: toStoredRich(input.description),
         image: { url: input.imageUrl, alt: `${input.name} image` },
         parentId: input.parentId ? toObjectId(input.parentId) : null,
-        seo: seoDefaults(`${input.name} Printing`, input.name, input.imageUrl),
+        seo: buildSeo(input.seo, `${input.name} Printing`, input.name, input.imageUrl),
         updatedAt: new Date(),
       },
     }
@@ -954,6 +1011,7 @@ export async function getAdminProducts(): Promise<AdminProductRow[]> {
           shortDescription: 1,
           badges: 1,
           categoryIds: 1,
+          seo: 1,
           createdAt: 1,
         },
       }
@@ -965,10 +1023,14 @@ export async function getAdminProducts(): Promise<AdminProductRow[]> {
     id: idToString(row._id),
     name: row.name,
     image_url: JSON.stringify((row.images || []).map((item) => item.url)),
-    description: JSON.stringify(row.description || defaultRichText()),
-    short_description: JSON.stringify(row.shortDescription || defaultRichText()),
+    description: serializeRichForAdmin(row.description),
+    short_description: serializeRichForAdmin(row.shortDescription),
     badges: JSON.stringify(row.badges || []),
     category_id: JSON.stringify((row.categoryIds || []).map((item) => idToString(item)).filter(Boolean)),
+    seo_title: row.seo?.title || '',
+    seo_description: row.seo?.description || '',
+    seo_keywords: JSON.stringify(Array.isArray(row.seo?.keywords) ? row.seo.keywords : []),
+    seo_image: row.seo?.image || '',
     created_at: asIsoString(row.createdAt),
   }));
 }
@@ -980,6 +1042,7 @@ export async function createAdminProduct(input: {
   categoryIds: string[];
   description: string;
   shortDescription: string;
+  seo?: SeoInput;
 }): Promise<void> {
   await ensureIndexes();
   const db = await getMongoDb();
@@ -995,7 +1058,7 @@ export async function createAdminProduct(input: {
     images: input.imageUrls.map((url, index) => ({ url, alt: `${input.name} image ${index + 1}` })),
     badges: input.badges,
     categoryIds: input.categoryIds.map((id) => toObjectId(id)).filter((item): item is ObjectId => Boolean(item)),
-    seo: seoDefaults(`${input.name} Printing`, input.name, imageUrl),
+    seo: buildSeo(input.seo, `${input.name} Printing`, input.name, imageUrl),
     isFeatured: input.badges.some((badge) => badge.toLowerCase() === 'featured'),
     isActive: true,
     sortOrder: 1,
@@ -1013,6 +1076,7 @@ export async function updateAdminProduct(
     categoryIds: string[];
     description: string;
     shortDescription: string;
+    seo?: SeoInput;
   }
 ): Promise<void> {
   const objectId = toObjectId(id);
@@ -1032,7 +1096,7 @@ export async function updateAdminProduct(
         images: input.imageUrls.map((url, index) => ({ url, alt: `${input.name} image ${index + 1}` })),
         badges: input.badges,
         categoryIds: input.categoryIds.map((value) => toObjectId(value)).filter((item): item is ObjectId => Boolean(item)),
-        seo: seoDefaults(`${input.name} Printing`, input.name, imageUrl),
+        seo: buildSeo(input.seo, `${input.name} Printing`, input.name, imageUrl),
         isFeatured: input.badges.some((badge) => badge.toLowerCase() === 'featured'),
         updatedAt: new Date(),
       },

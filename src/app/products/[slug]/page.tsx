@@ -34,32 +34,34 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const productImage = getPrimaryImage(product) || category?.image.url || '';
   const productDescription = richContentToPlainText(product.shortDescription) || richContentToPlainText(product.description);
   const canonicalPath = getProductPath(product.id, product.name);
+  const seoTitle = product.seo?.title || `${product.name} Printing in London`;
+  const seoDescription =
+    product.seo?.description || `${productDescription} Request a quote for ${product.name.toLowerCase()} printing with Prime Prints.`;
+  const seoKeywords = product.seo?.keywords?.length
+    ? product.seo.keywords
+    : [product.name.toLowerCase(), `${product.name.toLowerCase()} printing`, 'printing london', 'same day printing'];
+  const seoImage = product.seo?.image || productImage;
 
   return {
-    title: `${product.name} Printing in London`,
-    description: `${productDescription} Request a quote for ${product.name.toLowerCase()} printing with Prime Prints.`,
+    title: seoTitle,
+    description: seoDescription,
     alternates: {
       canonical: canonicalPath,
     },
-    keywords: [
-      product.name.toLowerCase(),
-      `${product.name.toLowerCase()} printing`,
-      'printing london',
-      'same day printing',
-    ],
+    keywords: seoKeywords,
     openGraph: {
-      title: `${product.name} Printing in London | Prime Prints`,
-      description: productDescription,
+      title: seoTitle,
+      description: seoDescription,
       url: canonicalPath,
       siteName: 'Prime Prints',
-      images: [{ url: productImage, alt: product.name }],
+      images: [{ url: seoImage, alt: product.name }],
       type: 'website',
     },
     twitter: {
       card: 'summary_large_image',
-      title: `${product.name} Printing in London | Prime Prints`,
-      description: productDescription,
-      images: [productImage],
+      title: seoTitle,
+      description: seoDescription,
+      images: [seoImage],
     },
   };
 }

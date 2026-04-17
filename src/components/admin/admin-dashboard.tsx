@@ -27,9 +27,14 @@ import ReviewManager, { type AdminReviewItem } from '@/components/admin/review-m
 type Category = {
   id: string;
   name: string;
+  short_description?: string;
   description: string;
   image_url: string;
   parent_id: string | null;
+  seo_title?: string;
+  seo_description?: string;
+  seo_keywords?: string;
+  seo_image?: string;
 };
 
 type Product = {
@@ -40,6 +45,10 @@ type Product = {
   short_description: string;
   badges: string;
   category_id: string;
+  seo_title?: string;
+  seo_description?: string;
+  seo_keywords?: string;
+  seo_image?: string;
 };
 
 type Props = {
@@ -61,7 +70,12 @@ const emptyCategoryForm = {
   name: '',
   imageUrl: '',
   parentId: '',
+  shortDescription: '',
   description: '',
+  seoTitle: '',
+  seoDescription: '',
+  seoKeywords: '',
+  seoImage: '',
 };
 
 const emptyProductForm = {
@@ -71,6 +85,10 @@ const emptyProductForm = {
   categoryIds: [] as string[],
   description: '',
   shortDescription: '',
+  seoTitle: '',
+  seoDescription: '',
+  seoKeywords: '',
+  seoImage: '',
 };
 
 function parseJsonArray(raw: string): string[] {
@@ -82,16 +100,41 @@ function parseJsonArray(raw: string): string[] {
   }
 }
 
+function parseSeoKeywords(raw: string | undefined): string {
+  if (!raw) return '';
+  const parsed = parseJsonArray(raw);
+  if (parsed.length > 0) return parsed.join(', ');
+  return raw;
+}
+
 function getTextFromTiptapJson(raw: string): string {
-  try {
-    const parsed = JSON.parse(raw) as { content?: unknown[] };
-    const text = JSON.stringify(parsed.content ?? [])
+  const compactText = (value: string): string => (value.length > 120 ? `${value.slice(0, 117)}...` : value);
+
+  const fromDoc = (value: unknown): string => {
+    if (!value || typeof value !== 'object') return '';
+    const doc = value as { content?: unknown };
+    if (!Array.isArray(doc.content)) return '';
+    const text = JSON.stringify(doc.content)
       .replace(/[{}\[\]"]+/g, ' ')
       .replace(/\s+/g, ' ')
       .trim();
-    return text.length > 120 ? `${text.slice(0, 117)}...` : text;
+    return compactText(text);
+  };
+
+  try {
+    const parsed = JSON.parse(raw) as unknown;
+    if (typeof parsed === 'string') {
+      try {
+        const nested = JSON.parse(parsed) as unknown;
+        return fromDoc(nested) || compactText(parsed);
+      } catch {
+        return compactText(parsed);
+      }
+    }
+
+    return fromDoc(parsed) || compactText(raw);
   } catch {
-    return raw.slice(0, 120);
+    return compactText(raw);
   }
 }
 
@@ -193,7 +236,17 @@ export default function AdminDashboard({ adminEmail }: Props) {
         name: categoryForm.name,
         imageUrl: categoryForm.imageUrl,
         parentId: categoryForm.parentId || null,
+        shortDescription: categoryForm.shortDescription,
         description: categoryForm.description,
+        seo: {
+          title: categoryForm.seoTitle,
+          description: categoryForm.seoDescription,
+          keywords: categoryForm.seoKeywords
+            .split(',')
+            .map((item) => item.trim())
+            .filter(Boolean),
+          image: categoryForm.seoImage,
+        },
       }),
     });
 
@@ -241,6 +294,15 @@ export default function AdminDashboard({ adminEmail }: Props) {
         categoryIds: productForm.categoryIds,
         description: productForm.description,
         shortDescription: productForm.shortDescription,
+        seo: {
+          title: productForm.seoTitle,
+          description: productForm.seoDescription,
+          keywords: productForm.seoKeywords
+            .split(',')
+            .map((item) => item.trim())
+            .filter(Boolean),
+          image: productForm.seoImage,
+        },
       }),
     });
 
@@ -331,7 +393,12 @@ export default function AdminDashboard({ adminEmail }: Props) {
       name: item.name,
       imageUrl: item.image_url,
       parentId: item.parent_id || '',
+      shortDescription: item.short_description || '',
       description: item.description,
+      seoTitle: item.seo_title || '',
+      seoDescription: item.seo_description || '',
+      seoKeywords: parseSeoKeywords(item.seo_keywords),
+      seoImage: item.seo_image || '',
     });
     setActiveSection('categories');
     setDrawerOpen(false);
@@ -351,6 +418,10 @@ export default function AdminDashboard({ adminEmail }: Props) {
       categoryIds,
       description: item.description,
       shortDescription: item.short_description,
+      seoTitle: item.seo_title || '',
+      seoDescription: item.seo_description || '',
+      seoKeywords: parseSeoKeywords(item.seo_keywords),
+      seoImage: item.seo_image || '',
     });
     setActiveSection('products');
     setDrawerOpen(false);
@@ -701,10 +772,45 @@ export default function AdminDashboard({ adminEmail }: Props) {
                 </select>
 
                 <RichEditorField
+                  label="Short Description"
+                  value={categoryForm.shortDescription}
+                  onChange={(value) => setCategoryForm((state) => ({ ...state, shortDescription: value }))}
+                  minRows={6}
+                />
+
+                <RichEditorField
                   label="Description"
                   value={categoryForm.description}
                   onChange={(value) => setCategoryForm((state) => ({ ...state, description: value }))}
                   minRows={8}
+                />
+
+                <div className="grid gap-3 md:grid-cols-2">
+                  <input
+                    value={categoryForm.seoTitle}
+                    onChange={(event) => setCategoryForm((state) => ({ ...state, seoTitle: event.target.value }))}
+                    placeholder="SEO title"
+                    className="w-full rounded-xl border border-[#d2c1b6] px-3 py-2 text-sm outline-none focus:border-[#234c6a]"
+                  />
+                  <input
+                    value={categoryForm.seoImage}
+                    onChange={(event) => setCategoryForm((state) => ({ ...state, seoImage: event.target.value }))}
+                    placeholder="SEO image URL"
+                    className="w-full rounded-xl border border-[#d2c1b6] px-3 py-2 text-sm outline-none focus:border-[#234c6a]"
+                  />
+                </div>
+                <textarea
+                  rows={3}
+                  value={categoryForm.seoDescription}
+                  onChange={(event) => setCategoryForm((state) => ({ ...state, seoDescription: event.target.value }))}
+                  placeholder="SEO description"
+                  className="w-full rounded-xl border border-[#d2c1b6] px-3 py-2 text-sm outline-none focus:border-[#234c6a]"
+                />
+                <input
+                  value={categoryForm.seoKeywords}
+                  onChange={(event) => setCategoryForm((state) => ({ ...state, seoKeywords: event.target.value }))}
+                  placeholder="SEO keywords (comma separated)"
+                  className="w-full rounded-xl border border-[#d2c1b6] px-3 py-2 text-sm outline-none focus:border-[#234c6a]"
                 />
               </div>
 
@@ -740,6 +846,8 @@ export default function AdminDashboard({ adminEmail }: Props) {
                         <p className="mt-1 text-xs text-[#234c6a]">
                           Parent: {item.parent_id ? categoryNameById.get(item.parent_id) || item.parent_id : 'None'}
                         </p>
+                        <p className="mt-1 text-xs text-[#456882]">{getTextFromTiptapJson(item.short_description || '') || 'No short description.'}</p>
+                        <p className="mt-1 text-xs text-[#456882]">{getTextFromTiptapJson(item.description) || 'No description.'}</p>
                       </div>
                       <div className="flex items-center gap-1">
                         <button
@@ -842,6 +950,34 @@ export default function AdminDashboard({ adminEmail }: Props) {
                   value={productForm.description}
                   onChange={(value) => setProductForm((state) => ({ ...state, description: value }))}
                   minRows={8}
+                />
+
+                <div className="grid gap-3 md:grid-cols-2">
+                  <input
+                    value={productForm.seoTitle}
+                    onChange={(event) => setProductForm((state) => ({ ...state, seoTitle: event.target.value }))}
+                    placeholder="SEO title"
+                    className="w-full rounded-xl border border-[#d2c1b6] px-3 py-2 text-sm outline-none focus:border-[#234c6a]"
+                  />
+                  <input
+                    value={productForm.seoImage}
+                    onChange={(event) => setProductForm((state) => ({ ...state, seoImage: event.target.value }))}
+                    placeholder="SEO image URL"
+                    className="w-full rounded-xl border border-[#d2c1b6] px-3 py-2 text-sm outline-none focus:border-[#234c6a]"
+                  />
+                </div>
+                <textarea
+                  rows={3}
+                  value={productForm.seoDescription}
+                  onChange={(event) => setProductForm((state) => ({ ...state, seoDescription: event.target.value }))}
+                  placeholder="SEO description"
+                  className="w-full rounded-xl border border-[#d2c1b6] px-3 py-2 text-sm outline-none focus:border-[#234c6a]"
+                />
+                <input
+                  value={productForm.seoKeywords}
+                  onChange={(event) => setProductForm((state) => ({ ...state, seoKeywords: event.target.value }))}
+                  placeholder="SEO keywords (comma separated)"
+                  className="w-full rounded-xl border border-[#d2c1b6] px-3 py-2 text-sm outline-none focus:border-[#234c6a]"
                 />
               </div>
 
