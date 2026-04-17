@@ -1,5 +1,40 @@
 import type { NextConfig } from 'next';
 
+function getSiteHostname(): string | null {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+  if (!siteUrl) return null;
+
+  try {
+    return new URL(siteUrl).hostname;
+  } catch {
+    return null;
+  }
+}
+
+function getExtraImageHosts(): string[] {
+  const raw = process.env.NEXT_PUBLIC_IMAGE_HOSTS;
+  if (!raw) return [];
+
+  return raw
+    .split(',')
+    .map((value) => value.trim())
+    .filter(Boolean);
+}
+
+const imageHostnames = Array.from(
+  new Set([
+    'images.unsplash.com',
+    'plus.unsplash.com',
+    'lh3.googleusercontent.com',
+    // Hostinger-hosted assets are often served from these domains.
+    'cdn.hstgr.io',
+    '**.hostinger.com',
+    '**.hostinger.io',
+    getSiteHostname(),
+    ...getExtraImageHosts(),
+  ].filter((value): value is string => Boolean(value)))
+);
+
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
@@ -12,16 +47,10 @@ const nextConfig: NextConfig = {
     formats: ['image/avif', 'image/webp'],
     /** Fewer repeat optimizations / origin fetches for Unsplash URLs at runtime. */
     minimumCacheTTL: 60 * 60 * 24 * 7,
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'images.unsplash.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'lh3.googleusercontent.com',
-      },
-    ],
+    remotePatterns: imageHostnames.map((hostname) => ({
+      protocol: 'https',
+      hostname,
+    })),
   },
   async headers() {
     return [

@@ -60,7 +60,7 @@ export async function getNavCategories(): Promise<NavCategory[]> {
   const { categories, products } = await getSafeCatalogSnapshot();
 
   return categories.map((category) => {
-      const categoryProducts = products.filter((product) => product.categoryIds.includes(category.id)).slice(0, 6);
+      const categoryProducts = products.filter((product) => product.categoryIds.includes(category.id));
       return {
         ...category,
         products: categoryProducts.map((product) => ({
