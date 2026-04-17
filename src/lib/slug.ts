@@ -11,6 +11,6 @@ export function getCategoryPath(id: string, name: string): string {
   return `/categories/${toSlug(name) || id}`;
 }
 
-export function getProductPath(id: string, name: string): string {
-  return `/products/${toSlug(name) || id}`;
+export function getProductPath(id: string, name: string, slug?: string): string {
+  return `/products/${slug || toSlug(name) || id}`;
 }

@@ -175,7 +175,7 @@ export default function Navbar({ categories }: NavbarProps) {
         if (productScore > 0) {
           results.push({
             label: product.name,
-            href: getProductPath(product.id, product.name),
+            href: getProductPath(product.id, product.name, product.slug),
             type: 'product',
             score: productScore,
           });
@@ -359,7 +359,7 @@ export default function Navbar({ categories }: NavbarProps) {
                       {section.map((product) => (
                         <li key={product.id}>
                           <Link
-                            href={getProductPath(product.id, product.name)}
+                            href={getProductPath(product.id, product.name, product.slug)}
                             prefetch={false}
                             className="group/item flex items-center justify-between py-0.5 text-[14px] font-medium text-stone-600 transition hover:text-[#234C6A]"
                           >
@@ -463,7 +463,7 @@ export default function Navbar({ categories }: NavbarProps) {
                         {cat.products.map((product) => (
                           <Link
                             key={product.id}
-                            href={getProductPath(product.id, product.name)}
+                            href={getProductPath(product.id, product.name, product.slug)}
                             prefetch={false}
                             onClick={() => setIsMobileMenuOpen(false)}
                             className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-stone-600 transition hover:bg-white hover:text-[#234C6A]"

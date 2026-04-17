@@ -22,7 +22,7 @@ const getProductsCached = cache(async (limit: number) => getProducts(limit));
 
 export async function generateStaticParams() {
   const products = await getProducts(1000);
-  return products.map((product) => ({ slug: toSlug(product.name) || product.id }));
+  return products.map((product) => ({ slug: product.slug || toSlug(product.name) || product.id }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
@@ -39,7 +39,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const category = await getCategoryByIdCached(product.categoryIds[0] ?? '');
   const productImage = getPrimaryImage(product) || category?.image.url || '';
   const productDescription = richContentToPlainText(product.shortDescription) || richContentToPlainText(product.description);
-  const canonicalPath = getProductPath(product.id, product.name);
+  const canonicalPath = getProductPath(product.id, product.name, product.slug);
   const seoTitle = product.seo?.title || `${product.name} Printing in London`;
   const seoDescription =
     product.seo?.description || `${productDescription} Request a quote for ${product.name.toLowerCase()} printing with Prime Prints.`;
@@ -115,7 +115,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
       '@type': 'Brand',
       name: 'Prime Prints',
     },
-    url: `${siteUrl}${getProductPath(product.id, product.name)}`,
+    url: `${siteUrl}${getProductPath(product.id, product.name, product.slug)}`,
   };
 
   const breadcrumbJsonLd = {
@@ -138,7 +138,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
         '@type': 'ListItem',
         position: 3,
         name: product.name,
-        item: `${siteUrl}${getProductPath(product.id, product.name)}`,
+        item: `${siteUrl}${getProductPath(product.id, product.name, product.slug)}`,
       },
     ],
   };
@@ -186,7 +186,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
               </div>
               <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                 {related.map((rel) => (
-                  <Link key={rel.id} href={getProductPath(rel.id, rel.name)} prefetch={false} className="group block">
+                  <Link key={rel.id} href={getProductPath(rel.id, rel.name, rel.slug)} prefetch={false} className="group block">
                     <div className="group cursor-pointer">
                       <div className="relative mb-4 aspect-square overflow-hidden rounded-3xl bg-stone-200">
                         <Image
@@ -217,7 +217,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
 
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {otherCategoryProducts.map((item) => (
-                  <Link key={item.id} href={getProductPath(item.id, item.name)} prefetch={false} className="group block">
+                  <Link key={item.id} href={getProductPath(item.id, item.name, item.slug)} prefetch={false} className="group block">
                     <div className="group cursor-pointer">
                       <div className="relative mb-4 aspect-square overflow-hidden rounded-3xl bg-stone-200">
                         <Image

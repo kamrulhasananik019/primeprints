@@ -101,7 +101,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
       itemListElement: products.map((product, index) => ({
         '@type': 'ListItem',
         position: index + 1,
-        url: `${siteUrl}${getProductPath(product.id, product.name)}`,
+        url: `${siteUrl}${getProductPath(product.id, product.name, product.slug)}`,
         name: product.name,
       })),
     },
@@ -166,7 +166,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
             <p className="mb-8 text-sm text-stone-500">Click any product to view full details and image gallery.</p>
             <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
               {products.map((product) => (
-                <Link key={product.id} href={getProductPath(product.id, product.name)} prefetch={false}>
+                <Link key={product.id} href={getProductPath(product.id, product.name, product.slug)} prefetch={false}>
                   <div className="group cursor-pointer rounded-3xl border border-stone-200 bg-white p-3 transition hover:border-stone-300 hover:shadow-md">
                     <div className="relative mb-4 aspect-4/5 overflow-hidden rounded-3xl bg-stone-200">
                       <Image

@@ -321,6 +321,29 @@ function seoDefaults(title: string, description: string, image: string): SeoBloc
   };
 }
 
+async function resolveUniqueProductSlug(baseSlug: string, excludeId?: ObjectId): Promise<string> {
+  const db = await getMongoDb();
+  const collection = db.collection<ProductDoc>('products');
+  const rootSlug = baseSlug || 'product';
+  let candidate = rootSlug;
+  let suffix = 2;
+
+  while (true) {
+    const query: Record<string, unknown> = { slug: candidate };
+    if (excludeId) {
+      query._id = { $ne: excludeId };
+    }
+
+    const existing = await collection.findOne(query, { projection: { _id: 1 } });
+    if (!existing) {
+      return candidate;
+    }
+
+    candidate = `${rootSlug}-${suffix}`;
+    suffix += 1;
+  }
+}
+
 function buildSeo(input: SeoInput | undefined, fallbackTitle: string, fallbackDescription: string, fallbackImage: string): SeoBlock {
   return {
     title: input?.title?.trim() || fallbackTitle,
@@ -1048,10 +1071,11 @@ export async function createAdminProduct(input: {
   const db = await getMongoDb();
   const now = new Date();
   const imageUrl = input.imageUrls[0] || '';
+  const slug = await resolveUniqueProductSlug(toSlug(input.name));
 
   await db.collection<ProductDoc>('products').insertOne({
     _id: new ObjectId(),
-    slug: toSlug(input.name),
+    slug,
     name: input.name,
     shortDescription: toStoredRich(input.shortDescription),
     description: toStoredRich(input.description),
@@ -1085,11 +1109,12 @@ export async function updateAdminProduct(
   await ensureIndexes();
   const db = await getMongoDb();
   const imageUrl = input.imageUrls[0] || '';
+  const slug = await resolveUniqueProductSlug(toSlug(input.name), objectId);
   await db.collection<ProductDoc>('products').updateOne(
     { _id: objectId },
     {
       $set: {
-        slug: toSlug(input.name),
+        slug,
         name: input.name,
         shortDescription: toStoredRich(input.shortDescription),
         description: toStoredRich(input.description),

@@ -12,7 +12,7 @@ export type CategoryWithProducts = CatalogCategory & {
 
 export type NavProduct = Pick<
   CatalogProduct,
-  'id' | 'name' | 'shortDescription' | 'description' | 'badges' | 'isActive' | 'isFeatured' | 'seo'
+  'id' | 'slug' | 'name' | 'shortDescription' | 'description' | 'badges' | 'isActive' | 'isFeatured' | 'seo'
 >;
 
 export type NavCategory = CatalogCategory & {
@@ -65,6 +65,7 @@ export async function getNavCategories(): Promise<NavCategory[]> {
         ...category,
         products: categoryProducts.map((product) => ({
           id: product.id,
+          slug: product.slug,
           name: product.name,
           shortDescription: product.shortDescription,
           description: product.description,

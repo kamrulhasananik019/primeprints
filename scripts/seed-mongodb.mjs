@@ -35,6 +35,19 @@ function slugify(value) {
     .replace(/^-+|-+$/g, '');
 }
 
+async function resolveUniqueProductSlug(productsCollection, baseSlug) {
+  const rootSlug = baseSlug || 'product';
+  let candidate = rootSlug;
+  let suffix = 2;
+
+  while (await productsCollection.findOne({ slug: candidate }, { projection: { _id: 1 } })) {
+    candidate = `${rootSlug}-${suffix}`;
+    suffix += 1;
+  }
+
+  return candidate;
+}
+
 function richDoc(text, bullets = []) {
   const content = [];
   if (text) {
@@ -306,7 +319,7 @@ async function main() {
   ];
 
   for (const item of productSeed) {
-    const slug = slugify(item.name);
+    const slug = await resolveUniqueProductSlug(products, slugify(item.name));
     const primaryImage = item.images[0] || '';
     const categoryIds = (item.categorySlugs || []).map((slugName) => categoryBySlug.get(slugName)).filter(Boolean);
     await products.updateOne(
