@@ -10,7 +10,10 @@ export type CategoryWithProducts = CatalogCategory & {
   products: CatalogProduct[];
 };
 
-export type NavProduct = Pick<CatalogProduct, 'id' | 'name'>;
+export type NavProduct = Pick<
+  CatalogProduct,
+  'id' | 'name' | 'shortDescription' | 'description' | 'badges' | 'isActive' | 'isFeatured' | 'seo'
+>;
 
 export type NavCategory = CatalogCategory & {
   products: NavProduct[];
@@ -60,7 +63,16 @@ export async function getNavCategories(): Promise<NavCategory[]> {
       const categoryProducts = products.filter((product) => product.categoryIds.includes(category.id)).slice(0, 6);
       return {
         ...category,
-        products: categoryProducts.map((product) => ({ id: product.id, name: product.name })),
+        products: categoryProducts.map((product) => ({
+          id: product.id,
+          name: product.name,
+          shortDescription: product.shortDescription,
+          description: product.description,
+          badges: product.badges,
+          isActive: product.isActive,
+          isFeatured: product.isFeatured,
+          seo: product.seo,
+        })),
       };
     });
 }

@@ -32,7 +32,7 @@ const contactMethods = [
     label: "Call the studio",
     value: "+44 (20) 555-0147",
     href: "tel:+44205550147",
-    helper: "Monday to Friday, 8:00 AM to 6:00 PM",
+    helper: "Available 24/7",
   },
   {
     icon: Mail,
@@ -51,9 +51,7 @@ const contactMethods = [
 ];
 
 const officeHours = [
-  { day: "Monday to Friday", hours: "8:00 AM - 6:00 PM" },
-  { day: "Saturday", hours: "9:00 AM - 2:00 PM" },
-  { day: "Sunday", hours: "Closed" },
+  { day: "Every day", hours: "24/7" },
 ];
 
 type ContactPageContentProps = {

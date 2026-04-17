@@ -32,6 +32,29 @@ function chunkProducts<T>(items: T[], size: number): T[][] {
   return chunks;
 }
 
+function normalizeSearchText(value: string) {
+  return value.toLowerCase().replace(/\s+/g, ' ').trim();
+}
+
+function scoreSearchField(value: string | undefined, query: string, weight: number) {
+  const normalizedValue = normalizeSearchText(value || '');
+  const normalizedQuery = normalizeSearchText(query);
+
+  if (!normalizedValue || !normalizedQuery) return 0;
+  if (normalizedValue === normalizedQuery) return weight * 4;
+  if (normalizedValue.startsWith(normalizedQuery)) return weight * 3;
+  if (normalizedValue.includes(normalizedQuery)) return weight * 2;
+
+  let score = 0;
+  for (const term of normalizedQuery.split(' ')) {
+    if (term && normalizedValue.includes(term)) {
+      score += weight * 0.35;
+    }
+  }
+
+  return score;
+}
+
 export default function Navbar({ categories }: NavbarProps) {
   const pathname = usePathname();
   const router = useRouter();
@@ -103,21 +126,64 @@ export default function Navbar({ categories }: NavbarProps) {
     : '';
 
   const searchResults = useMemo(() => {
-    const text = query.trim().toLowerCase();
+    const text = query.trim();
     if (!text) return [];
 
-    const results: Array<{ label: string; href: string; type: 'category' | 'product' }> = [];
+    const results: Array<{ label: string; href: string; type: 'category' | 'product'; score: number }> = [];
+
+    const scoreCategory = (category: NavCategory) => {
+      const statusText = category.isActive ? 'active' : 'hidden';
+      return (
+        scoreSearchField(category.name, text, 100) +
+        scoreSearchField(category.seo?.title, text, 70) +
+        scoreSearchField(category.shortDescription ? richContentToPlainText(category.shortDescription) : '', text, 60) +
+        scoreSearchField(richContentToPlainText(category.description), text, 45) +
+        scoreSearchField(category.seo?.description, text, 30) +
+        scoreSearchField(statusText, text, 25)
+      );
+    };
+
+    const scoreProduct = (product: NavCategory['products'][number]) => {
+      const statusText = product.isActive ? 'active' : 'hidden';
+      const badgeText = product.badges.join(' ');
+      const featuredText = product.isFeatured ? 'featured' : '';
+
+      return (
+        scoreSearchField(product.name, text, 100) +
+        scoreSearchField(product.seo?.title, text, 70) +
+        scoreSearchField(product.shortDescription ? richContentToPlainText(product.shortDescription) : '', text, 60) +
+        scoreSearchField(richContentToPlainText(product.description), text, 45) +
+        scoreSearchField(product.seo?.description, text, 30) +
+        scoreSearchField(badgeText, text, 35) +
+        scoreSearchField(statusText, text, 25) +
+        scoreSearchField(featuredText, text, 15)
+      );
+    };
+
     for (const category of categories) {
-      if (category.name.toLowerCase().includes(text)) {
-        results.push({ label: category.name, href: getCategoryPath(category.id, category.name), type: 'category' });
+      const categoryScore = scoreCategory(category);
+      if (categoryScore > 0) {
+        results.push({
+          label: category.name,
+          href: getCategoryPath(category.id, category.name),
+          type: 'category',
+          score: categoryScore,
+        });
       }
       for (const product of category.products) {
-        if (product.name.toLowerCase().includes(text)) {
-          results.push({ label: product.name, href: getProductPath(product.id, product.name), type: 'product' });
+        const productScore = scoreProduct(product);
+        if (productScore > 0) {
+          results.push({
+            label: product.name,
+            href: getProductPath(product.id, product.name),
+            type: 'product',
+            score: productScore,
+          });
         }
       }
     }
-    return results.slice(0, 8);
+
+    return results.sort((left, right) => right.score - left.score).slice(0, 8);
   }, [query, categories]);
 
   const handleSearchSubmit = (event: React.FormEvent) => {
