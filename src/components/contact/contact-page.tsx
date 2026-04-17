@@ -118,7 +118,6 @@ export default function ContactPageContent({ categories }: ContactPageContentPro
     };
   }, [searchParams, sortedCategories]);
 
-  const [isSubmitted, setIsSubmitted] = useState(false);
   const [selectedCategorySlug, setSelectedCategorySlug] = useState(
     initialSelection.categorySlug
   );
@@ -131,6 +130,9 @@ export default function ContactPageContent({ categories }: ContactPageContentPro
   const [customProduct, setCustomProduct] = useState(
     initialSelection.customProductText
   );
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitMessage, setSubmitMessage] = useState("");
+  const [submitError, setSubmitError] = useState("");
 
   const selectedCategory = sortedCategories.find(
     (category) => category.id === selectedCategorySlug
@@ -144,14 +146,66 @@ export default function ContactPageContent({ categories }: ContactPageContentPro
   const isCustomProduct = selectedProductSlug === CUSTOM_PRODUCT_VALUE;
   const canSelectProduct = Boolean(selectedCategorySlug);
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const selectedCategoryTitle = isCustomCategory
+    ? customCategory.trim()
+    : selectedCategory?.name || "";
+
+  const selectedProductTitle = isCustomProduct
+    ? customProduct.trim()
+    : productsForCategory.find((product) => product.id === selectedProductSlug)?.name || "";
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    event.currentTarget.reset();
-    setSelectedCategorySlug("");
-    setSelectedProductSlug("");
-    setCustomCategory("");
-    setCustomProduct("");
-    setIsSubmitted(true);
+
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+    const payload = {
+      name: String(formData.get("name") || "").trim(),
+      company: String(formData.get("company") || "").trim(),
+      email: String(formData.get("email") || "").trim(),
+      phone: String(formData.get("phone") || "").trim(),
+      category: String(formData.get("category") || "").trim(),
+      categoryTitle: selectedCategoryTitle,
+      product: String(formData.get("product") || "").trim(),
+      productTitle: selectedProductTitle,
+      deadline: String(formData.get("deadline") || "").trim(),
+      details: String(formData.get("details") || "").trim(),
+    };
+
+    setIsSubmitting(true);
+    setSubmitMessage("");
+    setSubmitError("");
+
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const result = (await response.json().catch(() => ({}))) as {
+        ok?: boolean;
+        message?: string;
+        error?: string;
+      };
+
+      if (!response.ok || !result.ok) {
+        throw new Error(result.error || "We could not send your request. Please try again.");
+      }
+
+      form.reset();
+      setSelectedCategorySlug("");
+      setSelectedProductSlug("");
+      setCustomCategory("");
+      setCustomProduct("");
+      setSubmitMessage(result.message || "Your request has been sent successfully.");
+    } catch (error) {
+      setSubmitError(error instanceof Error ? error.message : "Unable to submit the form.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -216,7 +270,7 @@ export default function ContactPageContent({ categories }: ContactPageContentPro
                 Fill in your details and select a category and product so our team can prepare the right quote.
               </p>
               
-              {isSubmitted && (
+              {submitMessage && (
                 <div className="mb-6 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
                   <div className="flex">
                     <div className="shrink-0">
@@ -224,17 +278,26 @@ export default function ContactPageContent({ categories }: ContactPageContentPro
                     </div>
                     <div className="ml-3">
                       <p className="text-sm font-medium text-emerald-800">
-                        Thank you! Your request has been sent successfully. We&apos;ll be in touch soon.
+                        {submitMessage}
                       </p>
                     </div>
                   </div>
                 </div>
               )}
 
+              {submitError && (
+                <div className="mb-6 rounded-xl border border-rose-200 bg-rose-50 p-4">
+                  <p className="text-sm font-medium text-rose-800">{submitError}</p>
+                </div>
+              )}
+
               <form
                 className="grid grid-cols-1 gap-y-6 sm:grid-cols-2 sm:gap-x-8"
                 onSubmit={handleSubmit}
-                onChange={() => setIsSubmitted(false)}
+                onChange={() => {
+                  setSubmitMessage("");
+                  setSubmitError("");
+                }}
               >
                 <div>
                   <label htmlFor="name" className="block text-sm font-medium text-stone-700">Full name</label>
@@ -435,10 +498,11 @@ export default function ContactPageContent({ categories }: ContactPageContentPro
                   </p>
                   <button
                     type="submit"
-                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-stone-900 bg-stone-900 px-6 py-3 text-base font-medium text-white shadow-sm transition hover:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-stone-900/20 focus:ring-offset-2"
+                    disabled={isSubmitting}
+                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-stone-900 bg-stone-900 px-6 py-3 text-base font-medium text-white shadow-sm transition hover:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-stone-900/20 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-stone-500"
                   >
                     <Send className="h-4 w-4" />
-                    Send Request
+                    {isSubmitting ? "Sending..." : "Send Request"}
                   </button>
                 </div>
               </form>
