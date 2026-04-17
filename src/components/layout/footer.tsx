@@ -6,7 +6,13 @@ export default function Footer() {
       <div className="container mx-auto px-4  py-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
           <div>
-            <p className="mb-3 text-xs uppercase tracking-[0.22em] text-[#D2C1B6]/70">Prime Prints</p>
+              <Link href="/" prefetch={false} className="flex items-center gap-2 my-2">
+              <div className="flex h-10 w-10 -rotate-12 items-center justify-center rounded-lg bg-[#234C6A] text-white shadow-lg shadow-[#456882]/40">
+                <span className="text-xl font-black italic">P</span>
+              </div>
+              <span className="text-2xl font-black tracking-tighter  text-white">primeprint</span>
+            </Link>
+            {/* <p className="mb-3 text-xs uppercase tracking-[0.22em] text-[#D2C1B6]/70">Prime Prints</p> */}
             <h3 className="mb-3 text-2xl font-black text-[#F4EFEB] font-[var(--font-playfair-display)]">
               Bring your ideas to print
             </h3>

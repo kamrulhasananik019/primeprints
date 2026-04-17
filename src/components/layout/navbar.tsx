@@ -348,7 +348,12 @@ export default function Navbar({ categories }: NavbarProps) {
           onClick={(e) => e.stopPropagation()}
         >
           <div className="flex items-center justify-between border-b p-5">
-            <span className="text-xl font-black italic tracking-tighter text-[#234C6A]">primeprint</span>
+             <Link href="/" prefetch={false} className="flex items-center gap-2">
+              <div className="flex h-10 w-10 -rotate-12 items-center justify-center rounded-lg bg-[#234C6A] text-white shadow-lg shadow-[#456882]/40">
+                <span className="text-xl font-black italic">P</span>
+              </div>
+              <span className="text-2xl font-black tracking-tighter text-stone-900">primeprint</span>
+            </Link>
             <button onClick={() => setIsMobileMenuOpen(false)} className="rounded-full p-2 hover:bg-stone-100" aria-label="Close menu">
               <X className="h-6 w-6 text-stone-400" />
             </button>
