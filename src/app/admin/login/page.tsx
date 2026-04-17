@@ -48,8 +48,7 @@ export default function AdminLoginPage() {
 
   return (
     <main className="mx-auto max-w-md px-4 py-20">
-      <h1 className="text-3xl font-black text-stone-900">Admin Login</h1>
-      <p className="mt-2 text-sm text-stone-600">Use ADMIN_EMAIL and ADMIN_PASSWORD from your environment.</p>
+      <h2 className="text-3xl font-black text-stone-900">Admin Login</h2>
       <form onSubmit={handleLogin} className="mt-6 space-y-4 rounded-2xl border border-stone-200 bg-white p-5">
         <input
           type="email"

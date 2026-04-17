@@ -93,6 +93,7 @@ async function main() {
   const products = db.collection('products');
   const admins = db.collection('admins');
   const review = db.collection('review');
+  const faqs = db.collection('faqs');
 
   await Promise.all([
     categories.createIndexes([
@@ -109,6 +110,10 @@ async function main() {
     review.createIndexes([
       { key: { status: 1, createdAt: -1 } },
       { key: { email: 1 } },
+    ]),
+    faqs.createIndexes([
+      { key: { isActive: 1 } },
+      { key: { sortOrder: 1, createdAt: -1 } },
     ]),
   ]);
 
@@ -382,6 +387,52 @@ async function main() {
       },
       { upsert: true }
     );
+  }
+
+  const faqSeed = [
+    {
+      question: 'What printing services do you offer?',
+      answer: 'We offer business cards, flyers, leaflets, posters, banners, and custom print products with fast turnaround options.',
+      sortOrder: 1,
+      isActive: true,
+    },
+    {
+      question: 'How quickly can I get my order?',
+      answer: 'Turnaround depends on the product, but we support urgent same-day and next-day production on selected items.',
+      sortOrder: 2,
+      isActive: true,
+    },
+    {
+      question: 'Can I request custom artwork or sizes?',
+      answer: 'Yes. The admin team can help with custom artwork, special sizes, and finishing options to match your brief.',
+      sortOrder: 3,
+      isActive: true,
+    },
+    {
+      question: 'Do you offer bulk discounts?',
+      answer: 'Yes. Larger orders can qualify for better rates, especially for repeat print jobs and campaign materials.',
+      sortOrder: 4,
+      isActive: true,
+    },
+  ];
+
+  const existingFaqs = await faqs.find({}, { projection: { question: 1 } }).toArray();
+  const existingFaqQuestions = new Set(existingFaqs.map((item) => String(item.question || '').toLowerCase()));
+
+  for (const item of faqSeed) {
+    if (existingFaqQuestions.has(item.question.toLowerCase())) {
+      continue;
+    }
+
+    await faqs.insertOne({
+      _id: new ObjectId(),
+      question: item.question,
+      answer: item.answer,
+      sortOrder: item.sortOrder,
+      isActive: item.isActive,
+      createdAt: now,
+      updatedAt: now,
+    });
   }
 
   const [adminCount, categoryCount, productCount] = await Promise.all([

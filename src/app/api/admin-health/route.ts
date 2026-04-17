@@ -49,7 +49,7 @@ export async function GET() {
       }
 
       checks.collections.ok = true;
-      checks.collections.message = `Categories: ${counts.categories} docs, Products: ${counts.products} docs`;
+      checks.collections.message = `Categories: ${counts.categories} docs, Products: ${counts.products} docs, FAQs: ${counts.faqs} docs`;
     } catch (dbError) {
       checks.database.ok = false;
       checks.database.message = dbError instanceof Error ? dbError.message : 'Database connection failed';

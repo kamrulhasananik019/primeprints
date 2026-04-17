@@ -76,6 +76,16 @@ type ReviewDoc = {
   updatedAt: Date;
 };
 
+type FaqDoc = {
+  _id: ObjectId;
+  question: string;
+  answer: string;
+  sortOrder: number;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
 declare global {
   // Cache index creation so repeated reads do not re-run createIndexes on every request.
   var __primeprintsIndexesPromise: Promise<void> | undefined;
@@ -158,6 +168,26 @@ export type AdminReviewRow = {
   status: ReviewStatus;
   source: 'public' | 'admin';
   created_at: string;
+};
+
+export type FaqRecord = {
+  id: string;
+  question: string;
+  answer: string;
+  sortOrder: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type AdminFaqRow = {
+  id: string;
+  question: string;
+  answer: string;
+  sortOrder: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
 };
 
 function defaultRichText(text = ''): TipTapDoc {
@@ -274,6 +304,10 @@ async function ensureIndexes() {
         db.collection<ReviewDoc>('review').createIndexes([
           { key: { status: 1, createdAt: -1 } },
           { key: { email: 1 } },
+        ]),
+        db.collection<FaqDoc>('faqs').createIndexes([
+          { key: { isActive: 1 } },
+          { key: { sortOrder: 1, createdAt: -1 } },
         ]),
       ]);
     })();
@@ -458,16 +492,17 @@ export async function upsertAdmin(email: string, passwordHash: string): Promise<
   );
 }
 
-export async function countAdminItems(): Promise<{ categories: number; products: number; admins: number; reviews: number }> {
+export async function countAdminItems(): Promise<{ categories: number; products: number; admins: number; reviews: number; faqs: number }> {
   await ensureIndexes();
   const db = await getMongoDb();
-  const [categories, products, admins, reviews] = await Promise.all([
+  const [categories, products, admins, reviews, faqs] = await Promise.all([
     db.collection<CategoryDoc>('categories').countDocuments(),
     db.collection<ProductDoc>('products').countDocuments(),
     db.collection<AdminDoc>('admins').countDocuments(),
     db.collection<ReviewDoc>('review').countDocuments(),
+    db.collection<FaqDoc>('faqs').countDocuments(),
   ]);
-  return { categories, products, admins, reviews };
+  return { categories, products, admins, reviews, faqs };
 }
 
 function mapReviewDoc(row: ReviewDoc): ReviewRecord {
@@ -654,6 +689,134 @@ export async function deleteAdminReview(id: string): Promise<void> {
   await ensureIndexes();
   const db = await getMongoDb();
   await db.collection<ReviewDoc>('review').deleteOne({ _id: objectId });
+}
+
+function mapFaqDoc(doc: FaqDoc): FaqRecord {
+  return {
+    id: idToString(doc._id),
+    question: doc.question,
+    answer: doc.answer,
+    sortOrder: doc.sortOrder ?? 1,
+    isActive: doc.isActive !== false,
+    createdAt: asIsoString(doc.createdAt),
+    updatedAt: asIsoString(doc.updatedAt),
+  };
+}
+
+export async function getFaqs(limit = 50): Promise<FaqRecord[]> {
+  await ensureIndexes();
+  const db = await getMongoDb();
+  const rows = await db
+    .collection<FaqDoc>('faqs')
+    .find(
+      { isActive: { $ne: false } },
+      {
+        projection: {
+          _id: 1,
+          question: 1,
+          answer: 1,
+          sortOrder: 1,
+          isActive: 1,
+          createdAt: 1,
+          updatedAt: 1,
+        },
+      }
+    )
+    .sort({ sortOrder: 1, createdAt: -1 })
+    .toArray();
+
+  return rows.slice(0, limit).map(mapFaqDoc);
+}
+
+export async function getAdminFaqs(): Promise<AdminFaqRow[]> {
+  await ensureIndexes();
+  const db = await getMongoDb();
+  const rows = await db
+    .collection<FaqDoc>('faqs')
+    .find(
+      {},
+      {
+        projection: {
+          _id: 1,
+          question: 1,
+          answer: 1,
+          sortOrder: 1,
+          isActive: 1,
+          createdAt: 1,
+          updatedAt: 1,
+        },
+      }
+    )
+    .sort({ sortOrder: 1, createdAt: -1 })
+    .toArray();
+
+  return rows.map((row) => ({
+    id: idToString(row._id),
+    question: row.question,
+    answer: row.answer,
+    sortOrder: row.sortOrder ?? 1,
+    isActive: row.isActive !== false,
+    createdAt: asIsoString(row.createdAt),
+    updatedAt: asIsoString(row.updatedAt),
+  }));
+}
+
+export async function createAdminFaq(input: {
+  question: string;
+  answer: string;
+  sortOrder: number;
+  isActive: boolean;
+}): Promise<void> {
+  await ensureIndexes();
+  const db = await getMongoDb();
+  const now = new Date();
+
+  await db.collection<FaqDoc>('faqs').insertOne({
+    _id: new ObjectId(),
+    question: input.question,
+    answer: input.answer,
+    sortOrder: input.sortOrder,
+    isActive: input.isActive,
+    createdAt: now,
+    updatedAt: now,
+  });
+}
+
+export async function updateAdminFaq(
+  id: string,
+  input: {
+    question: string;
+    answer: string;
+    sortOrder: number;
+    isActive: boolean;
+  }
+): Promise<void> {
+  const objectId = toObjectId(id);
+  if (!objectId) throw new Error('Invalid FAQ id');
+
+  await ensureIndexes();
+  const db = await getMongoDb();
+  await db.collection<FaqDoc>('faqs').updateOne(
+    { _id: objectId },
+    {
+      $set: {
+        question: input.question,
+        answer: input.answer,
+        sortOrder: input.sortOrder,
+        isActive: input.isActive,
+        updatedAt: new Date(),
+      },
+    }
+  );
+}
+
+export async function deleteAdminFaq(id: string): Promise<void> {
+  const objectId = toObjectId(id);
+  if (!objectId) throw new Error('Invalid FAQ id');
+
+  await ensureIndexes();
+  const db = await getMongoDb();
+  await db.collection<FaqDoc>('faqs').deleteOne({ _id: objectId });
 }
 
 export async function getAdminCategories(): Promise<AdminCategoryRow[]> {

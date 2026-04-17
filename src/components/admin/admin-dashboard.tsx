@@ -21,6 +21,7 @@ import {
 import Swal from 'sweetalert2';
 
 import RichEditorField from '@/components/admin/rich-editor-field';
+import FaqManager, { type AdminFaqItem } from '@/components/admin/faq-manager';
 import ReviewManager, { type AdminReviewItem } from '@/components/admin/review-manager';
 
 type Category = {
@@ -45,13 +46,14 @@ type Props = {
   adminEmail: string;
 };
 
-type SectionKey = 'overview' | 'categories' | 'products' | 'reviews';
+type SectionKey = 'overview' | 'categories' | 'products' | 'reviews' | 'faqs';
 
 type DashboardResponse = {
   ok: boolean;
   categories?: Category[];
   products?: Product[];
   reviews?: AdminReviewItem[];
+  faqs?: AdminFaqItem[];
   error?: string;
 };
 
@@ -129,6 +131,7 @@ export default function AdminDashboard({ adminEmail }: Props) {
   const categories = useMemo(() => dashboardQuery.data?.categories || [], [dashboardQuery.data?.categories]);
   const products = useMemo(() => dashboardQuery.data?.products || [], [dashboardQuery.data?.products]);
   const reviews = useMemo(() => dashboardQuery.data?.reviews || [], [dashboardQuery.data?.reviews]);
+  const faqs = useMemo(() => dashboardQuery.data?.faqs || [], [dashboardQuery.data?.faqs]);
   const isLoading = dashboardQuery.isLoading || dashboardQuery.isFetching;
   const queryError = dashboardQuery.data && !dashboardQuery.data.ok ? dashboardQuery.data.error || 'Failed to load data.' : '';
 
@@ -163,6 +166,14 @@ export default function AdminDashboard({ adminEmail }: Props) {
       return item.name.toLowerCase().includes(term) || item.email.toLowerCase().includes(term) || item.id.toLowerCase().includes(term);
     });
   }, [reviews, searchTerm]);
+
+  const filteredFaqs = useMemo(() => {
+    const term = searchTerm.trim().toLowerCase();
+    if (!term) return faqs;
+    return faqs.filter((item) => {
+      return item.question.toLowerCase().includes(term) || item.answer.toLowerCase().includes(term) || item.id.toLowerCase().includes(term);
+    });
+  }, [faqs, searchTerm]);
 
   const createCategory = async (event: FormEvent) => {
     event.preventDefault();
@@ -365,6 +376,7 @@ export default function AdminDashboard({ adminEmail }: Props) {
     { key: 'categories' as const, label: 'Category CRUD', icon: Boxes },
     { key: 'products' as const, label: 'Product CRUD', icon: Package },
     { key: 'reviews' as const, label: 'Review CRUD', icon: MessageSquare },
+    { key: 'faqs' as const, label: 'FAQ CRUD', icon: MessageSquare },
   ];
 
   const kpiCards = [
@@ -381,6 +393,12 @@ export default function AdminDashboard({ adminEmail }: Props) {
       color: 'from-[#2f5f7f] to-[#4f7d98]',
     },
     {
+      title: 'Total FAQs',
+      value: faqs.length,
+      hint: 'Help content',
+      color: 'from-[#2e5d78] to-[#5d7f93]',
+    },
+    {
       title: 'Active Panel',
       value:
         activeSection === 'overview'
@@ -389,7 +407,9 @@ export default function AdminDashboard({ adminEmail }: Props) {
             ? 'Categories'
             : activeSection === 'products'
               ? 'Products'
-              : 'Reviews',
+              : activeSection === 'reviews'
+                ? 'Reviews'
+                : 'FAQs',
       hint: 'Current workspace',
       color: 'from-[#2e5d78] to-[#1f435c]',
     },
@@ -532,7 +552,7 @@ export default function AdminDashboard({ adminEmail }: Props) {
         {queryError ? <p className="mb-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{queryError}</p> : null}
         {success ? <p className="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">{success}</p> : null}
 
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-4">
           {kpiCards.map((card) => (
             <article
               key={card.title}
@@ -611,6 +631,29 @@ export default function AdminDashboard({ adminEmail }: Props) {
                   </div>
                 ))}
                 {!filteredReviews.length ? <p className="text-sm text-[#456882]">No reviews yet.</p> : null}
+              </div>
+            </section>
+
+            <section className="rounded-3xl border border-[#1b3c53]/10 bg-white p-5 shadow-sm xl:col-span-2">
+              <div className="mb-4 flex items-center justify-between">
+                <h3 className="text-lg font-bold text-[#1b3c53]">Recent FAQs</h3>
+                <button
+                  type="button"
+                  onClick={() => setActiveSection('faqs')}
+                  className="rounded-lg border border-[#d2c1b6] px-3 py-1.5 text-xs font-semibold text-[#234c6a]"
+                >
+                  Manage
+                </button>
+              </div>
+              <div className="space-y-2">
+                {filteredFaqs.slice(0, 5).map((item) => (
+                  <div key={item.id} className="rounded-xl border border-[#d2c1b6]/60 bg-[#f4efeb]/50 px-3 py-2">
+                    <p className="font-semibold text-[#1b3c53]">{item.question}</p>
+                    <p className="text-xs text-[#456882]">Order: {item.sortOrder}</p>
+                    <p className="text-xs text-[#234c6a]">Status: {item.isActive ? 'Active' : 'Hidden'}</p>
+                  </div>
+                ))}
+                {!filteredFaqs.length ? <p className="text-sm text-[#456882]">No FAQs yet.</p> : null}
               </div>
             </section>
           </div>
@@ -875,6 +918,17 @@ export default function AdminDashboard({ adminEmail }: Props) {
         {activeSection === 'reviews' ? (
           <ReviewManager
             reviews={reviews}
+            searchTerm={searchTerm}
+            onRefresh={refresh}
+            setError={setError}
+            setSuccess={setSuccess}
+            setSaving={setSaving}
+          />
+        ) : null}
+
+        {activeSection === 'faqs' ? (
+          <FaqManager
+            faqs={faqs}
             searchTerm={searchTerm}
             onRefresh={refresh}
             setError={setError}

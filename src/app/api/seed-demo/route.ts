@@ -4,11 +4,13 @@ import { revalidateTag } from 'next/cache';
 
 import {
   createAdminCategory,
+  createAdminFaq,
   createAdminProduct,
   createAdminReview,
   countAdminItems,
   getAdminByEmail,
   getAdminCategories,
+  getAdminFaqs,
   getAdminProducts,
   getAdminReviews,
   resolveCategoryIds,
@@ -157,8 +159,47 @@ export async function POST() {
       });
     }
 
+    const faqSeed = [
+      {
+        question: 'What printing services do you offer?',
+        answer: 'We offer business cards, flyers, leaflets, posters, banners, and custom print products with fast turnaround options.',
+        sortOrder: 1,
+        isActive: true,
+      },
+      {
+        question: 'How quickly can I get my order?',
+        answer: 'Turnaround depends on the product, but we support urgent same-day and next-day production on selected items.',
+        sortOrder: 2,
+        isActive: true,
+      },
+      {
+        question: 'Can I request custom artwork or sizes?',
+        answer: 'Yes. The admin team can help with custom artwork, special sizes, and finishing options to match your brief.',
+        sortOrder: 3,
+        isActive: true,
+      },
+      {
+        question: 'Do you offer bulk discounts?',
+        answer: 'Yes. Larger orders can qualify for better rates, especially for repeat print jobs and campaign materials.',
+        sortOrder: 4,
+        isActive: true,
+      },
+    ];
+
+    const existingFaqs = await getAdminFaqs();
+    const existingFaqQuestions = new Set(existingFaqs.map((item) => item.question.toLowerCase()));
+
+    for (const item of faqSeed) {
+      if (existingFaqQuestions.has(item.question.toLowerCase())) {
+        continue;
+      }
+
+      await createAdminFaq(item);
+    }
+
     const counts = await countAdminItems();
     revalidateTag('catalog', 'max');
+    revalidateTag('faqs', 'max');
 
     return NextResponse.json({
       ok: true,
