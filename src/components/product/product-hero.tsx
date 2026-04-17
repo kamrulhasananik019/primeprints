@@ -100,7 +100,7 @@ export default function ProductHero({
 
         <div className="flex flex-wrap gap-3">
           <Link
-            href={`/contact?category=${category.id}&product=${product.id}`}
+            href={`/contact?category=${encodeURIComponent(category.name)}&product=${encodeURIComponent(product.name)}`}
             className="sans inline-flex items-center rounded-xl bg-slate-900 px-6 py-3 text-sm font-700 text-white transition hover:bg-slate-800"
           >
             Get Quote

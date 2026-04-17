@@ -13,17 +13,17 @@ export default function Footer() {
               <span className="text-2xl font-black tracking-tighter  text-white">primeprint</span>
             </Link>
             {/* <p className="mb-3 text-xs uppercase tracking-[0.22em] text-[#D2C1B6]/70">Prime Prints</p> */}
-            <h3 className="mb-3 text-2xl font-black text-[#F4EFEB] font-[var(--font-playfair-display)]">
+            <h3 className="mb-3 text-2xl font-black text-[#F4EFEB] [font-family:var(--font-playfair-display)]">
               Bring your ideas to print
             </h3>
-            <p className="text-sm leading-relaxed text-[#D2C1B6]/85 font-[var(--font-dm-sans)]">
+            <p className="text-sm leading-relaxed text-[#D2C1B6]/85 [font-family:var(--font-dm-sans)]">
               Professional quality printing with fast turnaround for business, events, and personal projects.
             </p>
           </div>
 
           <div>
             <p className="mb-3 text-xs uppercase tracking-[0.22em] text-[#D2C1B6]/70">Quick Links</p>
-            <div className="flex flex-col gap-2 font-[var(--font-dm-sans)]">
+            <div className="flex flex-col gap-2 [font-family:var(--font-dm-sans)]">
               <Link href="/" prefetch={false} className="text-sm text-[#E7DBD3] transition-colors hover:text-white">
                 Home
               </Link>
@@ -35,13 +35,13 @@ export default function Footer() {
 
           <div>
             <p className="mb-3 text-xs uppercase tracking-[0.22em] text-[#D2C1B6]/70">Need Help?</p>
-            <p className="mb-4 text-sm leading-relaxed text-[#D2C1B6]/85 font-[var(--font-dm-sans)]">
+            <p className="mb-4 text-sm leading-relaxed text-[#D2C1B6]/85 [font-family:var(--font-dm-sans)]">
               Need a custom quote or design support? Our team is ready to help with the right print option.
             </p>
             <Link
               href="/#contact"
               prefetch={false}
-              className="inline-flex items-center justify-center rounded-lg bg-[#D2C1B6] px-5 py-2.5 text-sm font-700 text-[#1B3C53] transition-colors hover:bg-[#E7DBD3] font-[var(--font-dm-sans)]"
+              className="inline-flex items-center justify-center rounded-lg bg-[#D2C1B6] px-5 py-2.5 text-sm font-bold text-[#1B3C53] transition-colors hover:bg-[#E7DBD3] [font-family:var(--font-dm-sans)]"
             >
               Contact Us
             </Link>
@@ -49,10 +49,10 @@ export default function Footer() {
         </div>
 
         <div className="mt-10 flex flex-col gap-2 border-t border-[#234C6A]/70 pt-6 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-xs text-[#D2C1B6]/65 font-[var(--font-dm-sans)]">
+          <p className="text-xs text-[#D2C1B6]/65 [font-family:var(--font-dm-sans)]">
             {new Date().getFullYear()} Prime Prints. All rights reserved.
           </p>
-          <p className="text-xs text-[#D2C1B6]/65 font-[var(--font-dm-sans)]">
+          <p className="text-xs text-[#D2C1B6]/65 [font-family:var(--font-dm-sans)]">
             Crafted for premium printing experiences.
           </p>
         </div>

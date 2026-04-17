@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 
 import { createAdminSession, getAdminSessionCookieName, verifyPasswordAgainstHash } from '@/lib/admin-auth';
-import { getAdminByEmail } from '@/lib/mongo-catalog';
+import { getAdminByEmail } from '@/services/admin.service';
 
 export const runtime = 'nodejs';
 

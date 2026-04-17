@@ -2,7 +2,8 @@ import { revalidateTag } from 'next/cache';
 import { NextResponse } from 'next/server';
 
 import { requireAdminSession } from '@/lib/admin-api';
-import { deleteAdminReview, setAdminReviewStatus, updateAdminReview, type ReviewStatus } from '@/lib/mongo-catalog';
+import { deleteAdminReview, setAdminReviewStatus, updateAdminReview } from '@/services/review.service';
+import type { ReviewStatus } from '@/services/review.service';
 
 export const runtime = 'nodejs';
 

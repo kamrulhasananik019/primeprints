@@ -2,7 +2,7 @@ import { revalidateTag } from 'next/cache';
 import { NextResponse } from 'next/server';
 
 import { requireAdminSession } from '@/lib/admin-api';
-import { deleteAdminFaq, updateAdminFaq } from '@/lib/mongo-catalog';
+import { deleteAdminFaq, updateAdminFaq } from '@/services/faq.service';
 
 export const runtime = 'nodejs';
 

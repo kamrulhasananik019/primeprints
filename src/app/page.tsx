@@ -9,11 +9,8 @@ import LocationMap from "@/components/Home/locationmap";
 import PromoBar from "@/components/Home/promobar";
 import Reviews from "@/components/Home/reviews";
 import InfiniteMarquee from "@/components/shared/infinite-marquee";
-import {
-  getCatalogCategories,
-  getProductCategoryTitleMap,
-  getSameDayPrinting,
-} from "@/lib/catalog";
+import { getCategories } from "@/services/category.service";
+import { getProductCategoryTitleMap, getSameDayPrinting } from "@/services/product.service";
 
 const CategorySlider = nextDynamic(() => import("@/components/Home/categoryslider"), {
   loading: () => <HomeDeferredFallback minHeight="min-h-[420px]" />,
@@ -23,7 +20,7 @@ const SameDayPrinting = nextDynamic(() => import("@/components/Home/samedaydeliv
   loading: () => <HomeDeferredFallback minHeight="min-h-[420px]" />,
 });
 
-export const revalidate = 300;
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "Same Day Delivery in London & UK | Prime Prints",
@@ -59,7 +56,7 @@ export const metadata: Metadata = {
 
 
 export default async function Home() {
-  const categories = await getCatalogCategories();
+  const categories = await getCategories();
   const sameDayPrinting = await getSameDayPrinting();
   const sameDayCategoryTitles = getProductCategoryTitleMap(sameDayPrinting, categories);
   const categoryTitles = categories.map((cat) => cat.name);

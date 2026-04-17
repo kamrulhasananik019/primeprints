@@ -28,7 +28,7 @@ function getInitials(name: string) {
 
 export default function ReviewCard({ name, rating, text, createdAt }: ReviewCardProps) {
   return (
-    <article className="group relative flex min-h-[240px] flex-col justify-between rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-slate-300 hover:shadow-xl">
+    <article className="group relative flex min-h-60 flex-col justify-between rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-slate-300 hover:shadow-xl">
       <div>
         <div className="mb-4 flex gap-1">
           {Array.from({ length: rating }).map((_, starIndex) => (

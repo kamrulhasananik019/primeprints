@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next';
 import { getCatalogCategories, getCatalogProducts } from '@/lib/catalog';
 import { siteUrl } from '@/lib/site';
+import { getCategoryPath, getProductPath } from '@/lib/slug';
 
 export const revalidate = 86400;
 
@@ -25,14 +26,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ];
 
   const categoryRoutes: MetadataRoute.Sitemap = categories.map((category) => ({
-    url: `${baseUrl}/categories/${category.id}`,
+    url: `${baseUrl}${getCategoryPath(category.id, category.name)}`,
     lastModified: new Date(category.updatedAt),
     changeFrequency: 'weekly',
     priority: 0.8,
   }));
 
   const productRoutes: MetadataRoute.Sitemap = allProducts.map((product) => ({
-    url: `${baseUrl}/products/${product.id}`,
+    url: `${baseUrl}${getProductPath(product.id, product.name)}`,
     lastModified: new Date(product.updatedAt),
     changeFrequency: 'weekly',
     priority: 0.7,

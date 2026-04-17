@@ -26,6 +26,9 @@ const humanizeValue = (value: string) =>
     .replace(/\s+/g, " ")
     .trim();
 
+const normalizeForMatch = (value: string) =>
+  humanizeValue(value).toLowerCase();
+
 const contactMethods = [
   {
     icon: Phone,
@@ -79,13 +82,20 @@ export default function ContactPageContent({ categories }: ContactPageContentPro
       };
     }
 
+    const normalizedCategoryParam = normalizeForMatch(categoryParam);
+
     const matchedCategory = sortedCategories.find(
-      (category) => category.id === categoryParam
+      (category) =>
+        category.id === categoryParam ||
+        normalizeForMatch(category.name) === normalizedCategoryParam
     );
 
     if (matchedCategory) {
+      const normalizedProductParam = normalizeForMatch(productParam);
       const matchedProduct = matchedCategory.products.find(
-        (product) => product.id === productParam
+        (product) =>
+          product.id === productParam ||
+          normalizeForMatch(product.name) === normalizedProductParam
       );
 
       return {

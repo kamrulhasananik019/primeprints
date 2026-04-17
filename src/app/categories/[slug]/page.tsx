@@ -3,19 +3,25 @@ import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { cache } from 'react';
-import { getCategories, getCategoryById, getProductsByCategoryId } from '@/lib/mongo-catalog';
+import { getCategories, getCategoryById } from '@/services/category.service';
+import { getProductsByCategoryId } from '@/services/product.service';
 import InfiniteMarquee from '@/components/shared/infinite-marquee';
 import { getPrimaryImage } from '@/lib/product-media';
 import RichContent from '@/components/shared/rich-content';
 import { richContentToPlainText } from '@/lib/rich-content';
-import { getCategoryPath, getProductPath } from '@/lib/slug';
+import { getCategoryPath, getProductPath, toSlug } from '@/lib/slug';
 import { siteUrl } from '@/lib/site';
 
-export const revalidate = 300;
+export const revalidate = 3600;
 
 const getCategoryBySlugCached = cache(async (slug: string) => getCategoryById(slug));
 const getCategoriesCached = cache(async () => getCategories());
 const getProductsByCategoryCached = cache(async (categoryId: string) => getProductsByCategoryId(categoryId, 200));
+
+export async function generateStaticParams() {
+  const categories = await getCategories();
+  return categories.map((category) => ({ slug: toSlug(category.name) || category.id }));
+}
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -125,7 +131,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
               <p className="mt-6 text-sm font-medium uppercase tracking-[0.16em] text-stone-500">{products.length} products available</p>
               <div className="mt-6">
                 <Link
-                  href={`/contact?category=${category.id}`}
+                  href={`/contact?category=${encodeURIComponent(category.name)}`}
                   className="inline-flex items-center gap-2 rounded-xl bg-stone-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-stone-800"
                 >
                   Get Quote

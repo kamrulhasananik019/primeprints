@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { countAdminItems } from '@/lib/mongo-catalog';
+import { countAdminItems } from '@/services/admin.service';
 
 export const runtime = 'nodejs';
 

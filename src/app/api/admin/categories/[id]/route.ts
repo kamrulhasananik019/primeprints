@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { revalidateTag } from 'next/cache';
 
 import { requireAdminSession, toStoredRichText } from '@/lib/admin-api';
-import { deleteAdminCategory, updateAdminCategory } from '@/lib/mongo-catalog';
+import { deleteAdminCategory, updateAdminCategory } from '@/services/category.service';
 export const runtime = 'nodejs';
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {

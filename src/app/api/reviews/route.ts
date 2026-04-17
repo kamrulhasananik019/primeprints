@@ -1,7 +1,7 @@
 import { revalidateTag } from 'next/cache';
 import { NextResponse } from 'next/server';
 
-import { createPublicReview, getApprovedReviews } from '@/lib/mongo-catalog';
+import { createPublicReview, getApprovedReviews } from '@/services/review.service';
 
 export const runtime = 'nodejs';
 

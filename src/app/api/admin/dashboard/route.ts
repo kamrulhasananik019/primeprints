@@ -1,7 +1,10 @@
 import { NextResponse } from 'next/server';
 
 import { requireAdminSession } from '@/lib/admin-api';
-import { getAdminCategories, getAdminFaqs, getAdminProducts, getAdminReviews } from '@/lib/mongo-catalog';
+import { getAdminCategories } from '@/services/category.service';
+import { getAdminFaqs } from '@/services/faq.service';
+import { getAdminProducts } from '@/services/product.service';
+import { getAdminReviews } from '@/services/review.service';
 
 export const runtime = 'nodejs';
 

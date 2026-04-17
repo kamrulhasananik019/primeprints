@@ -3,10 +3,6 @@ import { randomBytes, scryptSync } from 'node:crypto';
 import { revalidateTag } from 'next/cache';
 
 import {
-  createAdminCategory,
-  createAdminFaq,
-  createAdminProduct,
-  createAdminReview,
   countAdminItems,
   getAdminByEmail,
   getAdminCategories,
@@ -15,7 +11,11 @@ import {
   getAdminReviews,
   resolveCategoryIds,
   upsertAdmin,
-} from '@/lib/mongo-catalog';
+  createAdminCategory,
+  createAdminFaq,
+  createAdminProduct,
+  createAdminReview,
+} from '@/services/admin.service';
 
 export const runtime = 'nodejs';
 

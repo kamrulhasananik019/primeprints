@@ -1,5 +1,5 @@
 import FaqAccordion from '@/components/shared/faq-accordion';
-import { getFaqs } from '@/lib/mongo-catalog';
+import { getFaqs } from '@/services/faq.service';
 
 export default async function Faq() {
   const faqs = await getFaqs(12);

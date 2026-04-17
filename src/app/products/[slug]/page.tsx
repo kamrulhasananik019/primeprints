@@ -5,19 +5,25 @@ import { notFound } from 'next/navigation';
 import { cache } from 'react';
 import ProductHero from '@/components/product/product-hero';
 import InfiniteMarquee from '@/components/shared/infinite-marquee';
-import { getCategories, getCategoryById, getProductById, getProductsByCategoryId } from '@/lib/mongo-catalog';
+import { getCategories, getCategoryById } from '@/services/category.service';
+import { getProductById, getProducts } from '@/services/product.service';
 import { siteUrl } from '@/lib/site';
 import { getPrimaryImage } from '@/lib/product-media';
 import { richContentToPlainText } from '@/lib/rich-content';
 import RichContent from '@/components/shared/rich-content';
-import { getCategoryPath, getProductPath } from '@/lib/slug';
+import { getCategoryPath, getProductPath, toSlug } from '@/lib/slug';
 
-export const revalidate = 300;
+export const revalidate = 3600;
 
 const getProductBySlugCached = cache(async (slug: string) => getProductById(slug));
 const getCategoryByIdCached = cache(async (id: string) => getCategoryById(id));
 const getCategoriesCached = cache(async () => getCategories());
-const getProductsByCategoryCached = cache(async (categoryId: string, limit: number) => getProductsByCategoryId(categoryId, limit));
+const getProductsCached = cache(async (limit: number) => getProducts(limit));
+
+export async function generateStaticParams() {
+  const products = await getProducts(1000);
+  return products.map((product) => ({ slug: toSlug(product.name) || product.id }));
+}
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -79,20 +85,18 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
     notFound();
   }
 
-  const [categoryProducts, allCategories] = await Promise.all([
-    getProductsByCategoryCached(category.id, 24),
-    getCategoriesCached(),
-  ]);
+  const [allProducts, allCategories] = await Promise.all([getProductsCached(1000), getCategoriesCached()]);
+  const categoryProducts = allProducts.filter((item) => item.categoryIds.includes(category.id));
   const related = categoryProducts.filter((item) => item.id !== product.id).slice(0, 3);
 
-  const otherCategoryProductsNested = await Promise.all(
-    allCategories
-      .filter((cat) => cat.id !== category.id)
-      .map(async (cat) => {
-        const products = await getProductsByCategoryCached(cat.id, 2);
-        return products.map((item) => ({ ...item, categoryName: cat.name }));
-      })
-  );
+  const otherCategoryProductsNested = allCategories
+    .filter((cat) => cat.id !== category.id)
+    .map((cat) =>
+      allProducts
+        .filter((item) => item.categoryIds.includes(cat.id) && item.id !== product.id)
+        .slice(0, 2)
+        .map((item) => ({ ...item, categoryName: cat.name }))
+    );
   const otherCategoryProducts = Array.from(new Map(otherCategoryProductsNested.flat().map((item) => [item.id, item])).values()).slice(0, 6);
 
   const primaryImage = getPrimaryImage(product) || category.image.url;

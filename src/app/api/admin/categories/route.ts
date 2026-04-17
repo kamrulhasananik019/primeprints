@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { revalidateTag } from 'next/cache';
 
 import { requireAdminSession, toStoredRichText } from '@/lib/admin-api';
-import { createAdminCategory, getAdminCategories } from '@/lib/mongo-catalog';
+import { createAdminCategory, getAdminCategories } from '@/services/category.service';
 export const runtime = 'nodejs';
 
 export async function GET() {
