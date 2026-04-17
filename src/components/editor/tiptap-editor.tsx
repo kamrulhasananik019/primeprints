@@ -19,7 +19,14 @@ type Props = {
   minHeight?: number;
 };
 
-function toDocFromText(value: string) {
+type EditorJsonContent = {
+  type?: string;
+  text?: string;
+  content?: EditorJsonContent[];
+  [key: string]: unknown;
+};
+
+function toDocFromText(value: string): EditorJsonContent {
   return {
     type: 'doc',
     content: [
@@ -31,7 +38,7 @@ function toDocFromText(value: string) {
   };
 }
 
-function getEmbeddedDocText(value: { content?: unknown }): string | null {
+function getEmbeddedDocText(value: EditorJsonContent): string | null {
   if (!Array.isArray(value.content) || value.content.length !== 1) return null;
 
   const paragraph = value.content[0] as { type?: string; content?: unknown };
@@ -44,7 +51,7 @@ function getEmbeddedDocText(value: { content?: unknown }): string | null {
   return textNode.text;
 }
 
-function tryParseDoc(value: unknown, depth = 0): { type: 'doc'; content?: unknown } | null {
+function tryParseDoc(value: unknown, depth = 0): EditorJsonContent | null {
   if (depth > 4) return null;
 
   if (typeof value === 'string') {
@@ -60,7 +67,7 @@ function tryParseDoc(value: unknown, depth = 0): { type: 'doc'; content?: unknow
 
   if (!value || typeof value !== 'object') return null;
 
-  const candidate = value as { type?: string; content?: unknown };
+  const candidate = value as EditorJsonContent;
   if (candidate.type !== 'doc') return null;
   if (!Array.isArray(candidate.content)) return null;
 
@@ -70,10 +77,10 @@ function tryParseDoc(value: unknown, depth = 0): { type: 'doc'; content?: unknow
     if (embeddedDoc) return embeddedDoc;
   }
 
-  return candidate as { type: 'doc'; content?: unknown };
+  return candidate;
 }
 
-function parseToEditorContent(value: string) {
+function parseToEditorContent(value: string): EditorJsonContent {
   const parsed = tryParseDoc(value);
   if (parsed) return parsed;
   return toDocFromText(value);

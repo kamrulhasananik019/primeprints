@@ -131,8 +131,8 @@ export default function Navbar({ categories }: NavbarProps) {
       <div className="hidden border-b border-[#D2C1B6] bg-[#E7DBD3] py-2 lg:block">
         <div className="container mx-auto flex flex-wrap items-center justify-between gap-3 px-4 text-[11px] font-medium uppercase tracking-wider text-stone-500 sm:px-6 lg:px-8">
           <div className="flex flex-wrap gap-6">
-            <a href="mailto:order@primeprint.com" className="inline-flex items-center gap-1.5 transition hover:text-[#234C6A]">
-              <Mail className="h-3.5 w-3.5" /> order@primeprint.com
+            <a href="mailto:order@primeprint.uk" className="inline-flex items-center gap-1.5 transition hover:text-[#234C6A]">
+              <Mail className="h-3.5 w-3.5" /> order@primeprint.uk
             </a>
             <a href="tel:+44205550147" className="inline-flex items-center gap-1.5 transition hover:text-[#234C6A]">
               <Phone className="h-3.5 w-3.5" /> +44 (20) 555-0147
