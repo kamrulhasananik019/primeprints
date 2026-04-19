@@ -28,7 +28,7 @@ export default function DiscountsAndPackagesSlider({ items }: DiscountsAndPackag
     );
   }
 
-  const canLoop = items.length >= 5;
+  const canLoop = items.length > 1;
 
   return (
     <div>
@@ -60,22 +60,21 @@ export default function DiscountsAndPackagesSlider({ items }: DiscountsAndPackag
           disableOnInteraction: false,
         }}
         loop={canLoop}
-        spaceBetween={8}
+        centeredSlides={false}
+        spaceBetween={0}
+        slidesPerGroup={1}
         breakpoints={{
-          0: { slidesPerView: 1 },
-          768: { slidesPerView: 2 },
-          1024: { slidesPerView: 2 },
-          1280: { slidesPerView: 2 },
+          0: { slidesPerView: 1, slidesPerGroup: 1 },
         }}
-        className="overflow-visible! pb-4"
+        className="overflow-hidden! pb-4"
       >
         {items.map((card) => {
           return (
-            <SwiperSlide key={card.id} className="h-auto">
+            <SwiperSlide key={card.id} className="!h-auto !w-full">
               <Link
                 href={getProductPath(card.id, card.name, card.slug)}
                 prefetch={false}
-                className="group relative isolate block min-h-[24rem] overflow-hidden rounded-3xl border border-[#C9D6DF] bg-linear-to-br from-[#1B3C53] via-[#234C6A] to-[#2A5B7D] p-8 text-left text-white shadow-md transition duration-300 hover:-translate-y-0.5 hover:shadow-lg sm:min-h-[26rem] sm:p-10"
+                className="group relative isolate block h-full w-full min-h-[24rem] overflow-hidden rounded-3xl border border-[#C9D6DF] bg-linear-to-br from-[#1B3C53] via-[#234C6A] to-[#2A5B7D] p-8 text-left text-white shadow-md transition duration-300 hover:-translate-y-0.5 hover:shadow-lg sm:min-h-[26rem] sm:p-10"
               >
                 <div className="absolute inset-x-0 top-0 h-px bg-white/25" aria-hidden="true" />
 
