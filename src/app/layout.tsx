@@ -34,6 +34,17 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   applicationName: "Prime Prints",
+  icons: {
+    icon: [
+      { url: "/icon/favicon.ico" },
+      { url: "/icon/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      { url: "/icon/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/icon/favicon-48x48.png", sizes: "48x48", type: "image/png" },
+      { url: "/icon/favicon-512x512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: "/icon/favicon-180x180-apple.png", sizes: "180x180", type: "image/png" }],
+    shortcut: ["/icon/favicon.ico"],
+  },
   title: {
     default: "Prime Prints | Same Day Printing in London",
     template: "%s | Prime Prints",
