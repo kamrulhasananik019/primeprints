@@ -218,11 +218,15 @@ export default function Navbar({ categories }: NavbarProps) {
             <button className="p-2 text-stone-700 lg:hidden" onClick={() => setIsMobileMenuOpen(true)} aria-label="Open menu">
               <Menu className="h-6 w-6" />
             </button>
-            <Link href="/" prefetch={false} className="flex items-center gap-2">
-              <div className="flex h-10 w-10 -rotate-12 items-center justify-center rounded-lg bg-[#234C6A] text-white shadow-lg shadow-[#456882]/40">
-                <span className="text-xl font-black italic">P</span>
-              </div>
-              <span className="text-2xl font-black tracking-tighter text-stone-900">primeprint</span>
+            <Link href="/" prefetch={false} className="flex items-center">
+              <Image
+                src="/logo.png"
+                alt="PrimePrint"
+                width={220}
+                height={60}
+                priority
+                className="h-10 w-auto object-contain"
+              />
             </Link>
           </div>
 
@@ -420,11 +424,15 @@ export default function Navbar({ categories }: NavbarProps) {
           onClick={(e) => e.stopPropagation()}
         >
           <div className="flex items-center justify-between border-b p-5">
-             <Link href="/" prefetch={false} className="flex items-center gap-2">
-              <div className="flex h-10 w-10 -rotate-12 items-center justify-center rounded-lg bg-[#234C6A] text-white shadow-lg shadow-[#456882]/40">
-                <span className="text-xl font-black italic">P</span>
-              </div>
-              <span className="text-2xl font-black tracking-tighter text-stone-900">primeprint</span>
+             <Link href="/" prefetch={false} className="flex items-center">
+              <Image
+                src="/logo.png"
+                alt="PrimePrint"
+                width={220}
+                height={60}
+                priority
+                className="h-10 w-auto object-contain"
+              />
             </Link>
             <button onClick={() => setIsMobileMenuOpen(false)} className="rounded-full p-2 hover:bg-stone-100" aria-label="Close menu">
               <X className="h-6 w-6 text-stone-400" />
