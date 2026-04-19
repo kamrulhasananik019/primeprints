@@ -28,8 +28,15 @@ const getCatalogSnapshot = unstable_cache(
   { revalidate: 300, tags: ['catalog'] }
 );
 
-function isMissingMongoUriError(error: unknown): boolean {
-  return error instanceof Error && error.message.includes('Missing MONGODB_URI');
+function isCatalogUnavailableError(error: unknown): boolean {
+  if (!(error instanceof Error)) return false;
+  const message = error.message.toLowerCase();
+  return (
+    message.includes('missing mongodb_uri') ||
+    message.includes('econnrefused') ||
+    message.includes('querysrv') ||
+    message.includes('server selection timed out')
+  );
 }
 
 async function getSafeCatalogSnapshot() {
@@ -40,7 +47,7 @@ async function getSafeCatalogSnapshot() {
   try {
     return await getCatalogSnapshot();
   } catch (error) {
-    if (isMissingMongoUriError(error)) {
+    if (isCatalogUnavailableError(error)) {
       return { categories: [], products: [] };
     }
     throw error;

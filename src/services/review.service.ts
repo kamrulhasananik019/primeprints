@@ -11,10 +11,34 @@ import {
   type ReviewStatus,
 } from '@/lib/mongo-catalog';
 
-export const getApprovedReviews = unstable_cache(async (limit = 50) => getApprovedReviewsRaw(limit), ['approved-reviews'], {
-  revalidate: 3600,
-  tags: ['reviews'],
-});
+function isCatalogUnavailableError(error: unknown): boolean {
+  if (!(error instanceof Error)) return false;
+  const message = error.message.toLowerCase();
+  return (
+    message.includes('missing mongodb_uri') ||
+    message.includes('econnrefused') ||
+    message.includes('querysrv') ||
+    message.includes('server selection timed out')
+  );
+}
+
+export const getApprovedReviews = unstable_cache(
+  async (limit = 50) => {
+    try {
+      return await getApprovedReviewsRaw(limit);
+    } catch (error) {
+      if (isCatalogUnavailableError(error)) {
+        return [];
+      }
+      throw error;
+    }
+  },
+  ['approved-reviews'],
+  {
+    revalidate: 3600,
+    tags: ['reviews'],
+  }
+);
 
 export {
   createAdminReview,

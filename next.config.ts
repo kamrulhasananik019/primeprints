@@ -44,7 +44,10 @@ const nextConfig: NextConfig = {
     optimizePackageImports: ['lucide-react'],
   },
   images: {
-    formats: ['image/avif', 'image/webp'],
+    // Avoid AVIF/cache edge cases that can produce zero-byte optimized buffers.
+    formats: ['image/webp'],
+    // Keep runtime stable when upstream image responses are inconsistent.
+    unoptimized: true,
     /** Fewer repeat optimizations / origin fetches for Unsplash URLs at runtime. */
     minimumCacheTTL: 60 * 60 * 24 * 7,
     remotePatterns: imageHostnames.map((hostname) => ({

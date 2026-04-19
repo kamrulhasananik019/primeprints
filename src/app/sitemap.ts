@@ -9,7 +9,10 @@ export const revalidate = 86400;
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = siteUrl;
 
-  const [categories, allProducts] = await Promise.all([getCatalogCategories(), getProductSummaries(1000)]);
+  const [categories, allProducts] = await Promise.all([
+    getCatalogCategories(),
+    getProductSummaries(1000).catch(() => []),
+  ]);
 
   const staticRoutes: MetadataRoute.Sitemap = [
     {

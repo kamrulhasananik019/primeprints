@@ -8,10 +8,34 @@ import {
   updateAdminFaq,
 } from '@/lib/mongo-catalog';
 
-export const getFaqs = unstable_cache(async (limit = 50) => getFaqsRaw(limit), ['faqs'], {
-  revalidate: 3600,
-  tags: ['faqs'],
-});
+function isCatalogUnavailableError(error: unknown): boolean {
+  if (!(error instanceof Error)) return false;
+  const message = error.message.toLowerCase();
+  return (
+    message.includes('missing mongodb_uri') ||
+    message.includes('econnrefused') ||
+    message.includes('querysrv') ||
+    message.includes('server selection timed out')
+  );
+}
+
+export const getFaqs = unstable_cache(
+  async (limit = 50) => {
+    try {
+      return await getFaqsRaw(limit);
+    } catch (error) {
+      if (isCatalogUnavailableError(error)) {
+        return [];
+      }
+      throw error;
+    }
+  },
+  ['faqs'],
+  {
+    revalidate: 3600,
+    tags: ['faqs'],
+  }
+);
 
 export {
   createAdminFaq,

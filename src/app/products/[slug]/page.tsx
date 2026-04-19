@@ -10,13 +10,19 @@ import { getPrimaryImage } from '@/lib/product-media';
 import { richContentToPlainText } from '@/lib/rich-content';
 import RichContent from '@/components/shared/rich-content';
 import { getCategoryPath, getProductPath, toSlug } from '@/lib/slug';
-import { getCategories, getCategoryById, getProductById, getProductSummaries, getProductsByCategoryId } from '@/lib/mongo-catalog';
+import { getCategories, getCategoryById } from '@/services/category.service';
+import { getProductById, getProductsByCategoryId } from '@/services/product.service';
+import { getProductSummaries } from '@/lib/mongo-catalog';
 
 export const revalidate = 3600;
 
 export async function generateStaticParams() {
-  const products = await getProductSummaries(1000);
-  return products.map((product) => ({ slug: product.slug || toSlug(product.name) || product.id }));
+  try {
+    const products = await getProductSummaries(1000);
+    return products.map((product) => ({ slug: product.slug || toSlug(product.name) || product.id }));
+  } catch {
+    return [];
+  }
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
