@@ -12,6 +12,26 @@ type CategorySliderProps = {
   categories: CatalogCategory[];
 };
 
+function getSafeImageSrc(src: string | null | undefined): string | null {
+  if (!src) return null;
+  const trimmed = src.trim();
+  if (!trimmed) return null;
+
+  // Allow root-relative assets and only valid absolute HTTP(S) URLs.
+  if (trimmed.startsWith('/')) return trimmed;
+
+  try {
+    const parsed = new URL(trimmed);
+    if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+      return trimmed;
+    }
+  } catch {
+    return null;
+  }
+
+  return null;
+}
+
 export default function CategorySlider({ categories }: CategorySliderProps) {
   const canLoop = categories.length >= 7;
 
@@ -75,27 +95,36 @@ export default function CategorySlider({ categories }: CategorySliderProps) {
           }}
           className="overflow-visible! pb-10"
         >
-          {categories.map((category) => (
-            <SwiperSlide key={category.id} className="h-auto">
-              <Link href={getCategoryPath(category.id, category.name)} prefetch={false}>
-                <div className="group cursor-pointer text-center">
-                  <div className="relative mx-auto mb-4 aspect-square w-44 overflow-hidden rounded-full border-4 border-white bg-stone-200 shadow-lg ring-1 ring-stone-200 sm:w-48 md:w-52">
-                    <Image
-                      src={category.imageUrl}
-                      alt={category.name}
-                      fill
-                      sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 20vw"
-                      className="h-full w-full object-cover transition duration-500 group-hover:scale-110"
-                    />
-                  </div>
+          {categories.map((category) => {
+            const imageSrc = getSafeImageSrc(category.imageUrl);
+            return (
+              <SwiperSlide key={category.id} className="h-auto">
+                <Link href={getCategoryPath(category.id, category.name)} prefetch={false}>
+                  <div className="group cursor-pointer text-center">
+                    <div className="relative mx-auto mb-4 aspect-square w-44 overflow-hidden rounded-full border-4 border-white bg-stone-200 shadow-lg ring-1 ring-stone-200 sm:w-48 md:w-52">
+                      {imageSrc ? (
+                        <Image
+                          src={imageSrc}
+                          alt={category.name}
+                          fill
+                          sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 20vw"
+                          className="h-full w-full object-cover transition duration-500 group-hover:scale-110"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center bg-stone-100 text-xs font-medium text-stone-500">
+                          No image
+                        </div>
+                      )}
+                    </div>
 
-                  <h3 className="font-serif text-lg font-semibold text-stone-900">
-                    {category.name}
-                  </h3>
-                </div>
-              </Link>
-            </SwiperSlide>
-          ))}
+                    <h3 className="font-serif text-lg font-semibold text-stone-900">
+                      {category.name}
+                    </h3>
+                  </div>
+                </Link>
+              </SwiperSlide>
+            );
+          })}
         </Swiper>
       </div>
     </section>

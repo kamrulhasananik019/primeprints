@@ -18,6 +18,7 @@ import {
 import type { NavCategory } from '@/lib/catalog';
 import { richContentToPlainText } from '@/lib/rich-content';
 import { getCategoryPath, getProductPath } from '@/lib/slug';
+import { getSafeImageSrc } from '@/lib/image-url';
 
 type NavbarProps = {
   categories: NavCategory[];
@@ -110,7 +111,7 @@ export default function Navbar({ categories }: NavbarProps) {
     setActiveSlug(slug);
   };
 
-  const scheduleCloseMegaMenu = () => {
+  const closeMegaMenu = () => {
     closeTimerRef.current = setTimeout(() => {
       setActiveSlug(null);
     }, 160);
@@ -152,7 +153,6 @@ export default function Navbar({ categories }: NavbarProps) {
         scoreSearchField(product.name, text, 100) +
         scoreSearchField(product.seo?.title, text, 70) +
         scoreSearchField(product.shortDescription ? richContentToPlainText(product.shortDescription) : '', text, 60) +
-        scoreSearchField(richContentToPlainText(product.description), text, 45) +
         scoreSearchField(product.seo?.description, text, 30) +
         scoreSearchField(badgeText, text, 35) +
         scoreSearchField(statusText, text, 25) +
@@ -290,7 +290,7 @@ export default function Navbar({ categories }: NavbarProps) {
           </div>
         </div>
 
-        <nav className="relative hidden border-t border-stone-100 lg:block" onMouseLeave={scheduleCloseMegaMenu}>
+        <nav className="relative hidden border-t border-stone-100 lg:block" onMouseLeave={closeMegaMenu}>
           <div className="relative container mx-auto px-4 sm:px-6 lg:px-8">
             {showLeftArrow && (
               <div className="pointer-events-none absolute bottom-0 left-6 top-0 z-10 flex items-center pr-10 bg-linear-to-r from-white via-white to-transparent">
@@ -376,15 +376,21 @@ export default function Navbar({ categories }: NavbarProps) {
               <div className="col-span-3 border-l border-stone-100 pl-10">
                 <Link href={activeCategory ? getCategoryPath(activeCategory.id, activeCategory.name) : '/'} prefetch={false} className="group block">
                   <div className="relative aspect-16/10 overflow-hidden rounded-2xl bg-stone-100 shadow-inner">
-                    {activeCategory && (
-                      <Image
-                        src={activeCategory.imageUrl}
-                        alt={activeCategory.name}
-                        fill
-                        sizes="20vw"
-                        className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                      />
-                    )}
+                    {activeCategory ? (
+                      getSafeImageSrc(activeCategory.imageUrl) ? (
+                        <Image
+                          src={getSafeImageSrc(activeCategory.imageUrl)!}
+                          alt={activeCategory.name}
+                          fill
+                          sizes="20vw"
+                          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center bg-stone-100 text-sm font-medium text-stone-500">
+                          No image
+                        </div>
+                      )
+                    ) : null}
                     <div className="absolute inset-0 bg-linear-to-t from-black/40 to-transparent"></div>
                   </div>
                   <div className="mt-6">

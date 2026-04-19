@@ -463,41 +463,6 @@ const getCachedCategories = unstable_cache(
   { revalidate: 300, tags: ['catalog'] }
 );
 
-const getCachedProducts = unstable_cache(
-  async () => {
-    await ensureIndexes();
-    const db = await getMongoDb();
-    const rows = await db
-      .collection<ProductDoc>('products')
-      .find(
-        { isActive: { $ne: false } },
-        {
-          projection: {
-            _id: 1,
-            slug: 1,
-            name: 1,
-            shortDescription: 1,
-            description: 1,
-            images: 1,
-            badges: 1,
-            categoryIds: 1,
-            seo: 1,
-            isFeatured: 1,
-            isActive: 1,
-            sortOrder: 1,
-            createdAt: 1,
-            updatedAt: 1,
-          },
-        }
-      )
-      .sort({ sortOrder: 1, name: 1 })
-      .toArray();
-    return rows;
-  },
-  ['catalog-products'],
-  { revalidate: 300, tags: ['catalog'] }
-);
-
 export async function getCategories(): Promise<CategoryRecord[]> {
   const rows = await getCachedCategories();
   return rows.map(mapCategoryDoc);
@@ -513,22 +478,204 @@ export async function getCategoryById(id: string): Promise<CategoryRecord | null
 }
 
 export async function getProducts(limit = 100): Promise<ProductRecord[]> {
-  const rows = await getCachedProducts();
-  return rows.slice(0, limit).map(mapProductDoc);
+  await ensureIndexes();
+  const db = await getMongoDb();
+  const rows = await db
+    .collection<ProductDoc>('products')
+    .find(
+      { isActive: { $ne: false } },
+      {
+        projection: {
+          _id: 1,
+          slug: 1,
+          name: 1,
+          shortDescription: 1,
+          description: 1,
+          images: 1,
+          badges: 1,
+          categoryIds: 1,
+          seo: 1,
+          isFeatured: 1,
+          isActive: 1,
+          sortOrder: 1,
+          createdAt: 1,
+          updatedAt: 1,
+        },
+      }
+    )
+    .sort({ sortOrder: 1, name: 1 })
+    .limit(limit)
+    .toArray();
+  return rows.map(mapProductDoc);
 }
 
 export async function getProductById(id: string): Promise<ProductRecord | null> {
-  const rows = await getCachedProducts();
+  await ensureIndexes();
+  const db = await getMongoDb();
   const normalized = id.toLowerCase();
-  const row = rows.find(
-    (item) => idToString(item._id) === id || item.slug === normalized || item.name.toLowerCase() === normalized || toSlug(item.name) === normalized
+  const objectId = toObjectId(id);
+
+  const row = await db.collection<ProductDoc>('products').findOne(
+    objectId
+      ? { isActive: { $ne: false }, $or: [{ _id: objectId }, { slug: normalized }, { name: normalized }] }
+      : { isActive: { $ne: false }, $or: [{ slug: normalized }, { name: normalized }] },
+    {
+      projection: {
+        _id: 1,
+        slug: 1,
+        name: 1,
+        shortDescription: 1,
+        description: 1,
+        images: 1,
+        badges: 1,
+        categoryIds: 1,
+        seo: 1,
+        isFeatured: 1,
+        isActive: 1,
+        sortOrder: 1,
+        createdAt: 1,
+        updatedAt: 1,
+      },
+    }
   );
-  return row ? mapProductDoc(row) : null;
+
+  if (row) {
+    return mapProductDoc(row);
+  }
+
+  const slugFallback = toSlug(id);
+  if (slugFallback && slugFallback !== normalized) {
+    const fallback = await db.collection<ProductDoc>('products').findOne(
+      { isActive: { $ne: false }, $or: [{ slug: slugFallback }, { name: slugFallback }] },
+      {
+        projection: {
+          _id: 1,
+          slug: 1,
+          name: 1,
+          shortDescription: 1,
+          description: 1,
+          images: 1,
+          badges: 1,
+          categoryIds: 1,
+          seo: 1,
+          isFeatured: 1,
+          isActive: 1,
+          sortOrder: 1,
+          createdAt: 1,
+          updatedAt: 1,
+        },
+      }
+    );
+
+    return fallback ? mapProductDoc(fallback) : null;
+  }
+
+  return null;
 }
 
 export async function getProductsByCategoryId(categoryId: string, limit = 100): Promise<ProductRecord[]> {
-  const products = await getProducts(1000);
-  return products.filter((product) => product.categoryIds.includes(categoryId)).slice(0, limit);
+  await ensureIndexes();
+  const db = await getMongoDb();
+  const objectId = toObjectId(categoryId);
+
+  if (!objectId) {
+    return [];
+  }
+
+  const rows = await db
+    .collection<ProductDoc>('products')
+    .find(
+      { isActive: { $ne: false }, categoryIds: objectId },
+      {
+        projection: {
+          _id: 1,
+          slug: 1,
+          name: 1,
+          shortDescription: 1,
+          description: 1,
+          images: 1,
+          badges: 1,
+          categoryIds: 1,
+          seo: 1,
+          isFeatured: 1,
+          isActive: 1,
+          sortOrder: 1,
+          createdAt: 1,
+          updatedAt: 1,
+        },
+      }
+    )
+    .sort({ sortOrder: 1, name: 1 })
+    .limit(limit)
+    .toArray();
+
+  return rows.map(mapProductDoc);
+}
+
+export async function getProductSummaries(limit = 1000): Promise<Array<Pick<ProductRecord, 'id' | 'slug' | 'name' | 'updatedAt'>>> {
+  await ensureIndexes();
+  const db = await getMongoDb();
+  const rows = await db
+    .collection<ProductDoc>('products')
+    .find(
+      { isActive: { $ne: false } },
+      {
+        projection: {
+          _id: 1,
+          slug: 1,
+          name: 1,
+          updatedAt: 1,
+        },
+      }
+    )
+    .sort({ sortOrder: 1, name: 1 })
+    .limit(limit)
+    .toArray();
+
+  return rows.map((doc) => ({
+    id: idToString(doc._id),
+    slug: doc.slug,
+    name: doc.name,
+    updatedAt: asIsoString(doc.updatedAt),
+  }));
+}
+
+export async function getProductNavEntries(limit = 1000): Promise<Array<Pick<ProductRecord, 'id' | 'slug' | 'name' | 'shortDescription' | 'badges' | 'isActive' | 'isFeatured' | 'seo' | 'categoryIds'>>> {
+  await ensureIndexes();
+  const db = await getMongoDb();
+  const rows = await db
+    .collection<ProductDoc>('products')
+    .find(
+      { isActive: { $ne: false } },
+      {
+        projection: {
+          _id: 1,
+          slug: 1,
+          name: 1,
+          shortDescription: 1,
+          badges: 1,
+          categoryIds: 1,
+          seo: 1,
+          isFeatured: 1,
+          isActive: 1,
+        },
+      }
+    )
+    .sort({ sortOrder: 1, name: 1 })
+    .limit(limit)
+    .toArray();
+
+  return rows.map((doc) => ({
+    id: idToString(doc._id),
+    slug: doc.slug,
+    name: doc.name,
+    shortDescription: normalizeRichContent(doc.shortDescription),
+    badges: Array.isArray(doc.badges) ? doc.badges : [],
+    categoryIds: Array.isArray(doc.categoryIds) ? doc.categoryIds.map((item) => idToString(item)).filter(Boolean) : [],
+    isActive: doc.isActive !== false,
+    isFeatured: doc.isFeatured === true,
+    seo: doc.seo || seoDefaults(doc.name, doc.name, ''),
+  }));
 }
 
 export async function getAdminByEmail(email: string): Promise<{ email: string; password_hash: string } | null> {

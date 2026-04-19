@@ -8,6 +8,7 @@ import { Navigation, Autoplay } from 'swiper/modules';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 import type { CatalogProduct } from '@/lib/catalog';
+import { getSafeImageSrc } from '@/lib/image-url';
 import { getPrimaryImage } from '@/lib/product-media';
 import { getProductPath } from '@/lib/slug';
 
@@ -108,13 +109,19 @@ export default function SameDayPrinting({
                 >
                   <div className="group flex h-full flex-col">
                     <div className="relative mb-4 h-90 overflow-hidden rounded-3xl bg-stone-200 sm:h-95 lg:h-100">
-                      <Image
-                        src={getPrimaryImage(product)}
-                        alt={product.name}
-                        fill
-                        sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 280px"
-                        className="object-cover transition-transform duration-500 group-hover:scale-105"
-                      />
+                      {getSafeImageSrc(getPrimaryImage(product)) ? (
+                        <Image
+                          src={getSafeImageSrc(getPrimaryImage(product))!}
+                          alt={product.name}
+                          fill
+                          sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 280px"
+                          className="object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center bg-stone-100 text-sm font-medium text-stone-500">
+                          No image
+                        </div>
+                      )}
 
                       <div className="absolute left-4 top-4 rounded-full bg-emerald-500 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-white shadow-sm">
                         Same Day

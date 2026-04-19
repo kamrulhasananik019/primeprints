@@ -6,6 +6,7 @@ import { cache } from 'react';
 import { getCategories, getCategoryById } from '@/services/category.service';
 import { getProductsByCategoryId } from '@/services/product.service';
 import InfiniteMarquee from '@/components/shared/infinite-marquee';
+import { getSafeImageSrc } from '@/lib/image-url';
 import { getPrimaryImage } from '@/lib/product-media';
 import RichContent from '@/components/shared/rich-content';
 import { richContentToPlainText } from '@/lib/rich-content';
@@ -85,6 +86,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
 
   const categorySummary = category.shortDescription?.content?.length ? category.shortDescription : category.description;
   const categorySummaryText = richContentToPlainText(categorySummary);
+  const safeCategoryImage = getSafeImageSrc(category.image.url);
 
   const categoryJsonLd = {
     '@context': 'https://schema.org',
@@ -139,7 +141,21 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
               </div>
             </div>
             <div className="aspect-16/11 overflow-hidden rounded-3xl bg-stone-200 shadow-2xl shadow-stone-300/40">
-              <Image src={category.image.url} alt={category.image.alt || category.name} width={1200} height={825} priority className="h-full w-full object-cover" />
+              {safeCategoryImage ? (
+                <Image
+                  src={safeCategoryImage}
+                  alt={category.image.alt || category.name}
+                  width={1200}
+                  height={825}
+                  priority
+                  loading="eager"
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center bg-stone-100 text-sm font-medium text-stone-500">
+                  No image
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -169,14 +185,20 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
                 <Link key={product.id} href={getProductPath(product.id, product.name, product.slug)} prefetch={false}>
                   <div className="group cursor-pointer rounded-3xl border border-stone-200 bg-white p-3 transition hover:border-stone-300 hover:shadow-md">
                     <div className="relative mb-4 aspect-4/5 overflow-hidden rounded-3xl bg-stone-200">
-                      <Image
-                        src={getPrimaryImage(product) || category.image.url}
-                        alt={product.name}
-                        width={800}
-                        height={1000}
-                        sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 25vw"
-                        className="h-full w-full object-cover transition duration-500 group-hover:scale-110"
-                      />
+                      {getSafeImageSrc(getPrimaryImage(product) || category.image.url) ? (
+                        <Image
+                          src={getSafeImageSrc(getPrimaryImage(product) || category.image.url)!}
+                          alt={product.name}
+                          width={800}
+                          height={1000}
+                          sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 25vw"
+                          className="h-full w-full object-cover transition duration-500 group-hover:scale-110"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center bg-stone-100 text-sm font-medium text-stone-500">
+                          No image
+                        </div>
+                      )}
                       <div className="absolute inset-0 flex items-end bg-linear-to-t from-black/60 via-black/10 to-transparent p-5 opacity-0 transition duration-300 group-hover:opacity-100">
                         <span className="text-sm font-medium text-white">View Details</span>
                       </div>

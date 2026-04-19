@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next';
-import { getCatalogCategories, getCatalogProducts } from '@/lib/catalog';
+import { getCatalogCategories } from '@/lib/catalog';
+import { getProductSummaries } from '@/lib/mongo-catalog';
 import { siteUrl } from '@/lib/site';
 import { getCategoryPath, getProductPath } from '@/lib/slug';
 
@@ -8,7 +9,7 @@ export const revalidate = 86400;
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = siteUrl;
 
-  const [categories, allProducts] = await Promise.all([getCatalogCategories(), getCatalogProducts(1000)]);
+  const [categories, allProducts] = await Promise.all([getCatalogCategories(), getProductSummaries(1000)]);
 
   const staticRoutes: MetadataRoute.Sitemap = [
     {

@@ -2,32 +2,26 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { cache } from 'react';
 import ProductHero from '@/components/product/product-hero';
 import InfiniteMarquee from '@/components/shared/infinite-marquee';
-import { getCategories, getCategoryById } from '@/services/category.service';
-import { getProductById, getProducts } from '@/services/product.service';
 import { siteUrl } from '@/lib/site';
+import { getSafeImageSrc } from '@/lib/image-url';
 import { getPrimaryImage } from '@/lib/product-media';
 import { richContentToPlainText } from '@/lib/rich-content';
 import RichContent from '@/components/shared/rich-content';
 import { getCategoryPath, getProductPath, toSlug } from '@/lib/slug';
+import { getCategories, getCategoryById, getProductById, getProductSummaries, getProductsByCategoryId } from '@/lib/mongo-catalog';
 
 export const revalidate = 3600;
 
-const getProductBySlugCached = cache(async (slug: string) => getProductById(slug));
-const getCategoryByIdCached = cache(async (id: string) => getCategoryById(id));
-const getCategoriesCached = cache(async () => getCategories());
-const getProductsCached = cache(async (limit: number) => getProducts(limit));
-
 export async function generateStaticParams() {
-  const products = await getProducts(1000);
+  const products = await getProductSummaries(1000);
   return products.map((product) => ({ slug: product.slug || toSlug(product.name) || product.id }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const product = await getProductBySlugCached(slug);
+  const product = await getProductById(slug);
 
   if (!product) {
     return {
@@ -36,7 +30,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     };
   }
 
-  const category = await getCategoryByIdCached(product.categoryIds[0] ?? '');
+  const category = await getCategoryById(product.categoryIds[0] ?? '');
   const productImage = getPrimaryImage(product) || category?.image.url || '';
   const productDescription = richContentToPlainText(product.shortDescription) || richContentToPlainText(product.description);
   const canonicalPath = getProductPath(product.id, product.name, product.slug);
@@ -75,31 +69,32 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function ProductDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
 
-  const product = await getProductBySlugCached(slug);
+  const product = await getProductById(slug);
   if (!product) {
     notFound();
   }
 
-  const category = await getCategoryByIdCached(product.categoryIds[0] ?? '');
+  const category = await getCategoryById(product.categoryIds[0] ?? '');
   if (!category) {
     notFound();
   }
 
-  const [allProducts, allCategories] = await Promise.all([getProductsCached(1000), getCategoriesCached()]);
-  const categoryProducts = allProducts.filter((item) => item.categoryIds.includes(category.id));
+  const [allCategories, categoryProducts] = await Promise.all([getCategories(), getProductsByCategoryId(category.id, 4)]);
   const related = categoryProducts.filter((item) => item.id !== product.id).slice(0, 3);
+  const safeCategoryImage = getSafeImageSrc(category.image.url);
 
-  const otherCategoryProductsNested = allCategories
-    .filter((cat) => cat.id !== category.id)
-    .map((cat) =>
-      allProducts
-        .filter((item) => item.categoryIds.includes(cat.id) && item.id !== product.id)
-        .slice(0, 2)
-        .map((item) => ({ ...item, categoryName: cat.name }))
-    );
+  const otherCategoryProductsNested = await Promise.all(
+    allCategories
+      .filter((cat) => cat.id !== category.id)
+      .map(async (cat) => {
+        const categoryItems = await getProductsByCategoryId(cat.id, 2);
+        return categoryItems.map((item) => ({ ...item, categoryName: cat.name }));
+      })
+  );
   const otherCategoryProducts = Array.from(new Map(otherCategoryProductsNested.flat().map((item) => [item.id, item])).values()).slice(0, 6);
 
   const primaryImage = getPrimaryImage(product) || category.image.url;
+  const safePrimaryImage = primaryImage || null;
   const galleryImages = Array.from(new Set([primaryImage, ...product.images.map((item) => item.url)])).filter(Boolean).slice(0, 6);
   const categoryNames = allCategories.map((cat) => cat.name);
 
@@ -161,8 +156,8 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
         <div className="container mx-auto px-4 py-12 sm:px-6 lg:px-8 lg:py-14">
           <ProductHero
             product={product}
-            category={{ id: category.id, name: category.name, imageUrl: category.image.url }}
-            primaryImage={primaryImage}
+            category={{ id: category.id, name: category.name, imageUrl: safeCategoryImage || '' }}
+            primaryImage={safePrimaryImage}
             productTitle={product.name}
             productShortDescription={product.shortDescription || product.description}
           />
@@ -189,14 +184,18 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                   <Link key={rel.id} href={getProductPath(rel.id, rel.name, rel.slug)} prefetch={false} className="group block">
                     <div className="group cursor-pointer">
                       <div className="relative mb-4 aspect-square overflow-hidden rounded-3xl bg-stone-200">
-                        <Image
-                          src={getPrimaryImage(rel) || category.image.url}
-                          alt={rel.name}
-                          width={800}
-                          height={800}
-                          sizes="(max-width: 768px) 100vw, 33vw"
-                          className="h-full w-full object-cover transition duration-500 group-hover:scale-110"
-                        />
+                        {getSafeImageSrc(getPrimaryImage(rel) || category.image.url) ? (
+                          <Image
+                            src={getSafeImageSrc(getPrimaryImage(rel) || category.image.url)!}
+                            alt={rel.name}
+                            width={800}
+                            height={800}
+                            sizes="(max-width: 768px) 100vw, 33vw"
+                            className="h-full w-full object-cover transition duration-500 group-hover:scale-110"
+                          />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center bg-stone-100 text-sm font-medium text-stone-500">No image</div>
+                        )}
                       </div>
                       <h3 className="serif text-xl font-bold leading-tight text-stone-900 transition-colors group-hover:text-stone-700">{rel.name}</h3>
                     </div>
@@ -220,14 +219,18 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                   <Link key={item.id} href={getProductPath(item.id, item.name, item.slug)} prefetch={false} className="group block">
                     <div className="group cursor-pointer">
                       <div className="relative mb-4 aspect-square overflow-hidden rounded-3xl bg-stone-200">
-                        <Image
-                          src={getPrimaryImage(item) || category.image.url}
-                          alt={item.name}
-                          width={800}
-                          height={800}
-                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                          className="h-full w-full object-cover transition duration-500 group-hover:scale-110"
-                        />
+                        {getSafeImageSrc(getPrimaryImage(item) || category.image.url) ? (
+                          <Image
+                            src={getSafeImageSrc(getPrimaryImage(item) || category.image.url)!}
+                            alt={item.name}
+                            width={800}
+                            height={800}
+                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                            className="h-full w-full object-cover transition duration-500 group-hover:scale-110"
+                          />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center bg-stone-100 text-sm font-medium text-stone-500">No image</div>
+                        )}
                         <span className="sans absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-[10px] font-medium uppercase tracking-[0.14em] text-stone-700 backdrop-blur">
                           {item.categoryName}
                         </span>

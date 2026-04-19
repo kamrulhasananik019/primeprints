@@ -16,7 +16,7 @@ type ProductHeroProps = {
     name: string;
     imageUrl: string;
   };
-  primaryImage: string;
+  primaryImage: string | null;
   productTitle: string;
   productShortDescription: RichDescription;
 };
@@ -28,24 +28,32 @@ export default function ProductHero({
   productTitle,
   productShortDescription,
 }: ProductHeroProps) {
-  const [selectedImage, setSelectedImage] = useState(primaryImage);
+  const initialImage = primaryImage || category.imageUrl || null;
+  const [selectedImage, setSelectedImage] = useState(initialImage);
 
-  const galleryImages = Array.from(new Set([primaryImage, ...product.images.map((item) => item.url)])).filter(Boolean).slice(0, 8);
-  const activeImage = galleryImages.includes(selectedImage) ? selectedImage : primaryImage;
+  const galleryImages = Array.from(new Set([initialImage, ...product.images.map((item) => item.url)]))
+    .filter((value): value is string => Boolean(value))
+    .slice(0, 8);
+  const activeImage = selectedImage && galleryImages.includes(selectedImage) ? selectedImage : initialImage;
 
   return (
     <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:gap-12">
       <div className="lg:sticky lg:top-24 lg:self-start">
         <div className="relative overflow-hidden rounded-3xl border border-stone-200 bg-white shadow-xl">
           <div className="relative aspect-square">
-            <Image
-              src={activeImage}
-              alt={productTitle}
-              fill
-              priority
-              sizes="(max-width: 1024px) 100vw, 58vw"
-              className="h-full w-full object-cover"
-            />
+            {activeImage ? (
+              <Image
+                src={activeImage}
+                alt={productTitle}
+                fill
+                priority
+                loading="eager"
+                sizes="(max-width: 1024px) 100vw, 58vw"
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center bg-stone-100 text-sm font-medium text-stone-500">No image available</div>
+            )}
             <div className="absolute inset-0 bg-linear-to-t from-slate-900/25 via-transparent to-transparent" />
             <div className="absolute bottom-5 left-5 flex items-center gap-2 rounded-xl bg-white/95 px-3 py-2 shadow-lg backdrop-blur-sm">
               <div className="flex gap-0.5">
