@@ -218,12 +218,12 @@ export default function Navbar({ categories }: NavbarProps) {
             <button className="p-2 text-stone-700 lg:hidden" onClick={() => setIsMobileMenuOpen(true)} aria-label="Open menu">
               <Menu className="h-6 w-6" />
             </button>
-            <Link href="/" prefetch={false} className="flex items-center">
+            <Link href="/" prefetch={false} className="flex items-center ps-3">
               <Image
                 src="/logo.png"
                 alt="PrimePrint"
-                width={220}
-                height={60}
+                width={400}
+                height={120}
                 priority
                 className="h-10 w-auto object-contain"
               />
@@ -428,8 +428,8 @@ export default function Navbar({ categories }: NavbarProps) {
               <Image
                 src="/logo.png"
                 alt="PrimePrint"
-                width={220}
-                height={60}
+                width={400}
+                height={120}
                 priority
                 className="h-10 w-auto object-contain"
               />

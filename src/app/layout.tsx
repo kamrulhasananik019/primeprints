@@ -46,7 +46,7 @@ export const metadata: Metadata = {
     shortcut: ["/icon/favicon.ico"],
   },
   title: {
-    default: "Prime Prints | Same Day Printing in London",
+    default: "Prime Prints | Same day printing service in UK",
     template: "%s | Prime Prints",
   },
   description:
@@ -63,7 +63,7 @@ export const metadata: Metadata = {
     canonical: "/",
   },
   openGraph: {
-    title: "Prime Prints | Same Day Printing in London",
+    title: "Prime Prints | Same day printing service in UK",
     description:
       "Premium print quality, fast turnaround, and reliable delivery windows for every project.",
     url: "/",
@@ -81,7 +81,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Prime Prints | Same Day Printing in London",
+    title: "Prime Prints | Same day printing service in UK",
     description:
       "Premium print quality with fast turnaround for business and personal projects.",
     images: ["https://images.unsplash.com/photo-1562654501-a0ccc0fc3fb1?w=1600&q=80"],
