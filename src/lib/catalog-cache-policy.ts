@@ -14,12 +14,12 @@ export const CATALOG_TAGGED_DATA_REVALIDATE = false;
 
 /**
  * FAQ data cached with `unstable_cache` + `tags: ['faqs']`.
- * `false` disables time-based refresh; only `revalidateTag('faqs', …)` from admin APIs updates it.
+ * Refreshes every 7 days, and can be refreshed sooner via `revalidateTag('faqs', …)` from admin APIs.
  */
-export const FAQ_TAGGED_DATA_REVALIDATE = false;
+export const FAQ_TAGGED_DATA_REVALIDATE = 604800;
 
 /**
  * Review data cached with `unstable_cache` + `tags: ['reviews']`.
- * `false` disables time-based refresh; only `revalidateTag('reviews', …)` from admin APIs updates it.
+ * Refreshes every 7 days, and can be refreshed sooner via `revalidateTag('reviews', …)` from admin APIs.
  */
-export const REVIEW_TAGGED_DATA_REVALIDATE = false;
+export const REVIEW_TAGGED_DATA_REVALIDATE = 604800;

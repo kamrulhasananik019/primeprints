@@ -1,5 +1,6 @@
 import { unstable_cache } from 'next/cache';
 
+import { FAQ_TAGGED_DATA_REVALIDATE } from '@/lib/catalog-cache-policy';
 import {
   createAdminFaq,
   deleteAdminFaq,
@@ -32,7 +33,7 @@ export const getFaqs = unstable_cache(
   },
   ['faqs'],
   {
-    revalidate: false,
+    revalidate: FAQ_TAGGED_DATA_REVALIDATE,
     tags: ['faqs'],
   }
 );

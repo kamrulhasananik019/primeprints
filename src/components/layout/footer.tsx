@@ -31,8 +31,14 @@ export default function Footer() {
               <Link href="/" prefetch={false} className="text-sm text-[#E7DBD3] transition-colors hover:text-white">
                 Home
               </Link>
-              <Link href="/#contact" prefetch={false} className="text-sm text-[#E7DBD3] transition-colors hover:text-white">
+              <Link href="/contact" prefetch={false} className="text-sm text-[#E7DBD3] transition-colors hover:text-white">
                 Contact
+              </Link>
+              <Link href="/faqs" prefetch={false} className="text-sm text-[#E7DBD3] transition-colors hover:text-white">
+                FAQs
+              </Link>
+              <Link href="/reviews" prefetch={false} className="text-sm text-[#E7DBD3] transition-colors hover:text-white">
+                Reviews
               </Link>
             </div>
           </div>

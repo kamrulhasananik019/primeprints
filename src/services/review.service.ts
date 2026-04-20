@@ -1,5 +1,6 @@
 import { unstable_cache } from 'next/cache';
 
+import { REVIEW_TAGGED_DATA_REVALIDATE } from '@/lib/catalog-cache-policy';
 import {
   createAdminReview,
   createPublicReview,
@@ -35,7 +36,7 @@ export const getApprovedReviews = unstable_cache(
   },
   ['approved-reviews'],
   {
-    revalidate: false,
+    revalidate: REVIEW_TAGGED_DATA_REVALIDATE,
     tags: ['reviews'],
   }
 );
