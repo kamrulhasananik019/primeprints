@@ -11,3 +11,15 @@ export const CATALOG_PAGE_REVALIDATE_SECONDS = 604800;
  * `false` disables time-based refresh; only `revalidateTag('catalog', …)` from admin APIs updates it.
  */
 export const CATALOG_TAGGED_DATA_REVALIDATE = false;
+
+/**
+ * FAQ data cached with `unstable_cache` + `tags: ['faqs']`.
+ * `false` disables time-based refresh; only `revalidateTag('faqs', …)` from admin APIs updates it.
+ */
+export const FAQ_TAGGED_DATA_REVALIDATE = false;
+
+/**
+ * Review data cached with `unstable_cache` + `tags: ['reviews']`.
+ * `false` disables time-based refresh; only `revalidateTag('reviews', …)` from admin APIs updates it.
+ */
+export const REVIEW_TAGGED_DATA_REVALIDATE = false;

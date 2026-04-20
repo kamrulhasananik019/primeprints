@@ -35,7 +35,7 @@ export const getApprovedReviews = unstable_cache(
   },
   ['approved-reviews'],
   {
-    revalidate: 3600,
+    revalidate: false,
     tags: ['reviews'],
   }
 );

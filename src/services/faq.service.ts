@@ -32,7 +32,7 @@ export const getFaqs = unstable_cache(
   },
   ['faqs'],
   {
-    revalidate: 3600,
+    revalidate: false,
     tags: ['faqs'],
   }
 );

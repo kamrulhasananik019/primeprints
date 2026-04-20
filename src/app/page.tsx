@@ -20,7 +20,8 @@ const SameDayPrinting = nextDynamic(() => import("@/components/Home/samedaydeliv
   loading: () => <HomeDeferredFallback minHeight="min-h-[420px]" />,
 });
 
-export const revalidate = 3600;
+/** Cache home page for 1 week; invalidated only by admin product/category changes */
+export const revalidate = 604800;
 
 export const metadata: Metadata = {
   title: "Same Day Delivery in London & UK | Prime Prints",

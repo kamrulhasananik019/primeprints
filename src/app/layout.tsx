@@ -23,7 +23,8 @@ const dmSans = DM_Sans({
   adjustFontFallback: true,
 });
 
-export const revalidate = 300;
+/** Cache layout and navbar categories for 1 week; invalidated only by admin category operations */
+export const revalidate = 604800;
 
 export const viewport: Viewport = {
   width: "device-width",

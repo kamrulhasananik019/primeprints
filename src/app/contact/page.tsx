@@ -3,7 +3,8 @@ import { Suspense } from "react";
 import ContactPageContent from "@/components/contact/contact-page";
 import { getCategoriesWithProducts } from "@/lib/catalog";
 
-export const revalidate = 300;
+/** Cache contact page for 1 week; invalidated only by admin category/product changes */
+export const revalidate = 604800;
 
 export const metadata: Metadata = {
   title: "Contact | Prime Prints",
