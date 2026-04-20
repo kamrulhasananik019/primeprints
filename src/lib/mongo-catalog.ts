@@ -1,6 +1,7 @@
 import { ObjectId } from 'mongodb';
 import { unstable_cache } from 'next/cache';
 
+import { CATALOG_TAGGED_DATA_REVALIDATE } from '@/lib/catalog-cache-policy';
 import { toSlug } from '@/lib/slug';
 import { getMongoDb } from '@/lib/mongodb';
 import type { RichDescription, TipTapDoc } from '@/types/rich-content';
@@ -460,7 +461,7 @@ const getCachedCategories = unstable_cache(
     return rows;
   },
   ['catalog-categories'],
-  { revalidate: 300, tags: ['catalog'] }
+  { revalidate: CATALOG_TAGGED_DATA_REVALIDATE, tags: ['catalog'] }
 );
 
 export async function getCategories(): Promise<CategoryRecord[]> {

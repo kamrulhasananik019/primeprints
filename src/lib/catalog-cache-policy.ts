@@ -1,0 +1,13 @@
+/**
+ * ISR window for catalog HTML routes (`products/[slug]`, `categories/[slug]`).
+ * Next.js requires `export const revalidate` on those pages to be a numeric literal, so keep
+ * this value in sync with the `604800` literals there. Admin routes call `revalidateTag('catalog')`
+ * so content can refresh before this interval elapses.
+ */
+export const CATALOG_PAGE_REVALIDATE_SECONDS = 604800;
+
+/**
+ * Mongo-backed catalog data cached with `unstable_cache` + `tags: ['catalog']`.
+ * `false` disables time-based refresh; only `revalidateTag('catalog', …)` from admin APIs updates it.
+ */
+export const CATALOG_TAGGED_DATA_REVALIDATE = false;

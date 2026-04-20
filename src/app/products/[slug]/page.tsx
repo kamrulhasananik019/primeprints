@@ -9,21 +9,12 @@ import { getSafeImageSrc } from '@/lib/image-url';
 import { getPrimaryImage } from '@/lib/product-media';
 import { richContentToPlainText } from '@/lib/rich-content';
 import RichContent from '@/components/shared/rich-content';
-import { getCategoryPath, getProductPath, toSlug } from '@/lib/slug';
+import { getCategoryPath, getProductPath } from '@/lib/slug';
 import { getCategories, getCategoryById } from '@/services/category.service';
 import { getProductById, getProductsByCategoryId } from '@/services/product.service';
-import { getProductSummaries } from '@/lib/mongo-catalog';
 
-export const revalidate = 3600;
-
-export async function generateStaticParams() {
-  try {
-    const products = await getProductSummaries(1000);
-    return products.map((product) => ({ slug: product.slug || toSlug(product.name) || product.id }));
-  } catch {
-    return [];
-  }
-}
+/** On-demand static generation: first visit builds and caches; no build-time enumeration of all SKUs. Must be a literal for Next segment config (see `CATALOG_PAGE_REVALIDATE_SECONDS`). */
+export const revalidate = 604800;
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;

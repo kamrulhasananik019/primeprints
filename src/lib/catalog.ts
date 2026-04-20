@@ -1,3 +1,4 @@
+import { CATALOG_TAGGED_DATA_REVALIDATE } from '@/lib/catalog-cache-policy';
 import { getCategories, getProductNavEntries, getProducts } from '@/lib/mongo-catalog';
 import { unstable_cache } from 'next/cache';
 
@@ -25,7 +26,7 @@ const getCatalogSnapshot = unstable_cache(
     return { categories, products };
   },
   ['catalog-snapshot'],
-  { revalidate: 300, tags: ['catalog'] }
+  { revalidate: CATALOG_TAGGED_DATA_REVALIDATE, tags: ['catalog'] }
 );
 
 function isCatalogUnavailableError(error: unknown): boolean {

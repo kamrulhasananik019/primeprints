@@ -4,7 +4,7 @@ import { getProductSummaries } from '@/lib/mongo-catalog';
 import { siteUrl } from '@/lib/site';
 import { getCategoryPath, getProductPath } from '@/lib/slug';
 
-export const revalidate = 86400;
+export const revalidate = 604800;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = siteUrl;

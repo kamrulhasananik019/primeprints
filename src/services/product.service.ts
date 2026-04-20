@@ -1,5 +1,6 @@
 import { unstable_cache } from 'next/cache';
 
+import { CATALOG_TAGGED_DATA_REVALIDATE } from '@/lib/catalog-cache-policy';
 import {
   createAdminProduct,
   deleteAdminProduct,
@@ -38,7 +39,7 @@ export const getProducts = unstable_cache(async (limit = 100) => {
     throw error;
   }
 }, ['products'], {
-  revalidate: 3600,
+  revalidate: CATALOG_TAGGED_DATA_REVALIDATE,
   tags: ['catalog'],
 });
 
@@ -55,7 +56,7 @@ export const getProductById = unstable_cache(
   },
   ['product-by-id'],
   {
-    revalidate: 3600,
+    revalidate: CATALOG_TAGGED_DATA_REVALIDATE,
     tags: ['catalog'],
   }
 );
@@ -72,7 +73,7 @@ export const getProductsByCategoryId = unstable_cache(
     }
   },
   ['products-by-category'],
-  { revalidate: 3600, tags: ['catalog'] }
+  { revalidate: CATALOG_TAGGED_DATA_REVALIDATE, tags: ['catalog'] }
 );
 
 export const getRelatedProducts = unstable_cache(
@@ -87,7 +88,7 @@ export const getRelatedProducts = unstable_cache(
     }
   },
   ['related-products'],
-  { revalidate: 3600, tags: ['catalog'] }
+  { revalidate: CATALOG_TAGGED_DATA_REVALIDATE, tags: ['catalog'] }
 );
 
 export const getSameDayPrinting = unstable_cache(
@@ -103,7 +104,7 @@ export const getSameDayPrinting = unstable_cache(
   },
   ['same-day-printing'],
   {
-    revalidate: 3600,
+    revalidate: CATALOG_TAGGED_DATA_REVALIDATE,
     tags: ['catalog'],
   }
 );

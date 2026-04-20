@@ -13,12 +13,14 @@ import { richContentToPlainText } from '@/lib/rich-content';
 import { getCategoryPath, getProductPath, toSlug } from '@/lib/slug';
 import { siteUrl } from '@/lib/site';
 
-export const revalidate = 3600;
+/** First visit generates the page; long ISR window limits background regeneration writes. Must be a literal for Next segment config (see `CATALOG_PAGE_REVALIDATE_SECONDS`). */
+export const revalidate = 604800;
 
 const getCategoryBySlugCached = cache(async (slug: string) => getCategoryById(slug));
 const getCategoriesCached = cache(async () => getCategories());
 const getProductsByCategoryCached = cache(async (categoryId: string) => getProductsByCategoryId(categoryId, 200));
 
+/** Category count is small; prebuild avoids cold-start on popular category URLs. */
 export async function generateStaticParams() {
   const categories = await getCategories();
   return categories.map((category) => ({ slug: toSlug(category.name) || category.id }));

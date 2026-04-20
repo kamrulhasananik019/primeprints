@@ -1,5 +1,6 @@
 import { unstable_cache } from 'next/cache';
 
+import { CATALOG_TAGGED_DATA_REVALIDATE } from '@/lib/catalog-cache-policy';
 import {
   createAdminCategory,
   deleteAdminCategory,
@@ -31,7 +32,7 @@ export const getCategories = unstable_cache(async () => {
     throw error;
   }
 }, ['categories'], {
-  revalidate: 3600,
+  revalidate: CATALOG_TAGGED_DATA_REVALIDATE,
   tags: ['catalog'],
 });
 
@@ -48,7 +49,7 @@ export const getCategoryById = unstable_cache(
   },
   ['category-by-id'],
   {
-    revalidate: 3600,
+    revalidate: CATALOG_TAGGED_DATA_REVALIDATE,
     tags: ['catalog'],
   }
 );
