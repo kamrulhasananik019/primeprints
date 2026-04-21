@@ -112,7 +112,7 @@ export default async function ReviewsPage() {
         <div className="mt-16 rounded-2xl border border-stone-200 bg-white p-8 text-center md:p-10">
           <h2 className="font-serif text-2xl font-bold text-stone-900">Share your experience</h2>
           <p className="mt-3 text-sm text-stone-600">
-            Have you used Prime Prints? We'd love to hear about your experience.
+            Have you used Prime Prints? We&apos;d love to hear about your experience.
           </p>
           <Link
             href="/contact"

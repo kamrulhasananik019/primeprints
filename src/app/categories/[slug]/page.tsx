@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
+import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { cache } from 'react';
 import { getCategories, getCategoryById } from '@/services/category.service';
@@ -81,6 +82,11 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
     notFound();
   }
 
+  const canonicalPath = getCategoryPath(category.id, category.name);
+  if (slug !== canonicalPath.split('/').pop()) {
+    redirect(canonicalPath);
+  }
+
   const [products, categories] = await Promise.all([
     getProductsByCategoryCached(category.id),
     getCategoriesCached(),
@@ -95,7 +101,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
     '@type': 'CollectionPage',
     name: `${category.name} Printing in London`,
     description: categorySummaryText,
-    url: `${siteUrl}${getCategoryPath(category.id, category.name)}`,
+    url: `${siteUrl}${canonicalPath}`,
     about: {
       '@type': 'Thing',
       name: category.name,

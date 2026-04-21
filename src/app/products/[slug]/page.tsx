@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import ProductHero from '@/components/product/product-hero';
 import InfiniteMarquee from '@/components/shared/infinite-marquee';
 import { siteUrl } from '@/lib/site';
@@ -71,6 +71,11 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
     notFound();
   }
 
+  const canonicalPath = getProductPath(product.id, product.name, product.slug);
+  if (slug !== canonicalPath.split('/').pop()) {
+    redirect(canonicalPath);
+  }
+
   const category = await getCategoryById(product.categoryIds[0] ?? '');
   if (!category) {
     notFound();
@@ -107,7 +112,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
       '@type': 'Brand',
       name: 'Prime Prints',
     },
-    url: `${siteUrl}${getProductPath(product.id, product.name, product.slug)}`,
+    url: `${siteUrl}${canonicalPath}`,
   };
 
   const breadcrumbJsonLd = {

@@ -33,6 +33,7 @@ type ImageBlock = {
 type CategoryDoc = {
   _id: ObjectId;
   slug: string;
+  slugAliases: string[];
   name: string;
   shortDescription?: RichTextDoc | RichDescription;
   description: RichTextDoc | RichDescription;
@@ -48,6 +49,7 @@ type CategoryDoc = {
 type ProductDoc = {
   _id: ObjectId;
   slug: string;
+  slugAliases: string[];
   name: string;
   shortDescription: RichTextDoc | RichDescription;
   description: RichTextDoc | RichDescription;
@@ -102,6 +104,7 @@ declare global {
 export type CategoryRecord = {
   id: string;
   slug: string;
+  slugAliases: string[];
   name: string;
   shortDescription?: RichDescription;
   description: RichDescription;
@@ -118,6 +121,7 @@ export type CategoryRecord = {
 export type ProductRecord = {
   id: string;
   slug: string;
+  slugAliases: string[];
   name: string;
   shortDescription: RichDescription;
   description: RichDescription;
@@ -247,6 +251,10 @@ function toStoredRich(value: string): TipTapDoc {
   return normalizeRichContent(value);
 }
 
+function normalizeSlugAliases(values: Array<string | undefined | null>): string[] {
+  return Array.from(new Set(values.map((value) => toSlug(String(value || ''))).filter(Boolean)));
+}
+
 function serializeRichForAdmin(value: unknown): string {
   if (typeof value === 'string') {
     try {
@@ -322,6 +330,29 @@ function seoDefaults(title: string, description: string, image: string): SeoBloc
   };
 }
 
+async function resolveUniqueCategorySlug(baseSlug: string, excludeId?: ObjectId): Promise<string> {
+  const db = await getMongoDb();
+  const collection = db.collection<CategoryDoc>('categories');
+  const rootSlug = baseSlug || 'category';
+  let candidate = rootSlug;
+  let suffix = 2;
+
+  while (true) {
+    const query: Record<string, unknown> = { $or: [{ slug: candidate }, { slugAliases: candidate }] };
+    if (excludeId) {
+      query._id = { $ne: excludeId };
+    }
+
+    const existing = await collection.findOne(query, { projection: { _id: 1 } });
+    if (!existing) {
+      return candidate;
+    }
+
+    candidate = `${rootSlug}-${suffix}`;
+    suffix += 1;
+  }
+}
+
 async function resolveUniqueProductSlug(baseSlug: string, excludeId?: ObjectId): Promise<string> {
   const db = await getMongoDb();
   const collection = db.collection<ProductDoc>('products');
@@ -330,7 +361,7 @@ async function resolveUniqueProductSlug(baseSlug: string, excludeId?: ObjectId):
   let suffix = 2;
 
   while (true) {
-    const query: Record<string, unknown> = { slug: candidate };
+    const query: Record<string, unknown> = { $or: [{ slug: candidate }, { slugAliases: candidate }] };
     if (excludeId) {
       query._id = { $ne: excludeId };
     }
@@ -361,10 +392,12 @@ async function ensureIndexes() {
       await Promise.all([
         db.collection<CategoryDoc>('categories').createIndexes([
           { key: { slug: 1 }, unique: true },
+          { key: { slugAliases: 1 } },
           { key: { parentId: 1 } },
         ]),
         db.collection<ProductDoc>('products').createIndexes([
           { key: { slug: 1 }, unique: true },
+          { key: { slugAliases: 1 } },
           { key: { categoryIds: 1 } },
           { key: { isFeatured: 1 } },
           { key: { isActive: 1 } },
@@ -392,6 +425,7 @@ function mapCategoryDoc(doc: CategoryDoc): CategoryRecord {
   return {
     id: idToString(doc._id),
     slug: doc.slug,
+    slugAliases: Array.isArray(doc.slugAliases) ? normalizeSlugAliases(doc.slugAliases) : [],
     name: doc.name,
     shortDescription: normalizeRichContent(doc.shortDescription),
     description: normalizeRichContent(doc.description),
@@ -414,6 +448,7 @@ function mapProductDoc(doc: ProductDoc): ProductRecord {
   return {
     id: idToString(doc._id),
     slug: doc.slug,
+    slugAliases: Array.isArray(doc.slugAliases) ? normalizeSlugAliases(doc.slugAliases) : [],
     name: doc.name,
     shortDescription: normalizeRichContent(doc.shortDescription),
     description: normalizeRichContent(doc.description),
@@ -443,6 +478,7 @@ const getCachedCategories = unstable_cache(
           projection: {
             _id: 1,
             slug: 1,
+            slugAliases: 1,
             name: 1,
             shortDescription: 1,
             description: 1,
@@ -518,12 +554,13 @@ export async function getProductById(id: string): Promise<ProductRecord | null> 
 
   const row = await db.collection<ProductDoc>('products').findOne(
     objectId
-      ? { isActive: { $ne: false }, $or: [{ _id: objectId }, { slug: normalized }, { name: normalized }] }
-      : { isActive: { $ne: false }, $or: [{ slug: normalized }, { name: normalized }] },
+      ? { isActive: { $ne: false }, $or: [{ _id: objectId }, { slug: normalized }, { slugAliases: normalized }, { name: normalized }] }
+      : { isActive: { $ne: false }, $or: [{ slug: normalized }, { slugAliases: normalized }, { name: normalized }] },
     {
       projection: {
         _id: 1,
         slug: 1,
+        slugAliases: 1,
         name: 1,
         shortDescription: 1,
         description: 1,
@@ -547,11 +584,12 @@ export async function getProductById(id: string): Promise<ProductRecord | null> 
   const slugFallback = toSlug(id);
   if (slugFallback && slugFallback !== normalized) {
     const fallback = await db.collection<ProductDoc>('products').findOne(
-      { isActive: { $ne: false }, $or: [{ slug: slugFallback }, { name: slugFallback }] },
+      { isActive: { $ne: false }, $or: [{ slug: slugFallback }, { slugAliases: slugFallback }, { name: slugFallback }] },
       {
         projection: {
           _id: 1,
           slug: 1,
+          slugAliases: 1,
           name: 1,
           shortDescription: 1,
           description: 1,
@@ -1084,10 +1122,12 @@ export async function createAdminCategory(input: {
   await ensureIndexes();
   const db = await getMongoDb();
   const now = new Date();
+  const slug = await resolveUniqueCategorySlug(toSlug(input.name));
 
   await db.collection<CategoryDoc>('categories').insertOne({
     _id: new ObjectId(),
-    slug: toSlug(input.name),
+    slug,
+    slugAliases: [],
     name: input.name,
     shortDescription: toStoredRich(input.shortDescription),
     description: toStoredRich(input.description),
@@ -1117,11 +1157,18 @@ export async function updateAdminCategory(
 
   await ensureIndexes();
   const db = await getMongoDb();
+  const existing = await db.collection<CategoryDoc>('categories').findOne(
+    { _id: objectId },
+    { projection: { slug: 1, slugAliases: 1 } }
+  );
+  const slugAliases = normalizeSlugAliases([existing?.slug, ...(existing?.slugAliases || [])]);
+  const slug = await resolveUniqueCategorySlug(toSlug(input.name), objectId);
   await db.collection<CategoryDoc>('categories').updateOne(
     { _id: objectId },
     {
       $set: {
-        slug: toSlug(input.name),
+        slug,
+        slugAliases,
         name: input.name,
         shortDescription: toStoredRich(input.shortDescription),
         description: toStoredRich(input.description),
@@ -1140,6 +1187,14 @@ export async function deleteAdminCategory(id: string): Promise<void> {
 
   await ensureIndexes();
   const db = await getMongoDb();
+
+  const linkedProducts = await db.collection<ProductDoc>('products').countDocuments({
+    categoryIds: objectId,
+  });
+  if (linkedProducts > 0) {
+    throw new Error('CATEGORY_IN_USE');
+  }
+
   await db.collection<CategoryDoc>('categories').deleteOne({ _id: objectId });
 }
 
@@ -1224,6 +1279,7 @@ export async function createAdminProduct(input: {
   await db.collection<ProductDoc>('products').insertOne({
     _id: new ObjectId(),
     slug,
+    slugAliases: [],
     name: input.name,
     shortDescription: toStoredRich(input.shortDescription),
     description: toStoredRich(input.description),
@@ -1256,6 +1312,11 @@ export async function updateAdminProduct(
 
   await ensureIndexes();
   const db = await getMongoDb();
+  const existing = await db.collection<ProductDoc>('products').findOne(
+    { _id: objectId },
+    { projection: { slug: 1, slugAliases: 1 } }
+  );
+  const slugAliases = normalizeSlugAliases([existing?.slug, ...(existing?.slugAliases || [])]);
   const imageUrl = input.imageUrls[0] || '';
   const slug = await resolveUniqueProductSlug(toSlug(input.name), objectId);
   await db.collection<ProductDoc>('products').updateOne(
@@ -1263,6 +1324,7 @@ export async function updateAdminProduct(
     {
       $set: {
         slug,
+        slugAliases,
         name: input.name,
         shortDescription: toStoredRich(input.shortDescription),
         description: toStoredRich(input.description),

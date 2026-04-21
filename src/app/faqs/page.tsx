@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import FaqAccordion from '@/components/shared/faq-accordion';
-import { siteUrl } from '@/lib/site';
 import { getFaqs } from '@/services/faq.service';
 
 /** Cache FAQ page for 1 week; invalidated only by admin FAQ changes via revalidateTag('faqs') */

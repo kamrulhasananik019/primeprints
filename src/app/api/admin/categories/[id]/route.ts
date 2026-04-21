@@ -59,6 +59,16 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
     return NextResponse.json({ ok: true });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
+    if (message === 'CATEGORY_IN_USE') {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: 'Cannot delete this category because one or more products are linked to it. Reassign or remove those products first.',
+        },
+        { status: 409 }
+      );
+    }
+
     const status = message === 'UNAUTHORIZED' ? 401 : 500;
     return NextResponse.json({ ok: false, error: message }, { status });
   }
