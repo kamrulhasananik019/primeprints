@@ -105,14 +105,6 @@ categories.createIndex({ slug: 1 }, { unique: true })
 categories.createIndex({ parentId: 1 })
 ```
 
-## Seeding
-
-Seed demo admin/category/product data:
-
-```bash
-curl -X POST http://localhost:3000/api/seed-demo
-```
-
 ## Health
 
 Check backend health:

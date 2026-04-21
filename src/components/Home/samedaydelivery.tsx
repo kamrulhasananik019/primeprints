@@ -98,7 +98,7 @@ export default function SameDayPrinting({
             }}
             className="overflow-visible!"
           >
-            {products.map((product) => (
+            {products.map((product, index) => (
               <SwiperSlide
                 key={product.id}
                 className="flex! h-auto justify-center"
@@ -114,6 +114,9 @@ export default function SameDayPrinting({
                           src={getSafeImageSrc(getPrimaryImage(product))!}
                           alt={product.name}
                           fill
+                          priority={index === 0}
+                          loading={index === 0 ? 'eager' : 'lazy'}
+                          fetchPriority={index === 0 ? 'high' : 'auto'}
                           sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 280px"
                           className="object-cover transition-transform duration-500 group-hover:scale-105"
                         />

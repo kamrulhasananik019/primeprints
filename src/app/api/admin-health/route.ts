@@ -67,10 +67,7 @@ export async function GET() {
         status: allOk ? 'HEALTHY' : 'DEGRADED',
         checks,
         nextSteps: !allOk
-          ? [
-              'Review the checks above for failures',
-              'Run: curl -X POST http://localhost:3000/api/seed-demo',
-            ]
+          ? ['Review the checks above for failures']
           : ['Visit /admin/login to access the custom admin panel'],
       },
       { status: allOk ? 200 : 503, headers: { 'Cache-Control': 'no-store, private, max-age=0' } }
