@@ -3,18 +3,18 @@ import { Truck, MessageCircle, BadgeHelp } from 'lucide-react';
 const items = [
   {
     icon: Truck,
-    title: 'Free delivery',
-    description: 'On orders £40+',
+    title: 'Fastest Email Response',
+    description: 'We take orders 24/7',
   },
   {
     icon: MessageCircle,
-    title: 'Flexible help when you need it',
-    description: `We're here by phone, email & live chat`,
+    title: 'Mockup Before Printing',
+    description: `See the final mockup first and then confirm your order`,
   },
   {
     icon: BadgeHelp,
     title: 'Create with confidence',
-    description: 'Design it yourself, or with help',
+    description: 'Design it yourself, or get help from us',
   },
 ] as const;
 
@@ -36,7 +36,7 @@ export default function PromoBar() {
                 <h3 className="font-serif text-base font-semibold leading-tight text-gray-900 md:text-[22px]">
                   {item.title}
                 </h3>
-                <p className="mt-1 text-sm leading-snug text-gray-600 md:text-[18px]">{item.description}</p>
+                <p className="mt-1 text-sm leading-snug text-gray-600 md:text-[14px]">{item.description}</p>
               </div>
             </div>
           );
