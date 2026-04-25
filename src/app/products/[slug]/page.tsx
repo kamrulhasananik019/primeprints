@@ -27,8 +27,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     };
   }
 
-  const category = await getCategoryById(product.categoryIds[0] ?? '');
-  const productImage = getPrimaryImage(product) || category?.image.url || '';
+  const productImage = getPrimaryImage(product) || '';
   const productDescription = richContentToPlainText(product.shortDescription) || richContentToPlainText(product.description);
   const canonicalPath = getProductPath(product.id, product.name, product.slug);
   const seoTitle = product.seo?.title || `${product.name} Printing in London`;
@@ -95,7 +94,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
   );
   const otherCategoryProducts = Array.from(new Map(otherCategoryProductsNested.flat().map((item) => [item.id, item])).values()).slice(0, 6);
 
-  const primaryImage = getPrimaryImage(product) || category.image.url;
+  const primaryImage = getPrimaryImage(product);
   const safePrimaryImage = primaryImage || null;
   const galleryImages = Array.from(new Set([primaryImage, ...product.images.map((item) => item.url)])).filter(Boolean).slice(0, 6);
   const categoryNames = allCategories.map((cat) => cat.name);
@@ -186,9 +185,9 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                   <Link key={rel.id} href={getProductPath(rel.id, rel.name, rel.slug)} prefetch={false} className="group block">
                     <div className="group cursor-pointer">
                       <div className="relative mb-4 aspect-square overflow-hidden rounded-3xl bg-stone-200">
-                        {getSafeImageSrc(getPrimaryImage(rel) || category.image.url) ? (
+                        {getSafeImageSrc(getPrimaryImage(rel)) ? (
                           <Image
-                            src={getSafeImageSrc(getPrimaryImage(rel) || category.image.url)!}
+                            src={getSafeImageSrc(getPrimaryImage(rel))!}
                             alt={rel.name}
                             width={800}
                             height={800}
@@ -221,9 +220,9 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                   <Link key={item.id} href={getProductPath(item.id, item.name, item.slug)} prefetch={false} className="group block">
                     <div className="group cursor-pointer">
                       <div className="relative mb-4 aspect-square overflow-hidden rounded-3xl bg-stone-200">
-                        {getSafeImageSrc(getPrimaryImage(item) || category.image.url) ? (
+                        {getSafeImageSrc(getPrimaryImage(item)) ? (
                           <Image
-                            src={getSafeImageSrc(getPrimaryImage(item) || category.image.url)!}
+                            src={getSafeImageSrc(getPrimaryImage(item))!}
                             alt={item.name}
                             width={800}
                             height={800}

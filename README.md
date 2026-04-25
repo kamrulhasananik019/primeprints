@@ -17,6 +17,10 @@ Set these in `.env.local`:
 MONGODB_URI=mongodb+srv://<user>:<password>@<cluster>/<db>?appName=<app>
 ADMIN_SESSION_SECRET=<long-random-secret>
 ADMIN_SESSION_TTL_SECONDS=28800
+CLOUDFLARE_ACCOUNT_ID=<cloudflare-account-id>
+CLOUDFLARE_R2_ACCESS_KEY_ID=<r2-access-key-id>
+CLOUDFLARE_R2_SECRET_ACCESS_KEY=<r2-secret-access-key>
+CLOUDFLARE_R2_BUCKET_NAME=<r2-bucket-name>
 ```
 
 Optional:
@@ -28,6 +32,8 @@ NEXT_PUBLIC_SITE_URL=http://localhost:3000
 # MONGODB_TLS_INSECURE=true
 # MONGODB_TLS_ALLOW_INVALID_HOSTNAMES=true
 ```
+
+The admin dashboard now uploads category and product images to Cloudflare R2, stores the returned same-origin media URLs in MongoDB, and serves them back through `/api/media/*` so the public site can render them without a public bucket.
 
 ## MongoDB Collections
 

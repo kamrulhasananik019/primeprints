@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState, type FormEvent } from 'react';
+import Image from 'next/image';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import {
@@ -107,6 +108,37 @@ function parseSeoKeywords(raw: string | undefined): string {
   return raw;
 }
 
+function formatUploadErrorMessage(status: number | null, fallbackMessage: string): string {
+  if (status === 401) return 'Upload failed: you are not signed in as an admin.';
+  if (status === 403) return 'Upload failed: Cloudflare R2 rejected the request. Check the R2 access key and bucket permissions.';
+  if (status === 411) return 'Upload failed: R2 requires a valid content length. Please retry the upload.';
+  if (status === 413) return 'Upload failed: the image is too large.';
+  if (status && status >= 500) return 'Upload failed: the storage service returned an error.';
+  return fallbackMessage;
+}
+
+function getSafeImageSrc(src: string | null | undefined): string | null {
+  if (!src) return null;
+
+  const trimmed = src.trim();
+  if (!trimmed) return null;
+
+  if (trimmed.startsWith('/')) {
+    return trimmed;
+  }
+
+  try {
+    const parsed = new URL(trimmed);
+    if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+      return trimmed;
+    }
+  } catch {
+    return null;
+  }
+
+  return null;
+}
+
 function getTextFromTiptapJson(raw: string): string {
   const compactText = (value: string): string => (value.length > 120 ? `${value.slice(0, 117)}...` : value);
 
@@ -141,6 +173,13 @@ function getTextFromTiptapJson(raw: string): string {
 export default function AdminDashboard({ adminEmail }: Props) {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const uploadToast = Swal.mixin({
+    toast: true,
+    position: 'bottom-end',
+    showConfirmButton: false,
+    timer: 2500,
+    timerProgressBar: true,
+  });
   const [activeSection, setActiveSection] = useState<SectionKey>('overview');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -149,6 +188,8 @@ export default function AdminDashboard({ adminEmail }: Props) {
   const [editingProductId, setEditingProductId] = useState<string | null>(null);
   const [busyCategoryId, setBusyCategoryId] = useState<string | null>(null);
   const [busyProductId, setBusyProductId] = useState<string | null>(null);
+  const [uploadingCategoryImage, setUploadingCategoryImage] = useState(false);
+  const [uploadingProductImages, setUploadingProductImages] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerCollapsed, setDrawerCollapsed] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -186,6 +227,15 @@ export default function AdminDashboard({ adminEmail }: Props) {
     return categories.map((item) => ({ id: item.id, name: item.name }));
   }, [categories]);
 
+  const productImageUrls = useMemo(
+    () =>
+      productForm.imageUrls
+        .split('\n')
+        .map((item) => item.trim())
+        .filter(Boolean),
+    [productForm.imageUrls]
+  );
+
   const filteredCategories = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
     if (!term) return categories;
@@ -217,6 +267,161 @@ export default function AdminDashboard({ adminEmail }: Props) {
       return item.question.toLowerCase().includes(term) || item.answer.toLowerCase().includes(term) || item.id.toLowerCase().includes(term);
     });
   }, [faqs, searchTerm]);
+
+  const uploadMedia = async (file: File, kind: 'categories' | 'products' | 'seo' | 'shared') => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('kind', kind);
+
+    try {
+      const response = await fetch('/api/admin/media', {
+        method: 'POST',
+        credentials: 'include',
+        cache: 'no-store',
+        body: formData,
+      });
+
+      const rawText = await response.text();
+      const data = rawText ? (JSON.parse(rawText) as { ok?: boolean; url?: string; error?: string }) : null;
+
+      if (!response.ok || !data?.ok || !data?.url) {
+        const fallbackMessage = data?.error || response.statusText || 'Failed to upload image';
+        throw new Error(formatUploadErrorMessage(response.status, fallbackMessage));
+      }
+
+      return data.url;
+    } catch (error) {
+      if (error instanceof SyntaxError) {
+        throw new Error('Upload failed: unexpected response from the upload service.');
+      }
+
+      if (error instanceof TypeError && error.message === 'fetch failed') {
+        throw new Error('Upload failed: unable to reach the upload service.');
+      }
+
+      throw error;
+    }
+  };
+
+  const deleteMedia = async (url: string) => {
+    const normalizedUrl = new URL(url, window.location.origin).toString();
+    const response = await fetch('/api/admin/media', {
+      method: 'DELETE',
+      credentials: 'include',
+      cache: 'no-store',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url: normalizedUrl }),
+    });
+
+    const data = (await response.json()) as { ok: boolean; error?: string };
+    if (!data.ok) {
+      throw new Error(data.error || 'Failed to delete image');
+    }
+  };
+
+  const handleCategoryImageUpload = async (file: File | null) => {
+    if (!file) return;
+
+    setError('');
+    setSuccess('');
+    setUploadingCategoryImage(true);
+    void uploadToast.fire({ icon: 'info', title: 'Uploading category image...' });
+
+    try {
+      const url = await uploadMedia(file, 'categories');
+      setCategoryForm((state) => ({ ...state, imageUrl: url }));
+      setSuccess('Category image uploaded.');
+      void uploadToast.fire({ icon: 'success', title: 'Category image uploaded' });
+    } catch (uploadError) {
+      const message = uploadError instanceof Error ? uploadError.message : 'Failed to upload category image';
+      setError(message);
+      void uploadToast.fire({ icon: 'error', title: message });
+      await Swal.fire({ icon: 'error', title: 'Upload failed', text: message });
+    } finally {
+      setUploadingCategoryImage(false);
+    }
+  };
+
+  const handleProductImagesUpload = async (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+
+    setError('');
+    setSuccess('');
+    setUploadingProductImages(true);
+    void uploadToast.fire({ icon: 'info', title: `Uploading ${files.length} product image${files.length === 1 ? '' : 's'}...` });
+
+    try {
+      const urls: string[] = [];
+      for (const file of Array.from(files)) {
+        const url = await uploadMedia(file, 'products');
+        urls.push(url);
+      }
+
+      setProductForm((state) => ({
+        ...state,
+        imageUrls: [state.imageUrls.trim(), ...urls].filter(Boolean).join('\n'),
+      }));
+      setSuccess(urls.length === 1 ? 'Product image uploaded.' : `${urls.length} product images uploaded.`);
+      void uploadToast.fire({ icon: 'success', title: urls.length === 1 ? 'Product image uploaded' : `${urls.length} product images uploaded` });
+    } catch (uploadError) {
+      const message = uploadError instanceof Error ? uploadError.message : 'Failed to upload product images';
+      setError(message);
+      void uploadToast.fire({ icon: 'error', title: message });
+      await Swal.fire({ icon: 'error', title: 'Upload failed', text: message });
+    } finally {
+      setUploadingProductImages(false);
+    }
+  };
+
+  const removeProductImage = async (url: string) => {
+    const parsed = new URL(url, window.location.origin);
+    const isManagedMedia = parsed.pathname.startsWith('/api/media/');
+
+    if (isManagedMedia) {
+      setUploadingProductImages(true);
+      try {
+        await deleteMedia(url);
+      } catch (deleteError) {
+        const message = deleteError instanceof Error ? deleteError.message : 'Failed to delete image';
+        setError(message);
+        await Swal.fire({ icon: 'error', title: 'Delete failed', text: message });
+        return;
+      } finally {
+        setUploadingProductImages(false);
+      }
+    }
+
+    setProductForm((state) => ({
+      ...state,
+      imageUrls: state.imageUrls
+        .split('\n')
+        .map((item) => item.trim())
+        .filter((item) => item && item !== url)
+        .join('\n'),
+    }));
+  };
+
+  const removeCategoryImage = async () => {
+    if (!categoryForm.imageUrl) return;
+
+    const url = categoryForm.imageUrl;
+    const parsed = new URL(url, window.location.origin);
+    if (parsed.pathname.startsWith('/api/media/')) {
+      setUploadingCategoryImage(true);
+      try {
+        await deleteMedia(url);
+      } catch (deleteError) {
+        const message = deleteError instanceof Error ? deleteError.message : 'Failed to delete image';
+        setError(message);
+        await Swal.fire({ icon: 'error', title: 'Delete failed', text: message });
+        return;
+      } finally {
+        setUploadingCategoryImage(false);
+      }
+    }
+
+    setCategoryForm((state) => ({ ...state, imageUrl: '' }));
+  };
 
   const createCategory = async (event: FormEvent) => {
     event.preventDefault();
@@ -751,13 +956,53 @@ export default function AdminDashboard({ adminEmail }: Props) {
                   placeholder="Category name"
                   className="w-full rounded-xl border border-[#d2c1b6] px-3 py-2 text-sm outline-none focus:border-[#234c6a]"
                 />
-                <input
-                  required
-                  value={categoryForm.imageUrl}
-                  onChange={(event) => setCategoryForm((state) => ({ ...state, imageUrl: event.target.value }))}
-                  placeholder="Category image URL"
-                  className="w-full rounded-xl border border-[#d2c1b6] px-3 py-2 text-sm outline-none focus:border-[#234c6a]"
-                />
+                <div className="space-y-3 rounded-xl border border-[#d2c1b6] p-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-xs font-semibold text-[#1b3c53]">Category image</p>
+                    <span className="text-[11px] text-[#456882]">Upload from device or paste a URL</span>
+                  </div>
+                  {getSafeImageSrc(categoryForm.imageUrl) ? (
+                    <div className="relative aspect-video overflow-hidden rounded-xl border border-[#d2c1b6] bg-[#f4efeb]">
+                      <Image
+                        src={getSafeImageSrc(categoryForm.imageUrl)!}
+                        alt={categoryForm.name || 'Category image'}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 40vw"
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div className="rounded-xl border border-dashed border-[#d2c1b6] px-3 py-8 text-center text-xs text-[#456882]">
+                      No category image selected yet.
+                    </div>
+                  )}
+                  <div className="flex flex-wrap items-center gap-2">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(event) => void handleCategoryImageUpload(event.target.files?.[0] ?? null)}
+                      className="block w-full max-w-xs text-sm text-[#234c6a] file:mr-3 file:rounded-lg file:border-0 file:bg-[#1b3c53] file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-[#234c6a] disabled:opacity-60"
+                      disabled={uploadingCategoryImage || saving}
+                    />
+                    {categoryForm.imageUrl ? (
+                      <button
+                        type="button"
+                        onClick={() => void removeCategoryImage()}
+                        className="rounded-xl border border-[#d2c1b6] px-3 py-2 text-xs font-medium text-[#234c6a]"
+                        disabled={uploadingCategoryImage || saving}
+                      >
+                        Remove image
+                      </button>
+                    ) : null}
+                  </div>
+                  <input
+                    required
+                    value={categoryForm.imageUrl}
+                    onChange={(event) => setCategoryForm((state) => ({ ...state, imageUrl: event.target.value }))}
+                    placeholder="Category image URL"
+                    className="w-full rounded-xl border border-[#d2c1b6] px-3 py-2 text-sm outline-none focus:border-[#234c6a]"
+                  />
+                </div>
                 <select
                   value={categoryForm.parentId}
                   onChange={(event) => setCategoryForm((state) => ({ ...state, parentId: event.target.value }))}
@@ -931,13 +1176,60 @@ export default function AdminDashboard({ adminEmail }: Props) {
                     )}
                   </div>
                 </div>
-                <textarea
-                  rows={4}
-                  value={productForm.imageUrls}
-                  onChange={(event) => setProductForm((state) => ({ ...state, imageUrls: event.target.value }))}
-                  placeholder="Image URLs (one per line)"
-                  className="w-full rounded-xl border border-[#d2c1b6] px-3 py-2 text-sm outline-none focus:border-[#234c6a]"
-                />
+                <div className="space-y-3 rounded-xl border border-[#d2c1b6] p-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-xs font-semibold text-[#1b3c53]">Product images</p>
+                    <span className="text-[11px] text-[#456882]">Upload one or more files, or paste URLs</span>
+                  </div>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={(event) => void handleProductImagesUpload(event.target.files)}
+                    className="block w-full text-sm text-[#234c6a] file:mr-3 file:rounded-lg file:border-0 file:bg-[#1b3c53] file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-[#234c6a] disabled:opacity-60"
+                    disabled={uploadingProductImages || saving}
+                  />
+                  {productImageUrls.length > 0 ? (
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      {productImageUrls.map((url, index) => {
+                        const imageSrc = getSafeImageSrc(url);
+                        return (
+                          <div key={`${url}-${index}`} className="overflow-hidden rounded-xl border border-[#d2c1b6] bg-white">
+                            <div className="relative aspect-square bg-[#f4efeb]">
+                              {imageSrc ? (
+                                <Image src={imageSrc} alt={`${productForm.name || 'Product'} image ${index + 1}`} fill sizes="(max-width: 768px) 50vw, 20vw" className="h-full w-full object-cover" />
+                              ) : (
+                                <div className="flex h-full w-full items-center justify-center text-xs text-[#456882]">No preview</div>
+                              )}
+                            </div>
+                            <div className="flex items-center justify-between gap-2 px-3 py-2 text-xs text-[#234c6a]">
+                              <span className="truncate">Image {index + 1}</span>
+                              <button
+                                type="button"
+                                onClick={() => void removeProductImage(url)}
+                                className="rounded-lg border border-[#d2c1b6] px-2 py-1 font-medium text-[#234c6a]"
+                                disabled={uploadingProductImages || saving}
+                              >
+                                Remove
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="rounded-xl border border-dashed border-[#d2c1b6] px-3 py-8 text-center text-xs text-[#456882]">
+                      No product images selected yet.
+                    </div>
+                  )}
+                  <textarea
+                    rows={4}
+                    value={productForm.imageUrls}
+                    onChange={(event) => setProductForm((state) => ({ ...state, imageUrls: event.target.value }))}
+                    placeholder="Image URLs (one per line)"
+                    className="w-full rounded-xl border border-[#d2c1b6] px-3 py-2 text-sm outline-none focus:border-[#234c6a]"
+                  />
+                </div>
 
                 <RichEditorField
                   label="Short Description"

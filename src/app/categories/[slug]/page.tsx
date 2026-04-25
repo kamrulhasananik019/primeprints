@@ -193,9 +193,9 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
                 <Link key={product.id} href={getProductPath(product.id, product.name, product.slug)} prefetch={false}>
                   <div className="group cursor-pointer rounded-3xl border border-stone-200 bg-white p-3 transition hover:border-stone-300 hover:shadow-md">
                     <div className="relative mb-4 aspect-4/5 overflow-hidden rounded-3xl bg-stone-200">
-                      {getSafeImageSrc(getPrimaryImage(product) || category.image.url) ? (
+                      {getSafeImageSrc(getPrimaryImage(product)) ? (
                         <Image
-                          src={getSafeImageSrc(getPrimaryImage(product) || category.image.url)!}
+                          src={getSafeImageSrc(getPrimaryImage(product))!}
                           alt={product.name}
                           width={800}
                           height={1000}

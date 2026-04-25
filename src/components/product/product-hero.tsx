@@ -28,7 +28,7 @@ export default function ProductHero({
   productTitle,
   productShortDescription,
 }: ProductHeroProps) {
-  const initialImage = primaryImage || category.imageUrl || null;
+  const initialImage = primaryImage || null;
   const [selectedImage, setSelectedImage] = useState(initialImage);
 
   const galleryImages = Array.from(new Set([initialImage, ...product.images.map((item) => item.url)]))
