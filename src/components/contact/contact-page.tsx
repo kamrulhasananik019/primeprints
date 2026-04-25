@@ -16,7 +16,7 @@ import {
   Send,
 } from "lucide-react";
 import type { CategoryWithProducts } from "@/lib/catalog";
-import { siteAddressLabel, siteAddressMapQuery } from "@/lib/site";
+import { siteAddressLabel, siteGoogleMapsEmbedUrl, siteGoogleMapsPlaceUrl } from "@/lib/site";
 
 const CUSTOM_CATEGORY_VALUE = "__custom_category__";
 const CUSTOM_PRODUCT_VALUE = "__custom_product__";
@@ -49,7 +49,7 @@ const contactMethods = [
     icon: MapPin,
     label: "Visit the shop",
     value: siteAddressLabel,
-    href: `https://maps.google.com/?q=${siteAddressMapQuery}`,
+    href: siteGoogleMapsPlaceUrl,
     helper: "Samples, pickups, and paper consultations",
   },
 ];
@@ -577,7 +577,7 @@ export default function ContactPageContent({ categories }: ContactPageContentPro
               <div className="relative h-48 w-full bg-stone-200">
                  <iframe
                   title="14 Bygrove Street, London E14 6DN location map"
-                  src={`https://www.google.com/maps?q=${siteAddressMapQuery}&output=embed`}
+                  src={siteGoogleMapsEmbedUrl}
                   width="100%"
                   height="100%"
                   style={{ border: 0 }}

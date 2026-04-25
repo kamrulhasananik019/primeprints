@@ -5,8 +5,7 @@ import Navbar from "@/components/layout/navbar";
 import Footer from "@/components/layout/footer";
 import AppQueryProvider from "@/components/providers/query-provider";
 import { getNavCategories } from "@/lib/catalog";
-import { siteUrl } from "@/lib/site";
-import { siteAddress } from "@/lib/site";
+import { siteAddress, siteUrl } from "@/lib/site";
 
 const playfairDisplay = Playfair_Display({
   variable: "--font-playfair-display",
@@ -105,9 +104,9 @@ const organizationJsonLd = {
   address: {
     "@type": "PostalAddress",
     streetAddress: siteAddress.streetAddress,
-    addressLocality: "London",
+    addressLocality: siteAddress.addressLocality,
     postalCode: siteAddress.postalCode,
-    addressCountry: "GB",
+    addressCountry: siteAddress.addressCountry,
   },
 };
 
