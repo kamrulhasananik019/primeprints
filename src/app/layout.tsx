@@ -6,6 +6,7 @@ import Footer from "@/components/layout/footer";
 import AppQueryProvider from "@/components/providers/query-provider";
 import { getNavCategories } from "@/lib/catalog";
 import { siteUrl } from "@/lib/site";
+import { siteAddress } from "@/lib/site";
 
 const playfairDisplay = Playfair_Display({
   variable: "--font-playfair-display",
@@ -103,7 +104,9 @@ const organizationJsonLd = {
   areaServed: { "@type": "City", name: "London" },
   address: {
     "@type": "PostalAddress",
+    streetAddress: siteAddress.streetAddress,
     addressLocality: "London",
+    postalCode: siteAddress.postalCode,
     addressCountry: "GB",
   },
 };

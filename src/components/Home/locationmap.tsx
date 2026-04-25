@@ -1,4 +1,5 @@
 import LocationMapEmbed from '@/components/Home/locationmap-embed';
+import { siteAddressLabel } from '@/lib/site';
 
 /**
  * Server-rendered copy for crawlers; only the iframe shell is client-side.
@@ -10,7 +11,7 @@ export default function LocationMap() {
         <h2 className="mb-8 text-center text-3xl font-bold text-gray-800">Our Location</h2>
         <div className="mb-6 text-center">
           <p className="text-gray-600">Visit us in the heart of London for all your printing needs.</p>
-          <p className="mt-2 text-gray-600">Address: 123 Printing Street, London, UK</p>
+          <p className="mt-2 text-gray-600">Address: {siteAddressLabel}</p>
         </div>
         <LocationMapEmbed />
       </div>
