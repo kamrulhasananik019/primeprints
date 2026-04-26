@@ -36,6 +36,7 @@ export async function POST(request: Request) {
       rating?: number;
       text?: string;
       status?: string;
+      reviewDate?: string;
     };
 
     const name = String(body.name || '').trim();
@@ -43,6 +44,8 @@ export async function POST(request: Request) {
     const rating = Number(body.rating || 0);
     const text = String(body.text || '').trim();
     const status = String(body.status || 'approved');
+    const reviewDate = String(body.reviewDate || '').trim();
+    const normalizedReviewDate = /^\d{4}-\d{2}-\d{2}$/.test(reviewDate) ? reviewDate : undefined;
 
     if (!name || !email || !text || rating < 1 || rating > 5) {
       return NextResponse.json({ ok: false, error: 'name, gmail, rating (1-5), and text are required.' }, { status: 400 });
@@ -56,7 +59,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: false, error: 'Invalid review status.' }, { status: 400 });
     }
 
-    await createAdminReview({ name, email, rating, text, status });
+    await createAdminReview({ name, email, rating, text, status, reviewDate: normalizedReviewDate });
     revalidateTag('reviews', 'max');
 
     return NextResponse.json({ ok: true }, { headers: { 'Cache-Control': 'no-store, private, max-age=0' } });

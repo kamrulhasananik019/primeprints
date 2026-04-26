@@ -27,6 +27,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       text?: string;
       status?: string;
       action?: string;
+      reviewDate?: string;
     };
 
     const action = String(body.action || '').trim();
@@ -45,6 +46,8 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     const rating = Number(body.rating || 0);
     const text = String(body.text || '').trim();
     const status = String(body.status || 'pending');
+    const reviewDate = String(body.reviewDate || '').trim();
+    const normalizedReviewDate = /^\d{4}-\d{2}-\d{2}$/.test(reviewDate) ? reviewDate : undefined;
 
     if (!name || !email || !text || rating < 1 || rating > 5) {
       return NextResponse.json({ ok: false, error: 'name, gmail, rating (1-5), and text are required.' }, { status: 400 });
@@ -58,7 +61,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       return NextResponse.json({ ok: false, error: 'Invalid review status.' }, { status: 400 });
     }
 
-    await updateAdminReview(id, { name, email, rating, text, status });
+    await updateAdminReview(id, { name, email, rating, text, status, reviewDate: normalizedReviewDate });
     revalidateTag('reviews', 'max');
 
     return NextResponse.json({ ok: true }, { headers: { 'Cache-Control': 'no-store, private, max-age=0' } });

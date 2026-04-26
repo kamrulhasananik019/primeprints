@@ -13,6 +13,7 @@ type ReviewItem = {
   email: string;
   rating: number;
   text: string;
+  reviewDate: string;
   createdAt: string;
 };
 
@@ -73,7 +74,7 @@ export default function ReviewsPanel({ initialReviews }: ReviewsPanelProps) {
             >
               {reviews.map((review) => (
                 <SwiperSlide key={review.id} className="h-auto">
-                  <ReviewCard name={review.name} rating={review.rating} text={review.text} createdAt={review.createdAt} />
+                  <ReviewCard name={review.name} rating={review.rating} text={review.text} createdAt={review.reviewDate} />
                 </SwiperSlide>
               ))}
             </Swiper>

@@ -12,6 +12,7 @@ export type AdminReviewItem = {
   text: string;
   status: 'pending' | 'approved' | 'declined' | 'deleted';
   source: 'public' | 'admin';
+  reviewDate: string;
   created_at: string;
 };
 
@@ -30,15 +31,19 @@ type ReviewFormState = {
   rating: number;
   text: string;
   status: 'pending' | 'approved' | 'declined' | 'deleted';
+  reviewDate: string;
 };
 
-const emptyReviewForm: ReviewFormState = {
-  name: '',
-  email: '',
-  rating: 5,
-  text: '',
-  status: 'approved',
-};
+function createEmptyReviewForm(): ReviewFormState {
+  return {
+    name: '',
+    email: '',
+    rating: 5,
+    text: '',
+    status: 'approved',
+    reviewDate: '',
+  };
+}
 
 function isValidGmail(email: string): boolean {
   return /^[a-zA-Z0-9._%+-]+@gmail\.com$/i.test(email);
@@ -55,7 +60,7 @@ export default function ReviewManager({
   const [editingReviewId, setEditingReviewId] = useState<string | null>(null);
   const [busyReviewId, setBusyReviewId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'all' | 'pending' | 'approved' | 'declined'>('all');
-  const [reviewForm, setReviewForm] = useState(emptyReviewForm);
+  const [reviewForm, setReviewForm] = useState(() => createEmptyReviewForm());
 
   const filteredReviews = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
@@ -138,7 +143,7 @@ export default function ReviewManager({
     }
 
     setEditingReviewId(null);
-    setReviewForm(emptyReviewForm);
+    setReviewForm(createEmptyReviewForm());
     await onRefresh();
     setSaving(false);
 
@@ -218,12 +223,13 @@ export default function ReviewManager({
       rating: item.rating,
       text: item.text,
       status: item.status,
+      reviewDate: item.reviewDate || '',
     });
   };
 
   const resetReviewEdit = () => {
     setEditingReviewId(null);
-    setReviewForm(emptyReviewForm);
+    setReviewForm(createEmptyReviewForm());
   };
 
   return (
@@ -273,6 +279,18 @@ export default function ReviewManager({
             <option value="pending">Pending</option>
             <option value="declined">Declined</option>
           </select>
+          <label className="flex items-center gap-3 rounded-xl border border-[#d2c1b6] px-3 py-2 text-sm text-[#234c6a]">
+            <span className="min-w-14 shrink-0 text-xs font-medium uppercase tracking-wide text-[#456882]">Date</span>
+            <input
+              type="date"
+              value={reviewForm.reviewDate}
+              onChange={(event) => setReviewForm((state) => ({ ...state, reviewDate: event.target.value }))}
+              min="1900-01-01"
+             
+              className="w-full bg-transparent text-sm outline-none"
+            />
+          </label>
+          <p className="text-xs text-[#456882]">Use the calendar to choose any date, including older years.</p>
           <textarea
             rows={5}
             required
@@ -340,6 +358,7 @@ export default function ReviewManager({
                     <p className="text-xs text-[#456882]">{item.email}</p>
                     <p className="mt-1 text-xs text-[#234c6a]">Rating: {item.rating}/5</p>
                     <p className="mt-1 text-xs text-[#234c6a]">Status: {item.status}</p>
+                    <p className="mt-1 text-xs text-[#234c6a]">Date: {item.reviewDate}</p>
                     <p className="mt-1 text-xs text-[#234c6a]">Source: {item.source}</p>
                     <p className="mt-2 text-xs text-[#456882]">{item.text}</p>
                   </div>

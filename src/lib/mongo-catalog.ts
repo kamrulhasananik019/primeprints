@@ -82,6 +82,7 @@ type ReviewDoc = {
   text: string;
   status: ReviewStatus;
   source: 'public' | 'admin';
+  reviewDate?: string;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -176,6 +177,7 @@ export type ReviewRecord = {
   text: string;
   status: ReviewStatus;
   source: 'public' | 'admin';
+  reviewDate: string;
   createdAt: string;
   updatedAt: string;
 };
@@ -188,6 +190,7 @@ export type AdminReviewRow = {
   text: string;
   status: ReviewStatus;
   source: 'public' | 'admin';
+  reviewDate: string;
   created_at: string;
 };
 
@@ -760,6 +763,7 @@ export async function countAdminItems(): Promise<{ categories: number; products:
 }
 
 function mapReviewDoc(row: ReviewDoc): ReviewRecord {
+  const fallbackDate = asIsoString(row.createdAt).slice(0, 10);
   return {
     id: idToString(row._id),
     name: row.name,
@@ -768,6 +772,7 @@ function mapReviewDoc(row: ReviewDoc): ReviewRecord {
     text: row.text,
     status: row.status,
     source: row.source,
+    reviewDate: row.reviewDate || fallbackDate,
     createdAt: asIsoString(row.createdAt),
     updatedAt: asIsoString(row.updatedAt),
   };
@@ -790,6 +795,7 @@ const getCachedApprovedReviews = unstable_cache(
             text: 1,
             status: 1,
             source: 1,
+            reviewDate: 1,
             createdAt: 1,
             updatedAt: 1,
           },
@@ -823,6 +829,7 @@ export async function getAdminReviews(): Promise<AdminReviewRow[]> {
           text: 1,
           status: 1,
           source: 1,
+          reviewDate: 1,
           createdAt: 1,
         },
       }
@@ -838,6 +845,7 @@ export async function getAdminReviews(): Promise<AdminReviewRow[]> {
     text: row.text,
     status: row.status,
     source: row.source,
+    reviewDate: row.reviewDate || asIsoString(row.createdAt).slice(0, 10),
     created_at: asIsoString(row.createdAt),
   }));
 }
@@ -860,6 +868,7 @@ export async function createPublicReview(input: {
     text: input.text,
     status: 'pending',
     source: 'public',
+    reviewDate: now.toISOString().slice(0, 10),
     createdAt: now,
     updatedAt: now,
   });
@@ -871,6 +880,7 @@ export async function createAdminReview(input: {
   rating: number;
   text: string;
   status: ReviewStatus;
+  reviewDate?: string;
 }): Promise<void> {
   await ensureIndexes();
   const db = await getMongoDb();
@@ -884,6 +894,7 @@ export async function createAdminReview(input: {
     text: input.text,
     status: input.status,
     source: 'admin',
+    reviewDate: input.reviewDate || now.toISOString().slice(0, 10),
     createdAt: now,
     updatedAt: now,
   });
@@ -897,6 +908,7 @@ export async function updateAdminReview(
     rating: number;
     text: string;
     status: ReviewStatus;
+    reviewDate?: string;
   }
 ): Promise<void> {
   const objectId = toObjectId(id);
@@ -913,6 +925,7 @@ export async function updateAdminReview(
         rating: input.rating,
         text: input.text,
         status: input.status,
+        ...(input.reviewDate ? { reviewDate: input.reviewDate } : {}),
         updatedAt: new Date(),
       },
     }
