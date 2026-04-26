@@ -17,7 +17,7 @@ const slides: Slide[] = [
   {
     image: 'https://images.unsplash.com/photo-1562654501-a0ccc0fc3fb1?w=1600&q=80',
     tag: 'Premium Quality',
-    headline: ['Print That', 'Speaks', 'Louder.'],
+    headline: ['First', 'Order', 'Discount.'],
     sub: 'Business cards, banners & brochures — crafted to impress.',
     cta: 'Get a Free Quote',
     accent: '#FF5733',
