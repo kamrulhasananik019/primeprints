@@ -17,6 +17,10 @@ function parseKind(value: FormDataEntryValue | null): 'categories' | 'products' 
   return 'categories';
 }
 
+function parseTitle(value: FormDataEntryValue | null): string {
+  return typeof value === 'string' ? value.trim() : '';
+}
+
 export async function POST(request: Request) {
   try {
     await requireAdminSession();
@@ -32,7 +36,8 @@ export async function POST(request: Request) {
     }
 
     const kind = parseKind(formData.get('kind'));
-    const key = buildR2ImageKey(kind, file.name || 'image', file.type);
+    const title = parseTitle(formData.get('title'));
+    const key = buildR2ImageKey(kind, file.name || 'image', file.type, title);
     const buffer = await file.arrayBuffer();
 
     await uploadR2Object({

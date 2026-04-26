@@ -73,11 +73,27 @@ function sanitizeFilename(filename: string): string {
   return cleaned || 'image';
 }
 
-export function buildR2ImageKey(kind: 'categories' | 'products' | 'seo' | 'shared', filename: string, contentType: string): string {
-  const timestamp = new Date().toISOString().slice(0, 10);
+function sanitizePathSegment(value: string): string {
+  const cleaned = value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9-_]+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-+|-+$/g, '');
+
+  return cleaned || 'untitled';
+}
+
+export function buildR2ImageKey(
+  kind: 'categories' | 'products' | 'seo' | 'shared',
+  filename: string,
+  contentType: string,
+  entityTitle?: string
+): string {
+  const titleFolder = sanitizePathSegment(entityTitle || 'untitled');
   const extension = MIME_EXTENSION_MAP[contentType] || filename.match(/\.[^.]+$/)?.[0] || '.bin';
   const stem = sanitizeFilename(filename);
-  return `${kind}/${timestamp}/${stem}-${randomUUID()}${extension}`;
+  return `${kind}/${titleFolder}/${stem}-${randomUUID()}${extension}`;
 }
 
 export function buildPublicMediaUrl({ key }: PublicMediaUrlOptions): string {

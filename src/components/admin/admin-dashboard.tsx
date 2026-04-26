@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState, type FormEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import Image from 'next/image';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
@@ -193,6 +193,8 @@ export default function AdminDashboard({ adminEmail }: Props) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerCollapsed, setDrawerCollapsed] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const categoryDraftUploadUrlsRef = useRef<Set<string>>(new Set());
+  const productDraftUploadUrlsRef = useRef<Set<string>>(new Set());
 
   const [categoryForm, setCategoryForm] = useState(emptyCategoryForm);
   const [productForm, setProductForm] = useState(emptyProductForm);
@@ -268,10 +270,125 @@ export default function AdminDashboard({ adminEmail }: Props) {
     });
   }, [faqs, searchTerm]);
 
-  const uploadMedia = async (file: File, kind: 'categories' | 'products' | 'seo' | 'shared') => {
+  const normalizeMediaUrl = (url: string): string => {
+    try {
+      return new URL(url, window.location.origin).toString();
+    } catch {
+      return url.trim();
+    }
+  };
+
+  const isManagedMediaUrl = (url: string): boolean => {
+    try {
+      const parsed = new URL(url, window.location.origin);
+      return parsed.pathname.startsWith('/api/media/');
+    } catch {
+      return false;
+    }
+  };
+
+  const trackCategoryDraftUpload = (url: string) => {
+    if (!isManagedMediaUrl(url)) return;
+    categoryDraftUploadUrlsRef.current.add(normalizeMediaUrl(url));
+  };
+
+  const untrackCategoryDraftUpload = (url: string) => {
+    categoryDraftUploadUrlsRef.current.delete(normalizeMediaUrl(url));
+  };
+
+  const trackProductDraftUpload = (url: string) => {
+    if (!isManagedMediaUrl(url)) return;
+    productDraftUploadUrlsRef.current.add(normalizeMediaUrl(url));
+  };
+
+  const untrackProductDraftUpload = (url: string) => {
+    productDraftUploadUrlsRef.current.delete(normalizeMediaUrl(url));
+  };
+
+  const collectTrackedDraftUploadUrls = (): string[] => {
+    return Array.from(new Set([...categoryDraftUploadUrlsRef.current, ...productDraftUploadUrlsRef.current]));
+  };
+
+  const removeTrackedDraftUploadUrls = (urls: string[]) => {
+    for (const url of urls) {
+      untrackCategoryDraftUpload(url);
+      untrackProductDraftUpload(url);
+    }
+  };
+
+  const requestDraftCleanup = async (urls: string[], options?: { keepalive?: boolean }) => {
+    const response = await fetch('/api/admin/media/cleanup', {
+      method: 'POST',
+      credentials: 'include',
+      cache: 'no-store',
+      keepalive: options?.keepalive,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ urls }),
+    });
+
+    if (!response.ok) {
+      const data = (await response.json().catch(() => ({ ok: false, error: 'Failed to cleanup draft media' }))) as {
+        ok?: boolean;
+        error?: string;
+      };
+      throw new Error(data.error || 'Failed to cleanup draft media');
+    }
+  };
+
+  const cleanupTrackedDraftUploads = async (urls: string[], options?: { keepalive?: boolean }) => {
+    if (urls.length === 0) return;
+    try {
+      await requestDraftCleanup(urls, options);
+      removeTrackedDraftUploadUrls(urls);
+    } catch (cleanupError) {
+      console.error('Failed to cleanup draft uploads', cleanupError);
+    }
+  };
+
+  const cleanupTrackedDraftUploadsWithBeacon = () => {
+    const urls = collectTrackedDraftUploadUrls();
+    if (urls.length === 0) return;
+
+    const payload = JSON.stringify({ urls });
+    if (typeof navigator !== 'undefined' && typeof navigator.sendBeacon === 'function') {
+      const sent = navigator.sendBeacon('/api/admin/media/cleanup', new Blob([payload], { type: 'application/json' }));
+      if (sent) {
+        removeTrackedDraftUploadUrls(urls);
+        return;
+      }
+    }
+
+    void cleanupTrackedDraftUploads(urls, { keepalive: true });
+  };
+
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      cleanupTrackedDraftUploadsWithBeacon();
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        cleanupTrackedDraftUploadsWithBeacon();
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      void cleanupTrackedDraftUploads(collectTrackedDraftUploadUrls());
+    };
+  }, []);
+
+  const uploadMedia = async (file: File, kind: 'categories' | 'products' | 'seo' | 'shared', title?: string) => {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('kind', kind);
+    if (title && title.trim()) {
+      formData.append('title', title.trim());
+    }
 
     try {
       const response = await fetch('/api/admin/media', {
@@ -304,7 +421,7 @@ export default function AdminDashboard({ adminEmail }: Props) {
   };
 
   const deleteMedia = async (url: string) => {
-    const normalizedUrl = new URL(url, window.location.origin).toString();
+    const normalizedUrl = normalizeMediaUrl(url);
     const response = await fetch('/api/admin/media', {
       method: 'DELETE',
       credentials: 'include',
@@ -328,7 +445,19 @@ export default function AdminDashboard({ adminEmail }: Props) {
     void uploadToast.fire({ icon: 'info', title: 'Uploading category image...' });
 
     try {
-      const url = await uploadMedia(file, 'categories');
+      const previousUrl = categoryForm.imageUrl;
+      const url = await uploadMedia(file, 'categories', categoryForm.name);
+
+      if (previousUrl && previousUrl !== url && isManagedMediaUrl(previousUrl)) {
+        try {
+          await deleteMedia(previousUrl);
+          untrackCategoryDraftUpload(previousUrl);
+        } catch (cleanupError) {
+          console.error('Failed to cleanup previous draft category image', cleanupError);
+        }
+      }
+
+      trackCategoryDraftUpload(url);
       setCategoryForm((state) => ({ ...state, imageUrl: url }));
       setSuccess('Category image uploaded.');
       void uploadToast.fire({ icon: 'success', title: 'Category image uploaded' });
@@ -353,7 +482,8 @@ export default function AdminDashboard({ adminEmail }: Props) {
     try {
       const urls: string[] = [];
       for (const file of Array.from(files)) {
-        const url = await uploadMedia(file, 'products');
+        const url = await uploadMedia(file, 'products', productForm.name);
+        trackProductDraftUpload(url);
         urls.push(url);
       }
 
@@ -374,13 +504,13 @@ export default function AdminDashboard({ adminEmail }: Props) {
   };
 
   const removeProductImage = async (url: string) => {
-    const parsed = new URL(url, window.location.origin);
-    const isManagedMedia = parsed.pathname.startsWith('/api/media/');
+    const isManagedMedia = isManagedMediaUrl(url);
 
     if (isManagedMedia) {
       setUploadingProductImages(true);
       try {
         await deleteMedia(url);
+        untrackProductDraftUpload(url);
       } catch (deleteError) {
         const message = deleteError instanceof Error ? deleteError.message : 'Failed to delete image';
         setError(message);
@@ -405,11 +535,11 @@ export default function AdminDashboard({ adminEmail }: Props) {
     if (!categoryForm.imageUrl) return;
 
     const url = categoryForm.imageUrl;
-    const parsed = new URL(url, window.location.origin);
-    if (parsed.pathname.startsWith('/api/media/')) {
+    if (isManagedMediaUrl(url)) {
       setUploadingCategoryImage(true);
       try {
         await deleteMedia(url);
+        untrackCategoryDraftUpload(url);
       } catch (deleteError) {
         const message = deleteError instanceof Error ? deleteError.message : 'Failed to delete image';
         setError(message);
@@ -463,6 +593,7 @@ export default function AdminDashboard({ adminEmail }: Props) {
       return;
     }
 
+    categoryDraftUploadUrlsRef.current.clear();
     setEditingCategoryId(null);
     setCategoryForm(emptyCategoryForm);
     await refresh();
@@ -519,6 +650,7 @@ export default function AdminDashboard({ adminEmail }: Props) {
       return;
     }
 
+    productDraftUploadUrlsRef.current.clear();
     setEditingProductId(null);
     setProductForm(emptyProductForm);
     await refresh();
@@ -633,11 +765,15 @@ export default function AdminDashboard({ adminEmail }: Props) {
   };
 
   const resetCategoryEdit = () => {
+    const urls = Array.from(categoryDraftUploadUrlsRef.current);
+    void cleanupTrackedDraftUploads(urls);
     setEditingCategoryId(null);
     setCategoryForm(emptyCategoryForm);
   };
 
   const resetProductEdit = () => {
+    const urls = Array.from(productDraftUploadUrlsRef.current);
+    void cleanupTrackedDraftUploads(urls);
     setEditingProductId(null);
     setProductForm(emptyProductForm);
   };
