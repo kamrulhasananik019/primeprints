@@ -201,11 +201,11 @@ export default function Navbar({ categories }: NavbarProps) {
       <div className="border-b border-[#D2C1B6] bg-[#E7DBD3] py-2">
         <div className="container mx-auto flex flex-col gap-2 px-4 text-[11px] font-medium uppercase tracking-wider text-stone-500 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:gap-3 lg:px-8">
           <div className="flex flex-wrap items-center gap-4 sm:gap-6">
-            <a href="mailto:order@primeprint.uk" className="inline-flex items-center gap-1.5 transition hover:text-[#234C6A]">
-              <Mail className="h-3.5 w-3.5" /> order@primeprint.uk
+            <a href="mailto:order@primeprint.uk" className="inline-flex items-center gap-1.5 transition font-bold text-[#020a10] hover:text-[#234C6A]">
+              <Mail className="h-3.5 w-3.5 font-bold" /> order@primeprint.uk
             </a>
-            <a href="tel:+44205550147" className="inline-flex items-center gap-1.5 transition hover:text-[#234C6A]">
-              <Phone className="h-3.5 w-3.5" /> +44 (20) 555-0147
+            <a href="tel:+44205550147" className="inline-flex items-center font-bold text-[#020a10] gap-1.5 transition hover:text-[#234C6A]">
+              <Phone className="h-3.5 w-3.5 " /> +44 (20) 555-0147
             </a>
           </div>
           <div className="font-bold text-[#456882]">● Same Day Printing Available</div>
