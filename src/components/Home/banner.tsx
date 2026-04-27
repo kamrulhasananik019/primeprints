@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination, Autoplay, EffectFade } from 'swiper/modules';
 
@@ -11,6 +12,7 @@ interface Slide {
   sub: string;
   cta: string;
   accent: string;
+  href: string;
 }
 
 const slides: Slide[] = [
@@ -19,16 +21,18 @@ const slides: Slide[] = [
     tag: 'Premium Quality',
     headline: ['First', 'Order', 'Discount.'],
     sub: 'Get a discount on your first order',
-    cta: 'Get a Free Quote',
+    cta: 'Browse Categories',
     accent: '#FF5733',
+    href: '/categories',
   },
   {
     image: 'https://images.unsplash.com/photo-1586075010923-2dd4570fb338?w=1600&q=80',
     tag: 'Fast Turnaround',
     headline: ['Same Day.', 'Any Print.', 'Every Time.'],
     sub: 'Same day delivery within London and across the UK, with 24-hour print support for urgent orders.',
-    cta: 'Order Now',
+    cta: 'Browse Products',
     accent: '#0066FF',
+    href: '/products',
   },
   {
     image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1600&q=80',
@@ -37,6 +41,7 @@ const slides: Slide[] = [
     sub: 'Banners, posters & signage printed at any scale with razor-sharp precision.',
     cta: 'Explore Products',
     accent: '#00C896',
+    href: '/products',
   },
 ];
 
@@ -139,14 +144,15 @@ function SlideContent({ slide, index, isActive }: SlideContentProps) {
             </p>
 
             
-            <a
-              href="/contact"
+            <Link
+              href={slide.href}
+              prefetch={false}
               className="anim-cta group inline-flex w-fit items-center gap-2 rounded-sm border border-white/10 bg-white/10 px-5 py-3 text-xs font-semibold tracking-wide text-white backdrop-blur-sm transition-all duration-300 hover:scale-[1.03] hover:border-white/20 hover:bg-white/20 sm:gap-3 sm:px-6 sm:py-3.5 sm:text-sm md:px-8 md:py-4 md:text-base lg:text-lg"
               style={{ background: slide.accent }}
             >
               {slide.cta}
               <ArrowIcon />
-            </a>
+            </Link>
             </div>
           </div>
         </div>
