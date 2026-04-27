@@ -47,7 +47,7 @@ export const metadata: Metadata = {
     shortcut: ["/icon/favicon.ico"],
   },
   title: {
-    default: "Prime Prints | Same day printing service in UK",
+    default: "Prime Prints | Same Day Delivery Printing in London & UK",
     template: "%s | Prime Prints",
   },
   description:
@@ -64,28 +64,28 @@ export const metadata: Metadata = {
     canonical: "/",
   },
   openGraph: {
-    title: "Prime Prints | Same day printing service in UK",
+    title: "Prime Prints | Same Day Delivery Printing in UK",
     description:
-      "Premium print quality, fast turnaround, and reliable delivery windows for every project.",
+      "Prime Prints provides same-day delivery printing in London and across the UK for business cards, flyers, posters, banners, and more.",
     url: "/",
     siteName: "Prime Prints",
     locale: "en_GB",
     type: "website",
     images: [
       {
-        url: "https://images.unsplash.com/photo-1562654501-a0ccc0fc3fb1?w=1600&q=80",
-        width: 1600,
-        height: 900,
-        alt: "Prime Prints same day printing hero image",
+        url: "/logo.png",
+        width: 512,
+        height: 512,
+        alt: "Prime Prints logo",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Prime Prints | Same day printing service in UK",
+    title: "Prime Prints | Same Day Delivery Printing in UK",
     description:
-      "Premium print quality with fast turnaround for business and personal projects.",
-    images: ["https://images.unsplash.com/photo-1562654501-a0ccc0fc3fb1?w=1600&q=80"],
+      "Prime Prints provides same-day delivery printing in London and across the UK.",
+    images: ["/logo.png"],
   },
   robots: {
     index: true,

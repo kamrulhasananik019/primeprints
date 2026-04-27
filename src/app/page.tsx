@@ -24,34 +24,34 @@ const SameDayPrinting = nextDynamic(() => import("@/components/Home/samedaydeliv
 export const revalidate = 604800;
 
 export const metadata: Metadata = {
-  title: "Same Day Delivery in London & UK | Prime Prints",
+  title: "Prime Prints | Same Day Delivery Printing in London & UK",
   description:
     "Prime Prints offers same day delivery in London and across the UK with 24-hour delivery for business cards, flyers, posters, banners, and custom print products.",
   alternates: {
     canonical: "/",
   },
   openGraph: {
-    title: "Prime Prints | Same Day Delivery in London & UK",
+    title: "Prime Prints | Same Day Delivery Printing in London & UK",
     description:
-      "Fast, premium printing with same day delivery in London and 24-hour UK delivery options.",
+      "Same-day delivery printing in London and across the UK for business cards, flyers, posters, banners, and custom print jobs.",
     url: "/",
     type: "website",
     siteName: "Prime Prints",
     images: [
       {
-        url: "https://images.unsplash.com/photo-1586075010923-2dd4570fb338?w=1600&q=80",
-        width: 1600,
-        height: 900,
-        alt: "Prime Prints same day printing and delivery",
+        url: "/logo.png",
+        width: 512,
+        height: 512,
+        alt: "Prime Prints same day delivery printing",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Prime Prints | Same Day Delivery in London & UK",
+    title: "Prime Prints | Same Day Delivery Printing in London & UK",
     description:
-      "Fast, premium printing with same day delivery in London and 24-hour UK delivery options.",
-    images: ["https://images.unsplash.com/photo-1586075010923-2dd4570fb338?w=1600&q=80"],
+      "Same-day delivery printing for London and UK businesses with fast turnaround.",
+    images: ["/logo.png"],
   },
 };
 

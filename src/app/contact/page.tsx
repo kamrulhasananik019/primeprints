@@ -22,9 +22,9 @@ export const metadata: Metadata = {
     siteName: "Prime Prints",
     images: [
       {
-        url: "https://images.unsplash.com/photo-1527844097890-83b05e6f24ab?w=1600&q=80",
-        width: 1600,
-        height: 900,
+        url: "/logo.png",
+        width: 512,
+        height: 512,
         alt: "Prime Prints contact and quote request",
       },
     ],
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
     title: "Contact Prime Prints",
     description:
       "Request a quote and get support for custom, same-day, and large-format printing.",
-    images: ["https://images.unsplash.com/photo-1527844097890-83b05e6f24ab?w=1600&q=80"],
+    images: ["/logo.png"],
   },
 };
 
