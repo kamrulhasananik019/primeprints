@@ -55,7 +55,7 @@ export default async function DiscountsAndPackages() {
         </div>
 
         <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-          <div className="rounded-3xl border border-[#C9D6DF] bg-white shadow-sm sm:p-4">
+          <div className="rounded-3xl border border-[#C9D6DF] bg-white shadow-sm p-4">
             <div className="relative mb-5 h-64 w-full overflow-hidden rounded-2xl bg-stone-100">
               {dealsCategoryImage ? (
                 <Image
