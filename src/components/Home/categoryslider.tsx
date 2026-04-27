@@ -1,10 +1,12 @@
 'use client';
 
 import Image from 'next/image';
+import { useState } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, Autoplay, Pagination } from 'swiper/modules';
+import { Autoplay, Pagination } from 'swiper/modules';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
+import type { Swiper as SwiperType } from 'swiper';
 import type { CatalogCategory } from '@/lib/catalog';
 import { getCategoryPath } from '@/lib/slug';
 
@@ -34,6 +36,7 @@ function getSafeImageSrc(src: string | null | undefined): string | null {
 
 export default function CategorySlider({ categories }: CategorySliderProps) {
   const canLoop = categories.length >= 7;
+  const [swiper, setSwiper] = useState<SwiperType | null>(null);
 
   return (
     <section className="relative overflow-hidden bg-white py-16 lg:py-20">
@@ -55,16 +58,27 @@ export default function CategorySlider({ categories }: CategorySliderProps) {
           </div>
 
           <div className="flex items-center gap-3">
+            <Link
+              href="/categories"
+              prefetch={false}
+              className="rounded-xl border border-stone-300 px-4 py-2 text-sm font-semibold text-stone-800 transition hover:bg-stone-900 hover:text-white"
+            >
+              View All Category
+            </Link>
             <button
               aria-label="Previous"
-              className="category-prev flex h-12 w-12 items-center justify-center rounded-full border border-stone-300 text-stone-900 transition hover:bg-stone-900 hover:text-white"
+              type="button"
+              onClick={() => swiper?.slidePrev()}
+              className="hidden h-12 w-12 items-center justify-center rounded-full border border-stone-300 text-stone-900 transition hover:bg-stone-900 hover:text-white md:flex"
             >
               <ChevronLeft className="h-5 w-5" />
             </button>
 
             <button
               aria-label="Next"
-              className="category-next flex h-12 w-12 items-center justify-center rounded-full border border-stone-300 text-stone-900 transition hover:bg-stone-900 hover:text-white"
+              type="button"
+              onClick={() => swiper?.slideNext()}
+              className="hidden h-12 w-12 items-center justify-center rounded-full border border-stone-300 text-stone-900 transition hover:bg-stone-900 hover:text-white md:flex"
             >
               <ChevronRight className="h-5 w-5" />
             </button>
@@ -72,11 +86,8 @@ export default function CategorySlider({ categories }: CategorySliderProps) {
         </div>
 
         <Swiper
-          modules={[Navigation, Autoplay, Pagination]}
-          navigation={{
-            prevEl: '.category-prev',
-            nextEl: '.category-next',
-          }}
+          onSwiper={setSwiper}
+          modules={[Autoplay, Pagination]}
           pagination={{
             clickable: true,
           }}
@@ -126,6 +137,24 @@ export default function CategorySlider({ categories }: CategorySliderProps) {
             );
           })}
         </Swiper>
+        <div className="mt-4 flex items-center justify-center gap-3 md:hidden">
+          <button
+            aria-label="Previous categories"
+            type="button"
+            onClick={() => swiper?.slidePrev()}
+            className="flex h-11 w-11 items-center justify-center rounded-full border border-stone-300 bg-white text-stone-900 transition hover:bg-stone-900 hover:text-white"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+          <button
+            aria-label="Next categories"
+            type="button"
+            onClick={() => swiper?.slideNext()}
+            className="flex h-11 w-11 items-center justify-center rounded-full border border-stone-300 bg-white text-stone-900 transition hover:bg-stone-900 hover:text-white"
+          >
+            <ChevronRight className="h-5 w-5" />
+          </button>
+        </div>
       </div>
     </section>
   );
