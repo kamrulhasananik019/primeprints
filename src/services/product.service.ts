@@ -29,7 +29,7 @@ function isCatalogUnavailableError(error: unknown): boolean {
   );
 }
 
-export const getProducts = unstable_cache(async (limit = 100) => {
+const getProductsCached = unstable_cache(async (limit = 100) => {
   try {
     return await getProductsRaw(limit);
   } catch (error) {
@@ -42,6 +42,22 @@ export const getProducts = unstable_cache(async (limit = 100) => {
   revalidate: CATALOG_TAGGED_DATA_REVALIDATE,
   tags: ['catalog'],
 });
+
+export async function getProducts(limit = 100) {
+  // Avoid Next.js data-cache 2MB item limit for very large product lists.
+  if (limit > 200) {
+    try {
+      return await getProductsRaw(limit);
+    } catch (error) {
+      if (isCatalogUnavailableError(error)) {
+        return [];
+      }
+      throw error;
+    }
+  }
+
+  return getProductsCached(limit);
+}
 
 export const getProductById = unstable_cache(
   async (id: string) => {

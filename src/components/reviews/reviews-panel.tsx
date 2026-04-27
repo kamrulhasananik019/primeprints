@@ -44,9 +44,9 @@ export default function ReviewsPanel({ initialReviews }: ReviewsPanelProps) {
           <button
             type="button"
             onClick={() => setShowForm((value) => !value)}
-            className="inline-flex items-center rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
+            className="inline-flex cursor-pointer items-center rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:cursor-pointer hover:bg-slate-800"
           >
-            {showForm ? 'Close Form' : 'Drop Review'}
+            {showForm ? 'Close Form' : 'Drop A Review'}
           </button>
         </div>
 

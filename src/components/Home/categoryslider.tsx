@@ -40,7 +40,7 @@ export default function CategorySlider({ categories }: CategorySliderProps) {
 
   return (
     <section className="relative overflow-hidden bg-white py-16 lg:py-20">
-      <div className="absolute h-105 w-105 rounded-full bg-linear-to-br from-stone-200/70 to-transparent blur-3xl" />
+      <div className="pointer-events-none absolute h-105 w-105 rounded-full bg-linear-to-br from-stone-200/70 to-transparent blur-3xl" />
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-10 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
