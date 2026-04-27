@@ -55,8 +55,8 @@ export default async function DiscountsAndPackages() {
         </div>
 
         <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-          <div className="rounded-3xl border border-[#C9D6DF] bg-white p-7 shadow-sm sm:p-8">
-            <div className="relative mb-5 h-44 w-full overflow-hidden rounded-2xl bg-stone-100">
+          <div className="rounded-3xl border border-[#C9D6DF] bg-white shadow-sm sm:p-4">
+            <div className="relative mb-5 h-64 w-full overflow-hidden rounded-2xl bg-stone-100">
               {dealsCategoryImage ? (
                 <Image
                   src={dealsCategoryImage}
@@ -75,9 +75,9 @@ export default async function DiscountsAndPackages() {
             <h3 className="mt-3 font-serif text-3xl font-bold text-stone-900">
               {dealsCategory?.name || 'Deals & Discounts'}
             </h3>
-            <p className="mt-4 text-sm leading-relaxed text-stone-600 sm:text-base">
+            {/* <p className="mt-4 text-sm leading-relaxed text-stone-600 sm:text-base">
               {categoryDescription}
-            </p>
+            </p> */}
             <Link
               href={dealsCategoryHref}
               prefetch={false}
@@ -117,7 +117,7 @@ export default async function DiscountsAndPackages() {
                   </div>
                   <div className="p-4">
                     <h4 className="font-serif text-lg font-semibold text-stone-900">{item.name}</h4>
-                    <p className="mt-2 line-clamp-2 text-sm text-stone-600">{item.description}</p>
+                    {/* <p className="mt-2 line-clamp-2 text-sm text-stone-600">{item.description}</p> */}
                   </div>
                 </Link>
               ))

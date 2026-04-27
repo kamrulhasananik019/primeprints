@@ -117,9 +117,9 @@ export default function DiscountsAndPackagesSlider({ items }: DiscountsAndPackag
                     <h3 className="max-w-[18ch] font-serif text-3xl font-bold leading-tight sm:text-4xl">
                       {card.name}
                     </h3>
-                    <p className="mt-4 line-clamp-3 max-w-[48ch] text-sm leading-relaxed text-white/90 sm:text-base">
+                    {/* <p className="mt-4 line-clamp-3 max-w-[48ch] text-sm leading-relaxed text-white/90 sm:text-base">
                       {card.description}
-                    </p>
+                    </p> */}
                   </div>
 
                   <span className="mt-8 inline-flex items-center gap-2 rounded-xl border border-white/60 bg-white px-5 py-3 text-sm font-semibold uppercase tracking-[0.08em] text-[#1B3C53] transition duration-300 group-hover:bg-[#EAF2F7]">
