@@ -31,28 +31,30 @@ export const getCategories = unstable_cache(async () => {
     }
     throw error;
   }
-}, ['categories'], {
+}, ['categories-list'], {
   revalidate: CATALOG_TAGGED_DATA_REVALIDATE,
-  tags: ['catalog'],
+  tags: ['categories-list'],
 });
 
-export const getCategoryById = unstable_cache(
-  async (id: string) => {
-    try {
-      return await getCategoryByIdRaw(id);
-    } catch (error) {
-      if (isCatalogUnavailableError(error)) {
-        return null;
+export function getCategoryById(id: string) {
+  return unstable_cache(
+    async () => {
+      try {
+        return await getCategoryByIdRaw(id);
+      } catch (error) {
+        if (isCatalogUnavailableError(error)) {
+          return null;
+        }
+        throw error;
       }
-      throw error;
+    },
+    ['category-by-id', id],
+    {
+      revalidate: CATALOG_TAGGED_DATA_REVALIDATE,
+      tags: [`category-${id}`],
     }
-  },
-  ['category-by-id'],
-  {
-    revalidate: CATALOG_TAGGED_DATA_REVALIDATE,
-    tags: ['catalog'],
-  }
-);
+  )();
+}
 
 export {
   createAdminCategory,

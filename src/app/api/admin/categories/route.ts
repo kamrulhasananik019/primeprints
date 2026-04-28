@@ -51,7 +51,9 @@ export async function POST(request: Request) {
     }
 
     await createAdminCategory({ name, imageUrl, parentId, shortDescription, description, seo });
-    revalidateTag('catalog', 'max');
+    
+    // Invalidate granular tags for more efficient cache management
+    revalidateTag('categories-list', 'max');
 
     return NextResponse.json({ ok: true }, { headers: { 'Cache-Control': 'no-store, private, max-age=0' } });
   } catch (error) {

@@ -29,6 +29,9 @@ function isCatalogUnavailableError(error: unknown): boolean {
   );
 }
 
+const PRODUCTS_LIST_TAG = 'products-list';
+const productTag = (id: string) => `product-${id}`;
+
 const getProductsCached = unstable_cache(async (limit = 100) => {
   try {
     return await getProductsRaw(limit);
@@ -38,9 +41,9 @@ const getProductsCached = unstable_cache(async (limit = 100) => {
     }
     throw error;
   }
-}, ['products'], {
+}, ['products-list'], {
   revalidate: CATALOG_TAGGED_DATA_REVALIDATE,
-  tags: ['catalog'],
+  tags: [PRODUCTS_LIST_TAG],
 });
 
 export async function getProducts(limit = 100) {
@@ -59,53 +62,65 @@ export async function getProducts(limit = 100) {
   return getProductsCached(limit);
 }
 
-export const getProductById = unstable_cache(
-  async (id: string) => {
-    try {
-      return await getProductByIdRaw(id);
-    } catch (error) {
-      if (isCatalogUnavailableError(error)) {
-        return null;
+export function getProductById(id: string) {
+  return unstable_cache(
+    async () => {
+      try {
+        return await getProductByIdRaw(id);
+      } catch (error) {
+        if (isCatalogUnavailableError(error)) {
+          return null;
+        }
+        throw error;
       }
-      throw error;
+    },
+    ['product-by-id', id],
+    {
+      revalidate: CATALOG_TAGGED_DATA_REVALIDATE,
+      tags: [productTag(id)],
     }
-  },
-  ['product-by-id'],
-  {
-    revalidate: CATALOG_TAGGED_DATA_REVALIDATE,
-    tags: ['catalog'],
-  }
-);
+  )();
+}
 
-export const getProductsByCategoryId = unstable_cache(
-  async (categoryId: string, limit = 100) => {
-    try {
-      return await getProductsByCategoryIdRaw(categoryId, limit);
-    } catch (error) {
-      if (isCatalogUnavailableError(error)) {
-        return [];
+export function getProductsByCategoryId(categoryId: string, limit = 100) {
+  return unstable_cache(
+    async () => {
+      try {
+        return await getProductsByCategoryIdRaw(categoryId, limit);
+      } catch (error) {
+        if (isCatalogUnavailableError(error)) {
+          return [];
+        }
+        throw error;
       }
-      throw error;
+    },
+    ['products-by-category', categoryId, String(limit)],
+    {
+      revalidate: CATALOG_TAGGED_DATA_REVALIDATE,
+      tags: [PRODUCTS_LIST_TAG, `category-${categoryId}`],
     }
-  },
-  ['products-by-category'],
-  { revalidate: CATALOG_TAGGED_DATA_REVALIDATE, tags: ['catalog'] }
-);
+  )();
+}
 
-export const getRelatedProducts = unstable_cache(
-  async (productId: string, limit = 3) => {
-    try {
-      return await getRelatedProductsRaw(productId, limit);
-    } catch (error) {
-      if (isCatalogUnavailableError(error)) {
-        return [];
+export function getRelatedProducts(productId: string, limit = 3) {
+  return unstable_cache(
+    async () => {
+      try {
+        return await getRelatedProductsRaw(productId, limit);
+      } catch (error) {
+        if (isCatalogUnavailableError(error)) {
+          return [];
+        }
+        throw error;
       }
-      throw error;
+    },
+    ['related-products', productId, String(limit)],
+    {
+      revalidate: CATALOG_TAGGED_DATA_REVALIDATE,
+      tags: [productTag(productId)],
     }
-  },
-  ['related-products'],
-  { revalidate: CATALOG_TAGGED_DATA_REVALIDATE, tags: ['catalog'] }
-);
+  )();
+}
 
 export const getSameDayPrinting = unstable_cache(
   async () => {
@@ -121,7 +136,7 @@ export const getSameDayPrinting = unstable_cache(
   ['same-day-printing'],
   {
     revalidate: CATALOG_TAGGED_DATA_REVALIDATE,
-    tags: ['catalog'],
+    tags: [PRODUCTS_LIST_TAG],
   }
 );
 

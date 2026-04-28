@@ -54,7 +54,10 @@ export async function POST(request: Request) {
     }
 
     await createAdminProduct({ name, imageUrls, badges, categoryIds, description, shortDescription, seo });
-    revalidateTag('catalog', 'max');
+    
+    // Invalidate granular tags for more efficient cache management
+    revalidateTag('products-list', 'max');
+    categoryIds.forEach((catId) => revalidateTag(`category-${catId}`, 'max'));
 
     return NextResponse.json({ ok: true }, { headers: { 'Cache-Control': 'no-store, private, max-age=0' } });
   } catch (error) {

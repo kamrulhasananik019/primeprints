@@ -94,7 +94,9 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     const removedKeys = previousKeys.filter((key) => !nextKeys.has(key));
     await cleanupR2Keys(removedKeys, { categoryId: id, reason: 'category-update' });
 
-    revalidateTag('catalog', 'max');
+    // Invalidate granular tags for the specific category
+    revalidateTag(`category-${id}`, 'max');
+    revalidateTag('categories-list', 'max');
 
     return NextResponse.json({ ok: true });
   } catch (error) {
@@ -125,7 +127,11 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
 
     await deleteAdminCategory(id);
     await cleanupR2Keys(keysToCleanup, { categoryId: id, reason: 'category-delete' });
-    revalidateTag('catalog', 'max');
+    
+    // Invalidate granular tags for the deleted category
+    revalidateTag(`category-${id}`, 'max');
+    revalidateTag('categories-list', 'max');
+    
     return NextResponse.json({ ok: true });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';

@@ -4,6 +4,7 @@ import { revalidateTag } from 'next/cache';
 import { requireAdminSession, toStoredRichText } from '@/lib/admin-api';
 import { deleteR2Object, getR2KeyFromMediaUrl } from '@/lib/r2';
 import { deleteAdminProduct, getProductById, resolveCategoryIds, updateAdminProduct } from '@/services/product.service';
+import type { ProductRecord } from '@/lib/mongo-catalog';
 export const runtime = 'nodejs';
 
 function toR2KeyFromAnyUrl(url: string, requestUrl: string): string | null {
@@ -44,8 +45,9 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     const { id } = await params;
     let previousImageUrls: string[] = [];
     let previousSeoImageUrl: string | null = null;
+    let previousProduct: ProductRecord | null = null;
     try {
-      const previousProduct = await getProductById(id);
+      previousProduct = await getProductById(id);
       previousImageUrls = previousProduct?.images?.map((item) => item.url).filter(Boolean) || [];
       previousSeoImageUrl = previousProduct?.seo?.image || null;
     } catch (previousLookupError) {
@@ -94,7 +96,14 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     const removedKeys = previousKeys.filter((key) => !nextKeys.has(key));
     await cleanupR2Keys(removedKeys, { productId: id, reason: 'product-update' });
 
-    revalidateTag('catalog', 'max');
+    // Invalidate granular tags for the specific product and affected categories
+    revalidateTag(`product-${id}`, 'max');
+    revalidateTag('products-list', 'max');
+    // Invalidate category tags for both old and new category associations
+    if (previousProduct?.categoryIds) {
+      previousProduct.categoryIds.forEach((catId) => revalidateTag(`category-${catId}`, 'max'));
+    }
+    categoryIds.forEach((catId) => revalidateTag(`category-${catId}`, 'max'));
 
     return NextResponse.json({ ok: true });
   } catch (error) {
@@ -109,9 +118,10 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
     await requireAdminSession();
     const { id } = await params;
     let keysToCleanup: string[] = [];
+    let previousProduct: ProductRecord | null = null;
 
     try {
-      const previousProduct = await getProductById(id);
+      previousProduct = await getProductById(id);
       const previousImageUrls = previousProduct?.images?.map((item) => item.url).filter(Boolean) || [];
       keysToCleanup = collectR2KeysFromUrls([...previousImageUrls, previousProduct?.seo?.image || ''], _request.url);
     } catch (previousLookupError) {
@@ -123,7 +133,14 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
 
     await deleteAdminProduct(id);
     await cleanupR2Keys(keysToCleanup, { productId: id, reason: 'product-delete' });
-    revalidateTag('catalog', 'max');
+    
+    // Invalidate granular tags for the deleted product and affected categories
+    revalidateTag(`product-${id}`, 'max');
+    revalidateTag('products-list', 'max');
+    if (previousProduct?.categoryIds) {
+      previousProduct.categoryIds.forEach((catId) => revalidateTag(`category-${catId}`, 'max'));
+    }
+    
     return NextResponse.json({ ok: true });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
