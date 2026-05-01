@@ -8,6 +8,10 @@ import Heading from '@tiptap/extension-heading';
 import BulletList from '@tiptap/extension-bullet-list';
 import OrderedList from '@tiptap/extension-ordered-list';
 import ListItem from '@tiptap/extension-list-item';
+import { Table } from '@tiptap/extension-table';
+import { TableRow } from '@tiptap/extension-table-row';
+import { TableCell } from '@tiptap/extension-table-cell';
+import { TableHeader } from '@tiptap/extension-table-header';
 import { useEffect, useMemo, useRef } from 'react';
 
 import { MenuBar } from '@/components/editor/menu-bar';
@@ -107,8 +111,12 @@ export function TipTapEditor({ value, onChange, minHeight = 180 }: Props) {
       ListItem,
       Underline,
       TextAlign.configure({
-        types: ['heading', 'paragraph'],
+        types: ['heading', 'paragraph', 'tableCell', 'tableHeader'],
       }),
+      Table.configure({ resizable: true }),
+      TableRow,
+      TableHeader,
+      TableCell,
     ],
     content: initialContent,
     immediatelyRender: false,
@@ -176,9 +184,9 @@ export function TipTapEditor({ value, onChange, minHeight = 180 }: Props) {
 
   return (
     <div className={styles.wrapper}>
-      <MenuBar editor={editor} />
       <div className={styles.editorContainer}>
         <div className={styles.textareaLike} style={{ minHeight }}>
+          <MenuBar editor={editor} />
           <EditorContent
             editor={editor}
             className={`${styles.tiptap} ${styles.proseMirror}`}
