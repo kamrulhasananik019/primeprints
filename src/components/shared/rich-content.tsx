@@ -43,35 +43,51 @@ export default function RichContent({
       const key = `${keyPrefix}-${node.type}-${index}`;
 
       if (node.type === 'heading') {
-        const level = Number((node.attrs as { level?: number } | undefined)?.level ?? 2);
-        const content = renderTipTapNodes(node.content ?? [], `${key}-content`);
+            const level = Number((node.attrs as { level?: number } | undefined)?.level ?? 2);
+            const content = renderTipTapNodes(node.content ?? [], `${key}-content`);
+            const align = (node.attrs as { textAlign?: string } | undefined)?.textAlign as
+              | 'left'
+              | 'center'
+              | 'right'
+              | 'justify'
+              | undefined;
 
-        if (level === 3) {
-          return (
-            <h3 key={key} className="sans text-xl font-700 text-stone-900">
-              {content}
-            </h3>
-          );
-        }
+            const style = align ? { textAlign: align } : undefined;
 
-        if (level >= 4) {
-          return (
-            <h4 key={key} className="sans text-lg font-700 text-stone-900">
-              {content}
-            </h4>
-          );
-        }
+            if (level === 3) {
+              return (
+                <h3 key={key} style={style} className="sans text-xl font-700 text-[#0a72b2]">
+                  {content}
+                </h3>
+              );
+            }
 
-        return (
-          <h2 key={key} className="sans text-2xl font-700 text-stone-900">
-            {content}
-          </h2>
-        );
+            if (level >= 4) {
+              return (
+                <h4 key={key} style={style} className="sans text-lg font-700 text-[#0a72b2]">
+                  {content}
+                </h4>
+              );
+            }
+
+            return (
+              <h2 key={key} style={style} className="sans text-2xl font-700 text-[#0a72b2]">
+                {content}
+              </h2>
+            );
       }
 
       if (node.type === 'paragraph') {
+        const align = (node.attrs as { textAlign?: string } | undefined)?.textAlign as
+          | 'left'
+          | 'center'
+          | 'right'
+          | 'justify'
+          | undefined;
+        const style = align ? { textAlign: align } : undefined;
+
         return (
-          <p key={key} className={`${textClassName} mb-4 last:mb-0`}>
+          <p key={key} style={style} className={`${textClassName} mb-4 last:mb-0`}>
             {renderTipTapNodes(node.content ?? [], `${key}-content`)}
           </p>
         );
@@ -107,7 +123,7 @@ export default function RichContent({
 
       if (node.type === 'blockquote') {
         return (
-          <blockquote key={key} className="mb-4 border-l-4 border-stone-300 pl-4 text-stone-700 last:mb-0">
+          <blockquote key={key} className="mb-4 border-l-4 border-[#F0D542] pl-4 text-[#0a72b2] last:mb-0">
             {renderTipTapNodes(node.content ?? [], `${key}-content`)}
           </blockquote>
         );
@@ -116,14 +132,60 @@ export default function RichContent({
       if (node.type === 'codeBlock') {
         const codeText = getNodeText(node.content ?? []);
         return (
-          <pre key={key} className="mb-4 overflow-x-auto rounded-lg bg-slate-900 p-4 text-sm text-slate-100 last:mb-0">
+          <pre key={key} className="mb-4 overflow-x-auto rounded-lg bg-[#0a72b2] p-4 text-sm text-[#F8F8F8] last:mb-0">
             <code>{codeText}</code>
           </pre>
         );
       }
 
+      if (node.type === 'table') {
+        return (
+          <div key={key} className="mb-4 overflow-auto">
+            <table key={`${key}-table`} className="min-w-full border-collapse">
+              <tbody>{renderTipTapNodes(node.content ?? [], `${key}-content`)}</tbody>
+            </table>
+          </div>
+        );
+      }
+
+      if (node.type === 'tableRow') {
+        return <tr key={key}>{renderTipTapNodes(node.content ?? [], `${key}-content`)}</tr>;
+      }
+
+      if (node.type === 'tableHeader') {
+        const content = renderTipTapNodes(node.content ?? [], `${key}-content`);
+        const align = (node.attrs as { textAlign?: string } | undefined)?.textAlign as
+          | 'left'
+          | 'center'
+          | 'right'
+          | 'justify'
+          | undefined;
+        const style = align ? { textAlign: align } : undefined;
+        return (
+          <th key={key} style={style} className="border px-3 py-2 text-left font-semibold">
+            {content}
+          </th>
+        );
+      }
+
+      if (node.type === 'tableCell') {
+        const content = renderTipTapNodes(node.content ?? [], `${key}-content`);
+        const align = (node.attrs as { textAlign?: string } | undefined)?.textAlign as
+          | 'left'
+          | 'center'
+          | 'right'
+          | 'justify'
+          | undefined;
+        const style = align ? { textAlign: align } : undefined;
+        return (
+          <td key={key} style={style} className="border px-3 py-2 align-top">
+            {content}
+          </td>
+        );
+      }
+
       if (node.type === 'horizontalRule') {
-        return <hr key={key} className="my-6 border-stone-200" />;
+        return <hr key={key} className="my-6 border-[#F8F8F8]" />;
       }
 
       if (node.type === 'text') {
