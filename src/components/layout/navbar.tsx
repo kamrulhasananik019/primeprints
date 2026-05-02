@@ -16,6 +16,7 @@ import {
   X,
 } from 'lucide-react';
 import type { NavCategory } from '@/lib/catalog';
+import CallNowButton from '@/components/shared/call-now-button';
 import { richContentToPlainText } from '@/lib/rich-content';
 import { getCategoryPath, getProductPath } from '@/lib/slug';
 import { getSafeImageSrc } from '@/lib/image-url';
@@ -278,7 +279,10 @@ export default function Navbar({ categories }: NavbarProps) {
             )}
           </div>
 
-          <div className="flex items-center gap-1 text-stone-800 sm:gap-2">
+          <div className="flex flex-col items-center gap-2 text-stone-800 sm:flex-row sm:gap-2 md:gap-3">
+            <div className="hidden lg:block">
+              <CallNowButton size="small" variant="default" />
+            </div>
             <Link
               href="/"
               prefetch={false}
@@ -288,7 +292,7 @@ export default function Navbar({ categories }: NavbarProps) {
             >
               Home
             </Link>
-            <Link href="/contact" prefetch={false} className="rounded-full bg-[#1B3C53] px-5 py-2.5 text-sm font-bold text-white transition hover:bg-[#234C6A]">
+            <Link href="/contact" prefetch={false} className="w-full sm:w-auto rounded-full bg-[#1B3C53] px-5 py-2.5 text-sm font-bold text-white transition hover:bg-[#234C6A] text-center">
               Contact Us
             </Link>
           </div>
@@ -495,6 +499,9 @@ export default function Navbar({ categories }: NavbarProps) {
                 <Link href="/" prefetch={false} onClick={() => setIsMobileMenuOpen(false)} className="mb-3 block rounded-xl border border-stone-200 p-3 text-center font-bold text-stone-700">
                   Home
                 </Link>
+                <div onClick={() => setIsMobileMenuOpen(false)} className="mb-3">
+                  <CallNowButton size="medium" variant="footer" />
+                </div>
                 <Link
                   href="/contact"
                   prefetch={false}

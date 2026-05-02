@@ -3,6 +3,7 @@ import nextDynamic from "next/dynamic";
 import Link from "next/link";
 import DiscountsAndPackages from "@/components/Home/discountsandpackages";
 import Banner from "@/components/Home/banner";
+import StickyCallCTA from "@/components/Home/sticky-call-cta";
 import HomeDeferredFallback from "@/components/Home/home-deferred-fallback";
 import Faq from "@/components/Home/faq";
 import LocationMap from "@/components/Home/locationmap";
@@ -128,6 +129,7 @@ export default async function Home() {
       <Faq />
       <Reviews />
       <LocationMap />
+      <StickyCallCTA />
     </main>
   );
 }

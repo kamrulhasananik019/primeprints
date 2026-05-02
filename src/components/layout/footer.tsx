@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import CallNowButton from '@/components/shared/call-now-button';
 
 export default function Footer() {
   return (
@@ -48,13 +49,7 @@ export default function Footer() {
             <p className="mb-4 text-sm leading-relaxed text-[#D2C1B6]/85 [font-family:var(--font-dm-sans)]">
               Need a custom quote or design support? Our team is ready to help with the right print option.
             </p>
-            <Link
-              href="/#contact"
-              prefetch={false}
-              className="inline-flex items-center justify-center rounded-lg bg-[#D2C1B6] px-5 py-2.5 text-sm font-bold text-[#1B3C53] transition-colors hover:bg-[#E7DBD3] [font-family:var(--font-dm-sans)]"
-            >
-              Contact Us
-            </Link>
+            <CallNowButton size="medium" variant="footer" />
           </div>
         </div>
 

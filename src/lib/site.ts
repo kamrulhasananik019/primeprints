@@ -20,3 +20,9 @@ const siteGoogleMapsEmbedCoordinates = '51.512527,-0.0181969';
 
 export const siteGoogleMapsEmbedUrl =
   `https://www.google.com/maps?q=${siteGoogleMapsEmbedQuery}&ll=${siteGoogleMapsEmbedCoordinates}&z=16&ie=UTF8&output=embed`;
+
+/** Phone number for customers to call */
+export const phoneNumber = '+44 (20) 555-0147';
+
+/** Phone number formatted for tel: links (no spaces or special chars except +) */
+export const phoneNumberTel = '+44205550147';

@@ -16,6 +16,7 @@ import {
   Send,
 } from "lucide-react";
 import type { CategoryWithProducts } from "@/lib/catalog";
+import CallNowButton from "@/components/shared/call-now-button";
 import { siteAddressLabel, siteGoogleMapsEmbedUrl, siteGoogleMapsPlaceUrl } from "@/lib/site";
 
 const CUSTOM_CATEGORY_VALUE = "__custom_category__";
@@ -236,6 +237,9 @@ export default function ContactPageContent({ categories }: ContactPageContentPro
                 Share your category, product, quantities, and timeline and we&apos;ll send
                 a clear production plan with lead times.
               </p>
+              <div className="mt-6">
+                <CallNowButton size="large" variant="contact" />
+              </div>
             </div>
 
             <div className="rounded-2xl border border-stone-200 bg-stone-100/70 p-6">

@@ -73,7 +73,7 @@ export default async function CategoriesIndexPage() {
 
       <section className="container mx-auto px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-          {categories.map((category) => {
+          {categories.map((category, idx) => {
             const imageSrc = getSafeImageSrc(category.image.url);
             const productCount = category.products.length;
             const summary = richContentToPlainText(category.shortDescription) || richContentToPlainText(category.description);
@@ -81,13 +81,16 @@ export default async function CategoriesIndexPage() {
             return (
               <Link key={category.id} href={getCategoryPath(category.id, category.name)} prefetch={false} className="group block">
                 <article className="h-full overflow-hidden rounded-3xl border border-stone-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:border-stone-300 hover:shadow-lg">
-                  <div className="relative aspect-16/11 overflow-hidden bg-stone-100">
+                    <div className="relative aspect-16/11 overflow-hidden bg-stone-100">
                     {imageSrc ? (
                       <Image
                         src={imageSrc}
                         alt={category.image.alt || category.name}
                         fill
                         sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                        priority={idx === 0}
+                        loading={idx === 0 ? 'eager' : 'lazy'}
+                        fetchPriority={idx === 0 ? 'high' : 'auto'}
                         className="object-cover transition duration-500 group-hover:scale-110"
                       />
                     ) : (
