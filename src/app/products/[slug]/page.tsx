@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const canonicalPath = getProductPath(product.id, product.name, product.slug);
   const seoTitle = product.seo?.title || `${product.name} Printing in London`;
   const seoDescription =
-    product.seo?.description || `${productDescription} Request a quote for ${product.name.toLowerCase()} printing with Prime Prints.`;
+    product.seo?.description || `${productDescription} Request a quote for ${product.name.toLowerCase()} printing with Prime Print.`;
   const seoKeywords = product.seo?.keywords?.length
     ? product.seo.keywords
     : [product.name.toLowerCase(), `${product.name.toLowerCase()} printing`, 'printing london', 'same day printing'];
@@ -49,7 +49,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       title: seoTitle,
       description: seoDescription,
       url: canonicalPath,
-      siteName: 'Prime Prints',
+      siteName: 'Prime Print',
       images: [{ url: seoImage, alt: product.name }],
       type: 'website',
     },
@@ -109,7 +109,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
     sku: product.id,
     brand: {
       '@type': 'Brand',
-      name: 'Prime Prints',
+      name: 'Prime Print',
     },
     url: `${siteUrl}${canonicalPath}`,
   };

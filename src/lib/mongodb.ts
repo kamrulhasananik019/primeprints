@@ -1,7 +1,7 @@
 import { MongoClient } from 'mongodb';
 
 declare global {
-  var __primeprintsMongoClientPromise: Promise<MongoClient> | undefined;
+  var __preprintMongoClientPromise: Promise<MongoClient> | undefined;
 }
 
 function getMongoUri(): string {
@@ -22,11 +22,11 @@ function getDbNameFromUri(uri: string): string {
   } catch {
     // Ignore parse errors and fallback to default.
   }
-  return process.env.MONGODB_DB_NAME || 'primeprints';
+  return process.env.MONGODB_DB_NAME || 'primeprint';
 }
 
 function getClientPromise(): Promise<MongoClient> {
-  if (!global.__primeprintsMongoClientPromise) {
+  if (!global.__preprintMongoClientPromise) {
     const insecureTls = String(process.env.MONGODB_TLS_INSECURE || '').toLowerCase() === 'true';
     const allowInvalidHostnames = String(process.env.MONGODB_TLS_ALLOW_INVALID_HOSTNAMES || '').toLowerCase() === 'true';
     const client = new MongoClient(getMongoUri(), {
@@ -34,9 +34,9 @@ function getClientPromise(): Promise<MongoClient> {
       tlsAllowInvalidCertificates: insecureTls,
       tlsAllowInvalidHostnames: allowInvalidHostnames,
     });
-    global.__primeprintsMongoClientPromise = client.connect();
+    global.__preprintMongoClientPromise = client.connect();
   }
-  return global.__primeprintsMongoClientPromise;
+  return global.__preprintMongoClientPromise;
 }
 
 export async function getMongoDb() {

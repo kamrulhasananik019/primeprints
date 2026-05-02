@@ -99,7 +99,7 @@ type FaqDoc = {
 
 declare global {
   // Cache index creation so repeated reads do not re-run createIndexes on every request.
-  var __primeprintsIndexesPromise: Promise<void> | undefined;
+  var __preprintIndexesPromise: Promise<void> | undefined;
 }
 
 export type CategoryRecord = {
@@ -389,8 +389,8 @@ function buildSeo(input: SeoInput | undefined, fallbackTitle: string, fallbackDe
 }
 
 async function ensureIndexes() {
-  if (!globalThis.__primeprintsIndexesPromise) {
-    globalThis.__primeprintsIndexesPromise = (async () => {
+  if (!globalThis.__preprintIndexesPromise) {
+    globalThis.__preprintIndexesPromise = (async () => {
       const db = await getMongoDb();
       await Promise.all([
         db.collection<CategoryDoc>('categories').createIndexes([
@@ -418,7 +418,7 @@ async function ensureIndexes() {
     })();
   }
 
-  await globalThis.__primeprintsIndexesPromise;
+  await globalThis.__preprintIndexesPromise;
 }
 
 function mapCategoryDoc(doc: CategoryDoc): CategoryRecord {

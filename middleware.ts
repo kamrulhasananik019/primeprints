@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 
-const ADMIN_SESSION_COOKIE = 'primeprints_admin_session';
+const ADMIN_SESSION_COOKIE = 'primeprint_admin_session';
 const API_METHODS = 'GET,POST,PUT,PATCH,DELETE,OPTIONS';
 
 function parseOrigin(value: string | null): string | null {

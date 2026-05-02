@@ -1,6 +1,6 @@
 import { createHmac, scryptSync, timingSafeEqual } from 'node:crypto';
 
-const COOKIE_NAME = 'primeprints_admin_session';
+const COOKIE_NAME = 'primeprint_admin_session';
 const SESSION_TTL_SECONDS = 60 * 60 * 12;
 
 function getSecret(): string {

@@ -1,4 +1,4 @@
-# Prime Prints
+# Prime Print
 
 Next.js app with MongoDB-backed catalog collections for a printing product website.
 
@@ -26,7 +26,7 @@ CLOUDFLARE_R2_BUCKET_NAME=<r2-bucket-name>
 Optional:
 
 ```dotenv
-MONGODB_DB_NAME=primeprints
+MONGODB_DB_NAME=primeprint
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 # Dev-only TLS fallbacks (only if your machine has SSL cert issues)
 # MONGODB_TLS_INSECURE=true

@@ -24,31 +24,31 @@ const SameDayPrinting = nextDynamic(() => import("@/components/Home/samedaydeliv
 export const revalidate = 604800;
 
 export const metadata: Metadata = {
-  title: "Prime Prints | Same Day Delivery Printing in London & UK",
+  title: "Prime Print | Same Day Delivery Printing in London & UK",
   description:
-    "Prime Prints offers same day delivery in London and across the UK with 24-hour delivery for business cards, flyers, posters, banners, and custom print products.",
+    "Prime Print offers same day delivery in London and across the UK with 24-hour delivery for business cards, flyers, posters, banners, and custom print products.",
   alternates: {
     canonical: "/",
   },
   openGraph: {
-    title: "Prime Prints | Same Day Delivery Printing in London & UK",
+    title: "Prime Print | Same Day Delivery Printing in London & UK",
     description:
       "Same-day delivery printing in London and across the UK for business cards, flyers, posters, banners, and custom print jobs.",
     url: "/",
     type: "website",
-    siteName: "Prime Prints",
+    siteName: "Prime Print",
     images: [
       {
         url: "/logo.png",
         width: 512,
         height: 512,
-        alt: "Prime Prints same day delivery printing",
+        alt: "Prime Print same day delivery printing",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Prime Prints | Same Day Delivery Printing in London & UK",
+    title: "Prime Print | Same Day Delivery Printing in London & UK",
     description:
       "Same-day delivery printing for London and UK businesses with fast turnaround.",
     images: ["/logo.png"],

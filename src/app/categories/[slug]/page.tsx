@@ -61,7 +61,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       title: seoTitle,
       description: seoDescription,
       url: canonicalPath,
-      siteName: 'Prime Prints',
+      siteName: 'Prime Print',
       images: [{ url: seoImage, alt: category.image.alt || category.name }],
       type: 'website',
     },

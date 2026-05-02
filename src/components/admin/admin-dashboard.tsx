@@ -847,7 +847,7 @@ export default function AdminDashboard({ adminEmail }: Props) {
       >
         <div className="mb-6 flex items-center justify-between">
           <div className={`overflow-hidden transition-all ${drawerCollapsed ? 'w-0 opacity-0' : 'w-auto opacity-100'}`}>
-            <p className="text-xs uppercase tracking-[0.2em] text-[#456882]">Prime Prints</p>
+            <p className="text-xs uppercase tracking-[0.2em] text-[#456882]">Prime Print</p>
             <h1 className="text-xl font-bold text-[#1b3c53]">Admin Panel</h1>
           </div>
           <button

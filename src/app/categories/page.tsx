@@ -10,16 +10,16 @@ import { siteUrl } from '@/lib/site';
 export const revalidate = 604800;
 
 export const metadata: Metadata = {
-  title: 'All Categories | Prime Prints',
-  description: 'Explore every print category at Prime Prints and open a category page to see the products inside it.',
+  title: 'All Categories | Prime Print',
+  description: 'Explore every print category at Prime Print and open a category page to see the products inside it.',
   alternates: {
     canonical: '/categories',
   },
   openGraph: {
-    title: 'All Categories | Prime Prints',
+    title: 'All Categories | Prime Print',
     description: 'Explore every print category and jump into the matching product lists.',
     url: '/categories',
-    siteName: 'Prime Prints',
+    siteName: 'Prime Print',
     type: 'website',
   },
 };

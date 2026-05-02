@@ -7,25 +7,25 @@ import { getFaqs } from '@/services/faq.service';
 export const revalidate = 604800;
 
 export const metadata: Metadata = {
-  title: 'FAQs | Prime Prints',
+  title: 'FAQs | Prime Print',
   description:
-    'Find answers to frequently asked questions about Prime Prints services, turnaround times, delivery, and custom printing options.',
+    'Find answers to frequently asked questions about Prime Print services, turnaround times, delivery, and custom printing options.',
   alternates: {
     canonical: '/faqs',
   },
   openGraph: {
-    title: 'Frequently Asked Questions | Prime Prints',
+    title: 'Frequently Asked Questions | Prime Print',
     description:
-      'Get answers about printing services, delivery options, and custom orders at Prime Prints.',
+      'Get answers about printing services, delivery options, and custom orders at Prime Print.',
     url: '/faqs',
     type: 'website',
-    siteName: 'Prime Prints',
+    siteName: 'Prime Print',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'FAQs | Prime Prints',
+    title: 'FAQs | Prime Print',
     description:
-      'Find answers to common questions about Prime Prints printing services.',
+      'Find answers to common questions about Prime Print printing services.',
   },
 };
 

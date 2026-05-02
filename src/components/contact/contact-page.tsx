@@ -41,8 +41,8 @@ const contactMethods = [
   {
     icon: Mail,
     label: "Send your brief",
-    value: "hello@primeprints.co.uk",
-    href: "mailto:hello@primeprints.co.uk",
+    value: "hello@primeprint.uk",
+    href: "mailto:hello@primeprint.uk",
     helper: "Share artwork, quantities, and deadlines",
   },
   {
@@ -229,7 +229,7 @@ export default function ContactPageContent({ categories }: ContactPageContentPro
                 Client Support Desk
               </p>
               <h1 className="text-4xl font-bold tracking-tight text-stone-900 sm:text-5xl">
-                Contact Prime Prints
+                Contact Prime Print
               </h1>
               <p className="mt-4 text-lg leading-8 text-stone-600">
                 Speak to a print team that understands deadlines, details, and delivery.
