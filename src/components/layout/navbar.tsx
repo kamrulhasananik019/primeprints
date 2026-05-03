@@ -356,10 +356,10 @@ export default function Navbar({ categories }: NavbarProps) {
             }}
           >
             <div className="container mx-auto grid grid-cols-12 gap-8 px-4 py-12 sm:px-6 lg:px-8">
-              <div className="col-span-9 grid grid-cols-3 gap-10">
-                {chunkProducts(activeCategory?.products ?? [], 7).map((section, idx) => (
+              <div className="col-span-9 grid grid-cols-4 gap-10">
+                {chunkProducts(activeCategory?.products ?? [], 8).map((section, idx) => (
                   <div key={`${activeCategory?.id ?? 'category'}-${idx}`} className="space-y-5">
-                    <h3 className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-stone-400">
+                    <h3 className="flex items-center gap-2 text-[7px] font-black uppercase tracking-[0.2em] text-stone-400">
                       <span className="h-1 w-1 rounded-full bg-[#456882]"></span>
                       {idx === 0 ? 'Top Choices' : 'Extended Range'}
                     </h3>
@@ -369,7 +369,7 @@ export default function Navbar({ categories }: NavbarProps) {
                           <Link
                             href={getProductPath(product.id, product.name, product.slug)}
                             prefetch={false}
-                            className="group/item flex items-center justify-between py-0.5 text-[14px] font-medium text-stone-600 transition hover:text-[#234C6A]"
+                            className="group/item flex items-center justify-between py-0.5 text-[12px] font-medium text-stone-600 transition hover:text-[#234C6A]"
                           >
                             <span>{product.name}</span>
                             <ArrowRight className="h-3 w-3 -translate-x-2 opacity-0 transition-all group-hover/item:translate-x-0 group-hover/item:opacity-100" />
@@ -402,9 +402,9 @@ export default function Navbar({ categories }: NavbarProps) {
                     <div className="absolute inset-0 bg-linear-to-t from-black/40 to-transparent"></div>
                   </div>
                   <div className="mt-6">
-                    <h4 className="text-lg font-black text-stone-900">{activeCategory?.name}</h4>
-                    <p className="mt-2 text-sm leading-relaxed text-stone-500">{activeCategoryDescription}</p>
-                    <div className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-stone-50 py-3 text-sm font-bold text-stone-900 transition group-hover:bg-[#234C6A] group-hover:text-white">
+                    <h4 className="text-base font-black text-stone-900">{activeCategory?.name}</h4>
+                    <p className="mt-2 text-xs leading-relaxed text-stone-500">{activeCategoryDescription}</p>
+                    <div className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-stone-50 py-3 text-xs font-bold text-stone-900 transition group-hover:bg-[#234C6A] group-hover:text-white">
                       Explore All <ArrowRight className="h-4 w-4" />
                     </div>
                   </div>
